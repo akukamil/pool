@@ -1022,7 +1022,7 @@ class player_mini_card_class extends PIXI.Container {
 		this.rating_text.anchor.set(1,0.5);
 		this.rating_text.x=185;
 		this.rating_text.y=65;		
-		this.rating_text.tint=0xffff00;
+		this.rating_text.tint=0xffff55;
 
 		//аватар первого игрока
 		this.avatar1=new PIXI.Graphics();
@@ -1652,17 +1652,7 @@ sound={
 
 music={
 	
-	on:1,
-	
-	activate(){
-		
-		if (!this.on) return;
-	
-		if (!assets.music.isPlaying){
-			assets.music.play();
-			assets.music.loop=true;
-		}
-	},
+	on:1	
 	
 }
 
@@ -2678,7 +2668,7 @@ online_game={
 		
 		
 		//показываем все элементы игры
-		anim2.add(objects.board_stuff_cont,{y:[450,0]}, true, 1.5,'linear');
+		anim2.add(objects.board_stuff_cont,{y:[450,0],alpha:[0,1]}, true, 0.5,'linear');
 		
 		this.prepare_next_move();
 		
@@ -2699,7 +2689,8 @@ online_game={
 		this.confirm_check_timer=setTimeout(function(){
 			online_game.check_confirm();			
 		},10000);
-		
+			
+	
 	},	
 	
 	check_confirm(){
@@ -3274,7 +3265,7 @@ online_game={
 		clearTimeout(this.confirm_start_timer);
 		
 		this.on=0;
-		anim2.add(objects.board_stuff_cont,{y:[0,450]}, false, 1.5,'linear');
+		anim2.add(objects.board_stuff_cont,{y:[0,450]}, false, 0.5,'linear');
 		objects.hit_level_cont.visible=false;
 		objects.swords.visible=false;
 		objects.my_card_cont.visible=false;
@@ -3460,14 +3451,27 @@ pref={
 			music.on=0;
 			this.send_info(['Музыка отключена','Music off'][LANG]);
 			assets.music.stop();
-			anim2.add(objects.pref_music_slider,{x:[691,635]}, true, 0.12,'linear');//-47				
+			anim2.add(objects.pref_music_slider,{x:[691,633]}, true, 0.12,'linear');//-47			
 		}else{
 			music.on=1;
 			this.send_info(['Музыка включена','Music on'][LANG]);
 			assets.music.play();
-			anim2.add(objects.pref_music_slider,{x:[635,691]}, true, 0.12,'linear');	
+			anim2.add(objects.pref_music_slider,{x:[633,691]}, true, 0.12,'linear');	
 		}	
+
+		safe_ls('pool_music',music.on);
 		
+	},
+	
+	init_music(){		
+		music.on=safe_ls('pool_music')??1;		
+		if (music.on){			
+			assets.music.play();
+			objects.pref_music_slider.x=691;
+		}else{
+			objects.pref_music_slider.x=635;
+		}
+		assets.music.loop=true;
 	},
 	
 	back_btn_down(){
@@ -3898,8 +3902,8 @@ sp_game={
 			pocket_all:['Забейте все шары','Pocket all balls'],
 		}
 		
-		const desc=type_to_desc[this.cur_level_data.type][LANG];
-		common.show_info(desc);
+		
+
 		
 		//остальные шары в соответствии с уровнями
 		this.balls_in_puzzle=[];
@@ -3942,13 +3946,16 @@ sp_game={
 		my_turn=1;
 		
 		//показываем все элементы игры
-		anim2.add(objects.board_stuff_cont,{y:[450,0]}, true, 1.5,'linear');
-		
+		anim2.add(objects.board_stuff_cont,{y:[450,0],alpha:[0,1]}, true, 0.5,'linear');
+				
 		//готовим ход
 		this.prepare_next_move();		
 		
 		//общие параметры
 		common.init();
+	
+		const desc=type_to_desc[this.cur_level_data.type][LANG];
+		common.show_info(desc);
 		
 	},
 	
@@ -4043,7 +4050,7 @@ sp_game={
 		
 		//показываем все элементы игры
 		anim2.add(objects.hit_level_cont,{x:[objects.hit_level_cont.x, 800]}, false, 0.4,'linear');
-		anim2.add(objects.board_stuff_cont,{y:[0,450]}, false, 1.5,'linear');
+		anim2.add(objects.board_stuff_cont,{y:[0,450]}, false, 0.5,'linear');
 		this.on=0;
 		
 	},
@@ -5275,9 +5282,145 @@ common={
 			sp_game.move_finish_event();
 		}		
 		
-	},
+	}
+	
+
 
 }
+
+instr={
+	
+	on:0,
+
+	
+	async activate(){
+		
+		this.on=1;
+		
+		//сначала все отключаем
+		objects.balls.forEach(b=>{b.on=0;b.visible=false});
+		common.move_on=0;
+		
+		//ссылка на текущий уровень
+		const cur_level_data=sp_game.levels_data[1];
+		
+		
+		//располагаем белый шар в центре
+		const white_ball=objects.balls[15];
+		white_ball.reset();
+		white_ball.x=cur_level_data.board[0][0];
+		white_ball.y=cur_level_data.board[0][1];
+		white_ball.random_orientation();
+		white_ball.on=1;
+		white_ball.visible=true;	
+
+		
+		//остальные шары в соответствии с уровнями
+		this.balls_in_puzzle=[];
+		for (let i=1;i<cur_level_data.board.length;i++){
+			
+			const ball=objects.balls[i-1];
+			ball.on=1;
+			ball.alpha=1;
+			ball.visible=true;
+			ball.random_orientation();
+			ball.reset();	
+			ball.set_color(cur_level_data.board[i][2])
+			ball.x=cur_level_data.board[i][0];
+			ball.y=cur_level_data.board[i][1];
+			ball.touched=0;
+		}			
+	
+
+		
+		//показываем все элементы игры
+		await anim2.add(objects.board_stuff_cont,{y:[450,0],alpha:[0,1]}, true, 0.5,'linear');
+				
+		//готовим ход
+		sp_game.prepare_next_move();		
+		
+		//общие параметры
+		common.initial_draw_amount=pref.get_draw_amount();
+		
+		common.reset_cue();
+		
+		//обновляем кий
+		common.set_cue_level(my_data.cue_id);
+		
+		while(true){
+			await this.run();			
+			if (!this.on) return;
+		}
+
+
+		
+	},
+	
+	close_btn_down(){
+		
+		if (anim2.any_on()) {
+			sound.play('locked');
+			return
+		};
+		
+		this.on=0;
+		sp_game.close();
+		anim2.add(objects.instr_cont,{alpha:[1,0]}, false, 1,'linear');
+		main_menu.activate();
+		
+	},
+	
+	async run(){
+		
+		objects.instr_cont.visible=true;
+		objects.instr_graph.visible=false;
+		objects.instr_point.visible=false;
+		
+		objects.instr_hand.texture=assets.free_hand;
+		
+		await anim2.add(objects.instr_hand,{x:[objects.instr_hand.x, 305],y:[objects.instr_hand.y,314]}, true, 1,'linear');
+		await new Promise(resolve => setTimeout(resolve, 500));	
+		if (!this.on) return;
+		
+		objects.instr_point.visible=true;
+		objects.instr_graph.visible=true;
+		objects.instr_hand.texture=assets.click_hand;
+		objects.instr_graph_mask.x=310;
+		let dx=0;
+		const start_ang=objects.guide_orb.angle;
+		for (let i=0;i<242;i++){			
+			
+			objects.instr_graph_mask.width=i+19;
+			objects.instr_hand.x=i+objects.instr_graph.sx;		
+			objects.instr_point.x=330+i;
+			objects.instr_point.y=309-i*i*0.002772;
+			objects.stick.angle=start_ang+i*i*0.002;		
+			objects.guide_orb.angle=objects.stick.angle;				
+			common.update_cue();
+		
+			await new Promise(resolve => setTimeout(resolve, 5));				
+
+		}		
+		
+		objects.instr_hand.texture=assets.free_hand;
+		await anim2.add(objects.instr_hand,{x:[objects.instr_hand.x, 752],y:[objects.instr_hand.y,185]}, true, 1,'linear');
+		if (!this.on) return;
+		await new Promise(resolve => setTimeout(resolve, 500));		
+		if (!this.on) return;
+		objects.instr_hand.texture=assets.click_hand;
+		
+		
+		anim2.add(objects.hit_level,{y:[objects.hit_level.sy,objects.hit_level.sy+140]}, true, 1,'linear');
+		await anim2.add(objects.instr_hand,{y:[objects.instr_hand.y,325]}, true, 1,'linear');		
+		objects.instr_hand.texture=assets.free_hand;
+		anim2.add(objects.instr_hand,{alpha:[1,0]}, false, 0.5,'linear');
+		anim2.add(objects.hit_level,{y:[objects.hit_level.y,objects.hit_level.sy]}, true, 0.1,'linear');
+		
+		//await anim2.add(objects.instr_cont,{alpha:[1,0]}, false, 2,'linear');
+		
+	}
+	
+},
 
 anim_bcg={
 	
@@ -5412,7 +5555,7 @@ main_menu={
 
 		some_process.main_menu=this.process;
 		//кнопки
-		await anim2.add(objects.main_buttons_cont,{x:[800,objects.main_buttons_cont.sx],alpha:[0,1]}, true, 0.75,'linear');	
+		await anim2.add(objects.main_btn_cont,{x:[800,objects.main_btn_cont.sx],alpha:[0,1]}, true, 0.75,'linear');	
 
 	},
 	
@@ -5433,7 +5576,7 @@ main_menu={
 		anim2.add(objects.cue_1,{x:[objects.cue_1.x,1000]}, false, 0.5,'linear');	
 		anim2.add(objects.cue_2,{x:[objects.cue_2.x,-1000]}, false, 0.5,'linear');	
 		
-		anim2.add(objects.main_buttons_cont,{x:[objects.main_buttons_cont.x,-800]}, false, 0.5,'linear');	
+		anim2.add(objects.main_btn_cont,{x:[objects.main_btn_cont.x,-800]}, false, 0.5,'linear');	
 
 		//кнопки
 		anim2.add(objects.title_cont,{y:[objects.title_cont.y, -400]}, false, 0.5,'linear');		
@@ -5493,7 +5636,21 @@ main_menu={
 
 	},
 
-	rules_btn_down () {
+	instr_btn_down(){
+		
+		if (anim2.any_on()) {
+			sound.play('locked');
+			return
+		};
+
+		sound.play('click');
+		
+		this.close();	
+		instr.activate();
+		
+	},
+
+	pref_btn_down () {
 
 		if (anim2.any_on()) {
 			sound.play('locked');
@@ -7222,6 +7379,8 @@ async function init_game_env(lang) {
 	objects.id_avatar.set_texture(players_cache.players[my_data.uid].texture);
 	objects.id_name.set2(my_data.name,150);	
 	objects.id_rating.text=my_data.rating;
+	anim2.add(objects.id_name,{alpha:[0,1]}, true, 0.55,'linear');
+	anim2.add(objects.id_rating,{alpha:[0,1]}, true, 0.55,'linear');
 			
 	//обновляем почтовый ящик
 	fbs.ref('inbox/'+my_data.uid).set({sender:'-',message:'-',tm:'-',data:9});
@@ -7260,6 +7419,9 @@ async function init_game_env(lang) {
 		chat.init(),
 		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 5000))
 	]);
+		
+	//включаем музыку
+	pref.init_music();
 		
 	//идентификатор клиента
 	client_id = irnd(10,999999);	
