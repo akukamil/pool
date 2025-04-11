@@ -4412,6 +4412,8 @@ common={
 
 	init(){
 		
+		objects.bcg.texture=assets.lobby_bcg_img;
+		
 		//информация о забитых шарах
 		this.potted_balls=[];
 		this.potted_balls_total=[];
@@ -5571,7 +5573,7 @@ main_menu={
 		
 		//игровой титл
 		
-		anim2.add(objects.bcg,{alpha:[1,0]}, false, 0.5,'linear');	
+		//anim2.add(objects.bcg,{alpha:[1,0]}, false, 0.5,'linear');	
 		
 		anim2.add(objects.cue_1,{x:[objects.cue_1.x,1000]}, false, 0.5,'linear');	
 		anim2.add(objects.cue_2,{x:[objects.cue_2.x,-1000]}, false, 0.5,'linear');	
@@ -5580,15 +5582,11 @@ main_menu={
 
 		//кнопки
 		anim2.add(objects.title_cont,{y:[objects.title_cont.y, -400]}, false, 0.5,'linear');		
-				
-		
+						
 		await anim2.add(objects.anim_ball_cont,{x:[objects.anim_ball_cont.x,1000],y:[objects.anim_ball_cont.y,1000]}, false, 1,'easeInBack');
 		
 		objects.main_menu_cont.visible=false;		
-		some_process.main_menu=function(){};
-
-	
-		
+		some_process.main_menu=function(){};		
 
 	},
 
