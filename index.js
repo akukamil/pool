@@ -6938,22 +6938,15 @@ main_loader={
 	
 	async load1(){			
 		
-		const pre_load_list=eval(await(await fetch('res/common/load_list.txt')).text());
 		
 		const loader=new PIXI.Loader();		
 		
 		//добавляем текстуры из листа загрузки
-		const preload_bundle=[];
-		for (let i = 0; i < pre_load_list.length; i++)
-			if (pre_load_list[i].class==='sprite'||pre_load_list[i].class==='image')
-				loader.add(pre_load_list[i].name, git_src+'res/'+'common/'+ pre_load_list[i].name + "." +  pre_load_list[i].image_format);
-
-		//добавляем шрифт
+		loader.add('load_bar_bcg', git_src+'res/'+'common/load_bar_bcg.png');
+		loader.add('load_bar_progress', git_src+'res/'+'common/load_bar_progress.png');
 		loader.add('mfont2',git_src+'/fonts/core_sans_ds/font.fnt');
-		
-		
-		//добавляем основной загрузочный манифест
 		loader.add('main_load_list',git_src+'/load_list.txt');
+
 
 		//переносим все в ассеты
 		await new Promise(res=>loader.load(res))
@@ -6962,32 +6955,41 @@ main_loader={
 			assets[res_name]=res.texture||res.sound||res.data;			
 		}		
 		
-		//создаем спрайты и массивы спрайтов и запускаем первую часть кода
-		for (let i = 0; i < pre_load_list.length; i++) {
-			const obj_class = pre_load_list[i].class;
-			const obj_name = pre_load_list[i].name;
-			console.log('Processing: ' + obj_name)
-
-			if (obj_class==='sprite'){
-				objects[obj_name] = new PIXI.Sprite(assets[obj_name]);
-				eval(pre_load_list[i].code0);				
-			}
-			
-			if (obj_class==='block') eval(pre_load_list[i].code0);
-			if (obj_class==='cont') eval(pre_load_list[i].code0);
-
-		}
-
-		//обрабатываем вторую часть кода в объектах
-		for (let i = 0; i < pre_load_list.length; i++) {
-			const obj_class = pre_load_list[i].class;
-			const obj_name = pre_load_list[i].name;
-			
-			if (obj_class==='sprite') eval(pre_load_list[i].code1);			
-			if (obj_class==='block') eval(pre_load_list[i].code1);
-			if (obj_class==='cont') eval(pre_load_list[i].code1);
-		}
 		
+
+		
+		const load_bar_bcg=new PIXI.Sprite(assets.load_bar_bcg);
+		load_bar_bcg.x=170;
+		load_bar_bcg.y=170;
+		load_bar_bcg.width=450;
+		load_bar_bcg.height=70;
+		
+		
+		this.load_bar_mask=new PIXI.Graphics();
+		this.load_bar_mask.beginFill(0xff0000);
+		this.load_bar_mask.drawRect(0,0,1,40);
+		this.load_bar_mask.x=190;
+		this.load_bar_mask.y=200;		
+		
+		
+		const load_bar_progress=new PIXI.Sprite(assets.load_bar_progress);
+		load_bar_progress.x=170;
+		load_bar_progress.y=200;
+		load_bar_progress.width=450;
+		load_bar_progress.height=40;
+		load_bar_progress.mask=this.load_bar_mask
+		
+		this.t_progress=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 18,align: 'center'});
+		this.t_progress.y=225;
+		this.t_progress.x=600;		
+		this.t_progress.tint=0xFFC000;
+		this.t_progress.anchor.set(1,0);
+		
+		objects.load_cont=new PIXI.Container();
+		objects.load_cont.addChild(load_bar_bcg,load_bar_progress,this.load_bar_mask,this.t_progress)
+		app.stage.addChild(objects.load_cont);
+	
+	
 	},
 	
 	async load2(){
@@ -7057,9 +7059,9 @@ main_loader={
 						
 		//прогресс
 		loader.onProgress.add((l,res)=>{
-			objects.loader_progress_mask.width =  objects.loader_progress_mask.base_width*l.progress*0.01;
-			objects.t_loader_progress.text=Math.round(l.progress)+'%';
-		});		
+			this.load_bar_mask.width =410*l.progress*0.01;
+			this.t_progress.text=Math.round(l.progress)+'%';
+			});		
 						
 		//ждем загрузки
 		await new Promise(res=>loader.load(res))					
@@ -7078,7 +7080,7 @@ main_loader={
 		script.textContent = assets.multiavatar;
 		document.head.appendChild(script);
 				
-		anim2.add(objects.load_bar_cont,{alpha:[1,0]}, false, 0.5,'linear');
+		anim2.add(objects.load_cont,{alpha:[1,0]}, false, 0.5,'linear');
 		//await anim2.add(objects.loader_cont,{alpha:[1,0]}, false, 0.5,'linear');
 		//await anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.5,'linear');
 		//return
@@ -7086,6 +7088,15 @@ main_loader={
 		//gres=game_res.resources;
 		
 		sp_game.levels_data=eval(assets.levels_data);
+		
+		
+		objects.bcg=new PIXI.Sprite();
+		objects.bcg.x=-10;
+		objects.bcg.y=-10;
+		objects.bcg.width=M_WIDTH+20;
+		objects.bcg.height=M_HEIGHT+20;
+		app.stage.addChild(objects.bcg);
+		
 		
 		//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 		const main_load_list=eval(assets.main_load_list);
@@ -7287,8 +7298,8 @@ async function init_game_env(lang) {
 	}
 
 	//создаем приложение пикси
-	document.body.innerHTML='<style>html,body {margin: 0;padding: 0;height: 100%;}body {display: flex;align-items:center;justify-content: center;background-color: rgba(41,41,41,1)}</style>';
-	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x202020});
+	document.body.innerHTML='<style>html,body {margin: 0;padding: 0;height: 100%;}body {display: flex;align-items:center;justify-content: center;background-color: rgba(67,68,72,1)}</style>';
+	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x434448});
 	const c=document.body.appendChild(app.view);
 	c.style['boxShadow'] = '0 0 15px #000000';
 	
