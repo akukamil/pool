@@ -101,23 +101,27 @@ irnd = function(min,max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-anim2 = {
+anim3={
 		
 	c1: 1.70158,
 	c2: 1.70158 * 1.525,
 	c3: 1.70158 + 1,
 	c4: (2 * Math.PI) / 3,
 	c5: (2 * Math.PI) / 4.5,
-	empty_spr : {x:0, visible:false, ready:true, alpha:0},
-		
-	slot: Array(30).fill(null),
-		
+	empty_spr : {x:0,visible:false,ready:true, alpha:0},
+			
+	slots: new Array(20).fill().map(u => ({obj:{},on:0,block:true,params_num:0,p_resolve:0,progress:0,vis_on_end:false,tm:0,params:new Array(10).fill().map(u => ({param:'x',s:0,f:0,d:0,func:this.linear}))})),
 	
-	any_on() {		
-		for (let s of this.slot)
-			if (s !== null&&s.block)
+	any_on() {
+		
+		for (let s of this.slots)
+			if (s.on&&s.block)
 				return true
-		return false;			
+		return false;		
+	},
+	
+	wait(seconds){		
+		return this.add(this.empty_spr,{x:[0,1,'linear']}, false, seconds);		
 	},
 	
 	linear(x) {
@@ -126,54 +130,17 @@ anim2 = {
 	
 	kill_anim(obj) {
 		
-		for (var i=0;i<this.slot.length;i++)
-			if (this.slot[i]!==null)
-				if (this.slot[i].obj===obj){
-					this.slot[i].p_resolve('killed');		
-					this.slot[i].obj.ready=true;					
-					this.slot[i]=null;	
-				}
-	
-	},
-	
-	flick(x){
-		
-		return Math.abs(Math.sin(x*6.5*3.141593));
-		
-	},
-	
-	easeBridge(x){
-		
-		if(x<0.1)
-			return x*10;
-		if(x>0.9)
-			return (1-x)*10;
-		return 1		
-	},
-	
-	ease3peaks(x){
-
-		if (x < 0.16666) {
-			return x / 0.16666;
-		} else if (x < 0.33326) {
-			return 1-(x - 0.16666) / 0.16666;
-		} else if (x < 0.49986) {
-			return (x - 0.3326) / 0.16666;
-		} else if (x < 0.66646) {
-			return 1-(x - 0.49986) / 0.16666;
-		} else if (x < 0.83306) {
-			return (x - 0.6649) / 0.16666;
-		} else if (x >= 0.83306) {
-			return 1-(x - 0.83306) / 0.16666;
-		}		
+		for (var i=0;i<this.slots.length;i++){
+			const slot=this.slots[i];
+			if (slot.on&&slot.obj===obj){
+				slot.p_resolve(2);
+				slot.on=0;				
+			}
+		}	
 	},
 	
 	easeOutBack(x) {
 		return 1 + this.c3 * Math.pow(x - 1, 3) + this.c1 * Math.pow(x - 1, 2);
-	},
-	
-	easeOutBack2(x) {
-		return -5.875*Math.pow(x, 2)+6.875*x;
 	},
 	
 	easeOutElastic(x) {
@@ -188,10 +155,20 @@ anim2 = {
 		return Math.sin( x * Math.PI * 0.5);
 	},
 	
+	easeOutQuart(x){		
+		return 1 - Math.pow(1 - x, 4);		
+	},
+	
 	easeOutCubic(x) {
 		return 1 - Math.pow(1 - x, 3);
 	},
 	
+	flick(x){
+		
+		return Math.abs(Math.sin(x*6.5*3.141593));
+		
+	},
+		
 	easeInBack(x) {
 		return this.c3 * x * x * x - this.c1 * x * x;
 	},
@@ -223,126 +200,133 @@ anim2 = {
 		return Math.sin(x*Math.PI);
 	},
 	
-	easeOutQuart(x){
-		
-		return 1 - Math.pow(1 - x, 4);
-		
-	},
-	
 	easeInOutCubic(x) {
 		
 		return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+	},
+	
+	easeInOutBack(x) {
+
+		return x < 0.5
+		  ? (Math.pow(2 * x, 2) * ((this.c2 + 1) * 2 * x - this.c2)) / 2
+		  : (Math.pow(2 * x - 2, 2) * ((this.c2 + 1) * (x * 2 - 2) + this.c2) + 2) / 2;
 	},
 	
 	shake(x) {
 		
 		return Math.sin(x*2 * Math.PI);	
 		
+		
 	},	
 	
-	add (obj, params, vis_on_end, time, func, block=true) {
+	add (obj, inp_params, vis_on_end, time, block) {
 				
 		//если уже идет анимация данного спрайта то отменяем ее
-		anim2.kill_anim(obj);
+		anim3.kill_anim(obj);
 
-		let f=0;
+
+		let found=false;
 		//ищем свободный слот для анимации
-		for (var i = 0; i < this.slot.length; i++) {
+		for (let i = 0; i < this.slots.length; i++) {
 
-			if (this.slot[i] === null) {
-				
-				obj.visible = true;
-				obj.ready = false;
-
-				//добавляем дельту к параметрам и устанавливаем начальное положение
-				for (let key in params) {
-					params[key][2]=params[key][1]-params[key][0];					
-					obj[key]=params[key][0];
-				}
-				
-				//для возвратных функцие конечное значение равно начальному
-				if (func === 'ease2back' || func === 'shake' || func === 'ease3peaks')
-					for (let key in params)
-						params[key][1]=params[key][0];				
+			const slot=this.slots[i];
+			if (slot.on) continue;
+			
+			found=true;
+			
+			obj.visible = true;
+			obj.ready = false;
 					
-				this.slot[i] = {
-					obj,
-					block,
-					params,
-					vis_on_end,
-					func: this[func].bind(anim2),
-					speed: 0.01818 / time,
-					progress: 0
-				};
-				f = 1;
-				break;
+			//заносим базовые параметры слота
+			slot.on=1;
+			slot.params_num=Object.keys(inp_params).length;			
+			slot.obj=obj;
+			slot.vis_on_end=vis_on_end;
+			slot.block=block===undefined;
+			slot.speed=0.01818 / time;
+			slot.progress=0;			
+			
+			//добавляем дельту к параметрам и устанавливаем начальное положение
+			let ind=0;
+			for (const param in inp_params) {
+				
+				const s=inp_params[param][0];
+				let f=inp_params[param][1];
+				const d=f-s;					
+
+								
+				//для возвратных функцие конечное значение равно начальному что в конце правильные значения присвоить
+				const func_name=inp_params[param][2];
+				const func=anim3[func_name].bind(anim3);		
+				if (func_name === 'ease2back'||func_name==='shake') f=s;				
+				
+				slot.params[ind].param=param;
+				slot.params[ind].s=s;
+				slot.params[ind].f=f;
+				slot.params[ind].d=d;
+				slot.params[ind].func=func;
+				ind++;
+
+				//фиксируем начальное значение параметра
+				obj[param]=s;
 			}
-		}
-		
-		if (f===0) {
-			console.log("Кончились слоты анимации");	
 			
-			
-			//сразу записываем конечные параметры анимации
-			for (let key in params)				
-				obj[key]=params[key][1];			
-			obj.visible=vis_on_end;
-			obj.alpha = 1;
-			obj.ready=true;
-			
-			
-			return new Promise(function(resolve, reject){					
-			  resolve();	  		  
-			});	
-		}
-		else {
-			return new Promise(function(resolve, reject){					
-			  anim2.slot[i].p_resolve = resolve;	  		  
-			});			
-			
+			return new Promise(resolve=>{
+				slot.p_resolve = resolve;	  		  
+			});		
 		}
 
+		console.log("Кончились слоты анимации");	
 		
-		
+		//сразу записываем конечные параметры анимации
+		for (let param in params)
+			obj[param]=params[param][1];
+		obj.visible=vis_on_end;
+		obj.alpha = 1;
+		obj.ready=true;
+
 
 	},	
+	
+	process () {
 		
-	process() {
-		
-		for (var i = 0; i < this.slot.length; i++)
-		{
-			if (this.slot[i] !== null) {
+		for (var i = 0; i < this.slots.length; i++) {
+			const slot=this.slots[i];
+			const obj=slot.obj;
+			if (slot.on) {
 				
-				let s=this.slot[i];
+				slot.progress+=slot.speed;		
 				
-				s.progress+=s.speed;		
-				
-				for (let key in s.params)				
-					s.obj[key]=s.params[key][0]+s.params[key][2]*s.func(s.progress);		
+				for (let i=0;i<slot.params_num;i++){
+					
+					const param_data=slot.params[i];
+					const param=param_data.param;
+					const s=param_data.s;
+					const d=param_data.d;
+					const func=param_data.func;
+					slot.obj[param]=s+d*func(slot.progress);					
+				}
 				
 				//если анимация завершилась то удаляем слот
-				if (s.progress>=0.999) {
-					for (let key in s.params)				
-						s.obj[key]=s.params[key][1];
-									
-					s.obj.visible=s.vis_on_end;
-					if (s.vis_on_end === false)
-						s.obj.alpha = 1;
+				if (slot.progress>=0.999) {
 					
-					s.obj.ready=true;					
-					s.p_resolve('finished');
-					this.slot[i] = null;
+					//заносим конечные параметры
+					for (let i=0;i<slot.params_num;i++){
+						const param=slot.params[i].param;
+						const f=slot.params[i].f;
+						slot.obj[param]=f;
+					}
+					
+					slot.obj.visible=slot.vis_on_end;
+					slot.obj.alpha = 1*slot.vis_on_end;
+					
+					slot.obj.ready=true;
+					slot.p_resolve(1);
+					slot.on = 0;
 				}
 			}			
-		}
-		
-	},
-	
-	async wait(time) {
-		
-		await this.add(this.empty_spr,{x:[0, 1]}, false, time,'linear');	
-		
-	}
+		}		
+	}	
 }
 
 fbs_once=async function(path){
@@ -691,7 +675,7 @@ class ball_class extends PIXI.Container{
 		
 		sound.play('ball_potted');
 
-		await anim2.add(this,{alpha:[1,0],x:[this.x,hole_data[0]],y:[this.y,hole_data[1]]}, false, 0.25,'linear');
+		await anim3.add(this,{alpha:[1,0,'linear'],x:[this.x,hole_data[0],'linear'],y:[this.y,hole_data[1],'linear']}, false, 0.25,false);
 		online_game.ball_potted_event(this,hole_data);
 		sp_game.ball_potted_event(this,hole_data);		
 		console.log(this.balls_hits_before_potted,this.borders_hits_before_potted);
@@ -711,8 +695,8 @@ class ball_class extends PIXI.Container{
 	
 	add_to_stat(){
 		
-		anim2.add(this,{scale_xy:[0, this.scale_xy],alpha:[0,1]}, true, 0.25,'easeOutBack');
-		anim2.add(this.strip,{angle:[0, irnd(600,900)]}, true, 2,'easeOutCubic');
+		anim3.add(this,{scale_xy:[0, this.scale_xy,'linear'],alpha:[0,1,'linear']}, true, 0.25,false);
+		anim3.add(this.strip,{angle:[0, irnd(600,900),'easeOutCubic']}, true, 2,false);
 		
 	}
 		
@@ -1129,15 +1113,12 @@ class orb_anim_class extends PIXI.Container{
 		this.y=y;
 		
 		this.visible=true;
-		anim2.add(this.bcg0,{scale_xy:[0.2, 1.15],alpha:[1,0]}, true, 1.25,'easeOutBack');
-		anim2.add(this.bcg1,{scale_xy:[0.2, 2],alpha:[0.5,0],angle:[0,15]}, true, 1.35,'easeOutBack');
-		await anim2.wait(0.2);
-		await anim2.add(this.bcg2,{scale_xy:[0.2, 1.5],alpha:[0.5,0]}, true, 0.55,'linear');
+		anim3.add(this.bcg0,{scale_xy:[0.2, 1.15,'easeOutBack'],alpha:[1,0,'easeOutBack']}, true, 1.25,false);
+		anim3.add(this.bcg1,{scale_xy:[0.2, 2,'easeOutBack'],alpha:[0.5,0,'easeOutBack'],angle:[0,15,'easeOutBack']}, true, 1.35,false);
+		await anim3.wait(0.2);
+		await anim3.add(this.bcg2,{scale_xy:[0.2, 1.5,'linear'],alpha:[0.5,0,'linear']}, true, 0.55,false);
 		this.visible=false;
-	}
-	
-	
-	
+	}	
 	
 }
 
@@ -1178,7 +1159,7 @@ req_dialog={
 		
 		sound.play('receive_sticker');	
 		
-		anim2.add(objects.req_cont,{y:[-260, objects.req_cont.sy]}, true, 0.75,'easeOutElastic');
+		anim3.add(objects.req_cont,{y:[-260, objects.req_cont.sy,'easeOutElastic']}, true, 0.75);
 							
 		//Отображаем  имя и фамилию в окне приглашения
 		req_dialog._opp_data.uid=uid;		
@@ -1199,14 +1180,14 @@ req_dialog={
 		
 		sound.play('close_it');
 
-		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
+		anim3.add(objects.req_cont,{y:[objects.req_cont.sy, -260,'easeInBack']}, false, 0.5);
 
 		fbs.ref('inbox/'+req_dialog._opp_data.uid).set({sender:my_data.uid,message:"REJECT",tm:Date.now()});
 	},
 
 	accept() {
 
-		if (anim2.any_on()||!objects.req_cont.visible) {
+		if (anim3.any_on()||!objects.req_cont.visible) {
 			sound.play('locked');
 			return;			
 		}
@@ -1214,7 +1195,7 @@ req_dialog={
 		//устанавливаем окончательные данные оппонента
 		opp_data = req_dialog._opp_data;	
 	
-		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
+		anim3.add(objects.req_cont,{y:[objects.req_cont.sy, -260,'easeInBack']}, false, 0.5);
 		
 		
 		//отправляем информацию о согласии играть с идентификатором игры и сидом
@@ -1234,7 +1215,7 @@ req_dialog={
 		if (objects.req_cont.ready === false || objects.req_cont.visible === false)
 			return;
 
-		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
+		anim3.add(objects.req_cont,{y:[objects.req_cont.sy, -260,'easeInBack']}, false, 0.5);
 
 	}
 
@@ -1262,7 +1243,7 @@ chat={
 		
 	activate() {	
 
-		anim2.add(objects.chat_cont,{alpha:[0, 1]}, true, 0.1,'linear');
+		anim3.add(objects.chat_cont,{alpha:[0, 1,'linear']}, true, 0.1);
 		//objects.bcg.texture=assets.lobby_bcg;
 		objects.chat_enter_btn.visible=true;//my_data.games>=this.games_to_chat;
 		
@@ -1405,7 +1386,7 @@ chat={
 		
 		//смещаем на одно сообщение (если чат не видим то без твина)
 		if (objects.chat_cont.visible)
-			await anim2.add(objects.chat_msg_cont,{y:[objects.chat_msg_cont.y,objects.chat_msg_cont.y-y_shift]},true, 0.05,'linear');		
+			await anim3.add(objects.chat_msg_cont,{y:[objects.chat_msg_cont.y,objects.chat_msg_cont.y-y_shift,'linear']},true, 0.05);		
 		else
 			objects.chat_msg_cont.y-=y_shift
 		
@@ -1469,7 +1450,7 @@ chat={
 	
 	back_btn_down(){
 		
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -1556,7 +1537,7 @@ chat={
 		
 	async write_btn_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -1625,7 +1606,7 @@ chat={
 		
 	close() {
 		
-		anim2.add(objects.chat_cont,{alpha:[1, 0]}, false, 0.1,'linear');
+		anim3.add(objects.chat_cont,{alpha:[1, 0,'linear']}, false, 0.1);
 		if (objects.chat_keyboard_cont.visible)
 			keyboard.close();
 	}
@@ -1766,7 +1747,7 @@ message =  {
 			
 		}		
 
-		await anim2.add(objects.message_cont,{alpha:[0,1]}, true, 0.25,'linear',false);
+		await anim3.add(objects.message_cont,{alpha:[0,1,'linear']}, true, 0.25,false);
 
 		const res = await new Promise((resolve, reject) => {
 				message.promise_resolve = resolve;
@@ -1777,7 +1758,7 @@ message =  {
 		//это если насильно закрываем
 		if (res==='forced') return;
 
-		anim2.add(objects.message_cont,{alpha:[1, 0]}, false, 0.25,'linear',false);			
+		anim3.add(objects.message_cont,{alpha:[1, 0,'linear']}, false, 0.25,false);			
 	},
 	
 	clicked() {
@@ -1801,7 +1782,7 @@ sys_msg={
 		
 		//показываем сообщение
 		objects.t_sys_msg.text=t;
-		const ares=await anim2.add(objects.sys_msg_cont,{y:[-50,-20]}, true, 0.25,'linear',false);	
+		const ares=await anim3.add(objects.sys_msg_cont,{y:[-50,-20,'linear']}, true, 0.25,false);	
 		if (ares==='killed') return;
 		
 		//ждем
@@ -1814,7 +1795,7 @@ sys_msg={
 		//это если насильно закрываем
 		if (res==='forced') return;
 		
-		anim2.add(objects.sys_msg_cont,{y:[-20,-50]}, false, 0.25,'linear',false);	
+		anim3.add(objects.sys_msg_cont,{y:[-20,-50,'linear']}, false, 0.25,false);	
 		
 	}
 	
@@ -1827,7 +1808,7 @@ stickers={
 
 	show_panel() {
 
-		if (anim2.any_on()||objects.stickers_cont.visible) {
+		if (anim3.any_on()||objects.stickers_cont.visible) {
 			sound.play('locked');
 			return
 		};
@@ -1839,7 +1820,7 @@ stickers={
 		if (!objects.stickers_cont.ready||objects.stickers_cont.visible||state!=='p') return;
 
 		//анимационное появление панели стикеров
-		anim2.add(objects.stickers_cont,{y:[450, objects.stickers_cont.sy]}, true, 0.5,'easeOutBack');
+		anim3.add(objects.stickers_cont,{y:[450, objects.stickers_cont.sy,'easeOutBack']}, true, 0.5);
 
 	},
 
@@ -1851,7 +1832,7 @@ stickers={
 			return;
 
 		//анимационное появление панели стикеров
-		anim2.add(objects.stickers_cont,{y:[objects.stickers_cont.sy, -450]}, false, 0.5,'easeInBack');
+		anim3.add(objects.stickers_cont,{y:[objects.stickers_cont.sy, -450,'easeInBack']}, false, 0.5);
 
 	},
 
@@ -1881,7 +1862,7 @@ stickers={
 
 		objects.rec_sticker_area.texture=assets['sticker_texture_'+id];
 	
-		await anim2.add(objects.rec_sticker_area,{x:[-150, objects.rec_sticker_area.sx]}, true, 0.5,'easeOutBack');
+		await anim3.add(objects.rec_sticker_area,{x:[-150, objects.rec_sticker_area.sx,'easeOutBack']}, true, 0.5);
 
 		let res = await new Promise((resolve, reject) => {
 				stickers.promise_resolve_recive = resolve;
@@ -1892,7 +1873,7 @@ stickers={
 		if (res === "forced")
 			return;
 
-		anim2.add(objects.rec_sticker_area,{x:[objects.rec_sticker_area.sx, -150]}, false, 0.5,'easeInBack');
+		anim3.add(objects.rec_sticker_area,{x:[objects.rec_sticker_area.sx, -150,'easeInBack']}, false, 0.5);
 
 	}
 
@@ -1904,7 +1885,7 @@ fin_dialog={
 	
 	show(result){
 		
-		anim2.add(objects.fin_dlg_cont,{y:[objects.fin_dlg_cont.sy+30,objects.fin_dlg_cont.sy],alpha:[0,1]},true, 0.3,'linear');	
+		anim3.add(objects.fin_dlg_cont,{y:[objects.fin_dlg_cont.sy+30,objects.fin_dlg_cont.sy,'linear'],alpha:[0,1,'linear']},true, 0.3);	
 		
 		const res_data={
 			me_black_potted:{type:LOSE,t1:'Поражение!',t2:'Вы забили черный шар! Этого нельзя делать!'},
@@ -2080,7 +2061,7 @@ confirm_dialog = {
 				
 		objects.confirm_msg.text=msg;
 		
-		anim2.add(objects.confirm_cont,{y:[450,objects.confirm_cont.sy]}, true, 0.6,'easeOutBack');		
+		anim3.add(objects.confirm_cont,{y:[450,objects.confirm_cont.sy,'easeOutBack']}, true, 0.6);		
 				
 		return new Promise(function(resolve, reject){					
 			confirm_dialog.p_resolve = resolve;	  		  
@@ -2089,7 +2070,7 @@ confirm_dialog = {
 	
 	button_down(res) {
 		
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};	
@@ -2103,7 +2084,7 @@ confirm_dialog = {
 	
 	close () {
 		
-		anim2.add(objects.confirm_cont,{y:[objects.confirm_cont.sy,450]}, false, 0.4,'easeInBack');		
+		anim3.add(objects.confirm_cont,{y:[objects.confirm_cont.sy,450,'easeInBack']}, false, 0.4);		
 		
 	}
 
@@ -2132,7 +2113,7 @@ keyboard={
 		objects.chat_keyboard_text.text ='';
 		objects.chat_keyboard_control.text = `0/${this.MAX_SYMBOLS}`
 				
-		anim2.add(objects.chat_keyboard_cont,{y:[450, objects.chat_keyboard_cont.sy]}, true, 0.2,'linear');	
+		anim3.add(objects.chat_keyboard_cont,{y:[450, objects.chat_keyboard_cont.sy,'linear']}, true, 0.2);	
 
 
 		return new Promise(resolve=>{			
@@ -2183,7 +2164,7 @@ keyboard={
 		objects.chat_keyboard_hl.x = x+objects.chat_keyboard.x-10;
 		objects.chat_keyboard_hl.y = y+objects.chat_keyboard.y-10;	
 		
-		anim2.add(objects.chat_keyboard_hl,{alpha:[1, 0]}, false, 0.5,'linear');
+		anim3.add(objects.chat_keyboard_hl,{alpha:[1, 0,'linear']}, false, 0.5);
 		
 	},	
 	
@@ -2266,7 +2247,7 @@ keyboard={
 		
 		//на всякий случай уничтожаем резолвер
 		if (this.resolver) this.resolver(0);
-		anim2.add(objects.chat_keyboard_cont,{y:[objects.chat_keyboard_cont.y,450]}, false, 0.2,'linear');		
+		anim3.add(objects.chat_keyboard_cont,{y:[objects.chat_keyboard_cont.y,450,'linear']}, false, 0.2);		
 		
 	},
 	
@@ -2636,18 +2617,18 @@ online_game={
 		//----****---------*****------*****----------*****----------****--------
 										
 		//показываем и заполняем мою карточку
-		anim2.add(objects.my_card_cont,{y:[-200,objects.my_card_cont.sy]}, true, 0.3,'linear');
+		anim3.add(objects.my_card_cont,{y:[-200,objects.my_card_cont.sy,'linear']}, true, 0.3);
 		objects.my_card_name.set2(my_data.name,160);
 		objects.my_card_rating.text=my_data.rating;
 		objects.my_avatar.avatar.texture=players_cache.players[my_data.uid].texture;
 			
 		//показываем и заполняем карточку соперника
-		anim2.add(objects.opp_card_cont,{y:[-200,objects.opp_card_cont.sy]}, true, 0.3,'linear');
+		anim3.add(objects.opp_card_cont,{y:[-200,objects.opp_card_cont.sy,'linear']}, true, 0.3);
 		objects.opp_card_name.set2(opp_data.name,160);
 		objects.opp_card_rating.text=opp_data.rating;
 		objects.opp_avatar.avatar.texture=players_cache.players[opp_data.uid].texture;	
 			
-		anim2.add(objects.swords,{scale_xy:[0, 0.6666]}, true, 0.5,'easeOutBack');
+		anim3.add(objects.swords,{scale_xy:[0, 0.6666,'easeOutBack']}, true, 0.5);
 				
 		//общие параметры
 		common.init();
@@ -2668,7 +2649,7 @@ online_game={
 		
 		
 		//показываем все элементы игры
-		anim2.add(objects.board_stuff_cont,{y:[450,0],alpha:[0,1]}, true, 0.5,'linear');
+		anim3.add(objects.board_stuff_cont,{y:[450,0,'linear'],alpha:[0,1,'linear']}, true, 0.5);
 		
 		this.prepare_next_move();
 		
@@ -2715,7 +2696,7 @@ online_game={
 		
 	game_buttons_down(e) {
 				
-		if (anim2.any_on()||!online_game.on){
+		if (anim3.any_on()||!online_game.on){
 			sound.play('locked');
 			return
 		};	
@@ -2746,7 +2727,7 @@ online_game={
 			sound.play('click');			
 			objects.hl_main_button.x=buttons_pos[min_button_id][0]+objects.game_buttons.sx;
 			objects.hl_main_button.y=buttons_pos[min_button_id][1]+objects.game_buttons.sy;				
-			anim2.add(objects.hl_main_button,{alpha:[1,0]}, false, 0.6,'linear',false);				
+			anim3.add(objects.hl_main_button,{alpha:[1,0,'linear']}, false, 0.6,false);				
 		}
 	
 					
@@ -2777,7 +2758,7 @@ online_game={
 	
 	async send_message(){
 		
-		if (anim2.any_on()||objects.stickers_cont.visible) {
+		if (anim3.any_on()||objects.stickers_cont.visible) {
 			sound.play('locked');
 			return
 		};	
@@ -3151,7 +3132,7 @@ online_game={
 			objects.stick.visible=true;
 			objects.stick_direction.visible=true;
 			objects.guide_orb.visible=true;			
-			anim2.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx]}, true, 0.4,'linear');
+			anim3.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx,'linear']}, true, 0.4);
 
 		
 			
@@ -3265,7 +3246,7 @@ online_game={
 		clearTimeout(this.confirm_start_timer);
 		
 		this.on=0;
-		anim2.add(objects.board_stuff_cont,{y:[0,450]}, false, 0.5,'linear');
+		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5);
 		objects.hit_level_cont.visible=false;
 		objects.swords.visible=false;
 		objects.my_card_cont.visible=false;
@@ -3290,12 +3271,12 @@ pref={
 		
 		this.update_server_time();
 		
-		anim2.add(objects.pref_cont,{x:[-800,objects.pref_cont.sx]}, true, 0.2,'linear');
+		anim3.add(objects.pref_cont,{x:[-800,objects.pref_cont.sx,'linear']}, true, 0.2);
 		//this.set_stick_perc_level(this.stick_perc);
 		//objects.pref_t_bonuses.text=this.bonuses+'%';
 		
 		objects.bcg.texture=assets.lobby_bcg_img;	
-		anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.5,'linear');	
+		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);	
 		
 		//заполняем имя и аватар
 		objects.pref_name.set2(my_data.name,260);
@@ -3321,7 +3302,7 @@ pref={
 	
 	table_switch_down(dir){
 		
-		if (dir&&anim2.any_on()) {
+		if (dir&&anim3.any_on()) {
 			sound.play('locked');
 			return
 		};				
@@ -3372,7 +3353,7 @@ pref={
 		
 		if (days_befor_change>0){
 			objects.pref_info.text=[`Поменять можно через ${days_befor_change} ${day_str}`,`Wait ${days_befor_change} days`][LANG];
-			anim2.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);	
+			anim3.add(objects.pref_info,{alpha:[0,1,'easeBridge']}, false, 3,false);	
 			sound.play('locked');
 			return 0;
 		}
@@ -3383,10 +3364,10 @@ pref={
 	send_info(msg,timeout){
 		
 		objects.pref_info.text=msg;
-		anim2.add(objects.pref_info,{alpha:[0,1]}, true, 0.25,'linear',false);
+		anim3.add(objects.pref_info,{alpha:[0,1,'linear']}, true, 0.25,false);
 		clearTimeout(this.info_timer);
 		this.info_timer=setTimeout(()=>{
-			anim2.add(objects.pref_info,{alpha:[1,0]}, false, 0.25,'linear',false);	
+			anim3.add(objects.pref_info,{alpha:[1,0,'linear']}, false, 0.25,false);	
 		},timeout||3000);	
 	},
 			
@@ -3397,7 +3378,7 @@ pref={
 			return;
 		}
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -3419,7 +3400,7 @@ pref={
 		}else{	
 			sound.play('locked');
 			this.send_info(['Какая-то ошибка','Unknown error'][LANG]);
-			anim2.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);			
+			anim3.add(objects.pref_info,{alpha:[0,1,'easeBridge']}, false, 3,false);			
 		}
 		
 	},
@@ -3427,7 +3408,7 @@ pref={
 	close(){
 		
 		//показываем и заполняем мою карточку
-		anim2.add(objects.pref_cont,{alpha:[1,0]}, false, 0.3,'linear');
+		anim3.add(objects.pref_cont,{alpha:[1,0,'linear']}, false, 0.3);
 	},
 	
 	snd_down(){
@@ -3435,12 +3416,12 @@ pref={
 		if (sound.on){			
 			sound.on=0;
 			this.send_info(['Звуки отключены','Sounds off'][LANG]);
-			anim2.add(objects.pref_snd_slider,{x:[506,450]}, true, 0.12,'linear');				
+			anim3.add(objects.pref_snd_slider,{x:[506,450,'linear']}, true, 0.12);				
 		}else{
 			sound.on=1;
 			sound.play('click');
 			this.send_info(['Звуки включены','Sounds on'][LANG]);
-			anim2.add(objects.pref_snd_slider,{x:[450,506]}, true, 0.12,'linear');	
+			anim3.add(objects.pref_snd_slider,{x:[450,506,'linear']}, true, 0.12);	
 		}	
 		
 	},
@@ -3451,12 +3432,12 @@ pref={
 			music.on=0;
 			this.send_info(['Музыка отключена','Music off'][LANG]);
 			assets.music.stop();
-			anim2.add(objects.pref_music_slider,{x:[691,633]}, true, 0.12,'linear');//-47			
+			anim3.add(objects.pref_music_slider,{x:[691,633,'linear']}, true, 0.12);//-47			
 		}else{
 			music.on=1;
 			this.send_info(['Музыка включена','Music on'][LANG]);
 			assets.music.play();
-			anim2.add(objects.pref_music_slider,{x:[633,691]}, true, 0.12,'linear');	
+			anim3.add(objects.pref_music_slider,{x:[633,691,'linear']}, true, 0.12);	
 		}	
 
 		safe_ls('pool_music',music.on);
@@ -3476,7 +3457,7 @@ pref={
 	
 	back_btn_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -3489,7 +3470,7 @@ pref={
 	
 	cue_switch_down(dir){
 		
-		if (dir&&anim2.any_on()) {
+		if (dir&&anim3.any_on()) {
 			sound.play('locked');
 			return
 		};				
@@ -3521,7 +3502,7 @@ pref={
 	cue_buy_down(){
 		
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -3543,7 +3524,7 @@ pref={
 			
 	async avatar_switch_down(dir){
 		
-		if (dir&&anim2.any_on()) {
+		if (dir&&anim3.any_on()) {
 			sound.play('locked');
 			return
 		};				
@@ -3572,7 +3553,7 @@ pref={
 	
 	save_photo_down(){
 	
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -3599,7 +3580,7 @@ pref={
 	
 	async restore_photo_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -3630,7 +3611,7 @@ levels={
 	activate(){
 		
 		objects.bcg.texture=assets.lobby_bcg_img;			
-		anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.25,'linear');		
+		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.25);		
 		
 		objects.levels_header.visible=true;
 		objects.levels_cont.visible=true;
@@ -3645,28 +3626,54 @@ levels={
 		//определяем текущий уровень
 		this.active_level=this.stat.length;
 		
-		//располагаем иконки уровней
+		//тупо размещаем иконки уровней
 		for (let i=0;i<5;i++){
 			const icon=objects.level_icons[i];
-			const icon_level=this.active_level-2+i;
 			icon.scale_xy=this.scale[i];
 			icon.x=this.posx[i];
-			icon.y=this.posy[i];
-			icon.t.text=icon_level;
-			if (icon_level<=0)
-				icon.visible=false
-			else
-				icon.visible=true
-		
+			icon.y=this.posy[i];	
 			this.order[i]=icon;
 			
-			//обновляем количество звезд
-			this.update_stars(icon);
-			
-			
+			const level=this.active_level-2+i;
+			this.set_level_to_icon(icon,level);	
 		}
 		
 	},
+	
+	set_level_to_icon(icon,level){
+		
+		if (level<0||level>=sp_game.levels_data.length){
+			icon.visible=false;
+			return;
+		}
+		
+		icon.visible=true;
+		
+		if (level<this.stat.length){
+			icon.stars_icon.texture=assets.starsx1;				
+			icon.stars_icon.visible=true;
+		}
+		else
+			icon.stars_icon.visible=false;			
+		
+		
+		if (level===0){
+			icon.t.visible=false;
+			icon.bcg.texture=assets.level_tutor_img;
+			return;
+		}
+		
+
+		if (level>0){
+			icon.bcg.texture=assets.level_img;
+			icon.t.visible=true;
+			icon.t.text=level;
+			return;
+		}	
+		
+	
+		
+	},	
 	
 	load_stat(){
 		
@@ -3674,7 +3681,7 @@ levels={
 		if (stat_str)
 			this.stat=stat_str.split('').map(Number);
 		else
-			this.stat=[0];
+			this.stat=[];
 	},
 	
 	save_stat(level,stars){
@@ -3701,64 +3708,56 @@ levels={
 	
 	switch_down(dir){
 			
-		if(anim2.any_on()){
+		if(anim3.any_on()){
 			sound.play('locked');
 			return;
 		}
 				
-		if (dir===1){
+				
+		//проверяем следующий уровень
+		const next_level=this.active_level+dir;
 			
-			//если это последний уровень
-			if (this.active_level===sp_game.levels_data.length-1){
-				sound.play('locked');
-				return;
-			} 
+		//если это последний уровень
+		if (next_level===sp_game.levels_data.length-1){
+			sound.play('locked');
+			return;
+		} 
+		
+		//если уровень еще не пройден
+		if (next_level>this.stat.length){
+			sound.play('locked');
+			return;
+		} 
+		
+		//если отрицательный уровень
+		if (next_level<0){
+			sound.play('locked');
+			return;
+		} 
+		
+		
+		this.active_level=next_level;
+		
 			
-			if (!this.stat[this.active_level]){
-				sound.play('locked');
-				return;
-			} 
-			
-			const last=this.order[4];
+		if (dir===1){			
 			const first=this.order.shift();
 			first.x=700;
-			first.t.text=+last.t.text+1;
 			this.order.push(first)	
-
-			//обновляем количество звезд
-			this.update_stars(first);
-			
-			
-		}else{
-			
-			//если это первый уровень
-			if (this.active_level===1){
-				sound.play('locked');
-				return;
-			} 
-			const first=this.order[0];
-			const last=this.order.pop();
+			this.set_level_to_icon(first,this.active_level+2)			
+		}else{			
+			const last=this.order.pop()
 			last.x=0;
-			last.t.text=+first.t.text-1;
-			this.order.unshift(last)
-			
-			//обновляем количество звезд
-			this.update_stars(last);
-			
+			this.order.unshift(last)			
+			this.set_level_to_icon(last,this.active_level-2)			
 		}		
 		
-		sound.play('click');
-		
-		
-		this.active_level+=dir;
-		
+		sound.play('click');		
+
+		//перемещаем иконки уровней
 		for (let i=0;i<5;i++){
 			const icon=this.order[i];
-			const level=+icon.t.text;
-			if (level>=1&&level<sp_game.levels_data.length)
-				anim2.add(icon,{x:[icon.x, this.posx[i]],y:[icon.y,this.posy[i]],scale_xy:[icon.scale_xy,this.scale[i]]}, true, 0.25,'linear');
-			else
-				icon.visible=false;
+			if (icon.visible)
+				anim3.add(icon,{x:[icon.x, this.posx[i],'easeOutBack'],y:[icon.y,this.posy[i],'linear'],scale_xy:[icon.scale_xy,this.scale[i],'linear']}, true, 0.25);
 		}
 		
 		
@@ -3776,7 +3775,7 @@ levels={
 	
 	exit_btn_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -3789,7 +3788,7 @@ levels={
 	
 	play_down(){		
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -3813,6 +3812,7 @@ sp_game={
 	seconds_left:100,
 	timer:0,
 	balls_in_puzzle:[],
+	info_window_resolver:0,
 		
 	levels_data:0,
 			
@@ -3891,8 +3891,8 @@ sp_game={
 		white_ball.on=1;
 		white_ball.visible=true;	
 
-
 		const type_to_desc={
+			instruction:['Посмотрите инструкцию как играть','Shot the tutorial'],
 			touch_only_blue:['Выполните один удар, который приведет к соударениям всех синих шаров, но не затронет красные шары','Make one shot that will result in collisions of all blue balls, while not touching any red balls'],
 			touch_all:['Выполните удар, который приведет к соударениям всех шаров','Make contact with all balls on the table in a single shot'],
 			pocket_blue_untouch_red:['Забейте все синие шары не трогая красные','Pocket all the blue balls without touching the red ones'],
@@ -3901,10 +3901,7 @@ sp_game={
 			pocket_double:['Забейте 2 цветных шара за один удар','Pocket 2 color balls in single shot'],
 			pocket_all:['Забейте все шары','Pocket all balls'],
 		}
-		
-		
-
-		
+						
 		//остальные шары в соответствии с уровнями
 		this.balls_in_puzzle=[];
 		for (let i=1;i<this.cur_level_data.board.length;i++){
@@ -3931,6 +3928,13 @@ sp_game={
 		if (this.cur_level_data.type==='pocket_after_hit')
 			this.balls_in_puzzle.forEach(b=>b.alpha=0.6);
 		
+		if (this.cur_level_data.type==='instruction'){
+			objects.stick.sangle=objects.stick.angle=-50;
+			objects.guide_orb.angle=objects.stick.angle;
+			this.show_inst();
+		}
+
+		
 		this.on=1;	
 		
 		//контроль времени
@@ -3946,7 +3950,7 @@ sp_game={
 		my_turn=1;
 		
 		//показываем все элементы игры
-		anim2.add(objects.board_stuff_cont,{y:[450,0],alpha:[0,1]}, true, 0.5,'linear');
+		anim3.add(objects.board_stuff_cont,{y:[450,0,'linear'],alpha:[0,1,'linear']}, true, 0.5);
 				
 		//готовим ход
 		this.prepare_next_move();		
@@ -3956,6 +3960,87 @@ sp_game={
 	
 		const desc=type_to_desc[this.cur_level_data.type][LANG];
 		common.show_info(desc);
+		
+	},
+	
+	info_window_close_event(){
+		if (this.info_window_resolver)
+			this.info_window_resolver();
+	},
+	
+	async show_inst(){
+		
+		app.stage.interactive=false;	
+		objects.spgame_exit_btn.visible=false;
+		
+		//показываем направляющие
+		common.show_helper2();		
+		common.update_cue();
+		
+		//ждем закрытия окна
+		await new Promise(resolve => {
+			this.info_window_resolver=resolve		
+		});
+		
+		objects.instr_hand.x=800;
+		objects.instr_hand.y=450;
+		objects.instr_hand.visible=true;
+		objects.instr_hand.alpha=1;
+		objects.instr_hand.scale_x=1;
+		objects.instr_hand.texture=assets.hand_free;
+		await anim3.add(objects.instr_hand,{x:[800, 400,'linear'],y:[450, 315,'linear']}, true, 1);
+		await anim3.wait(0.5);
+		objects.instr_hand.texture=assets.free_click;
+		await anim3.wait(0.5);
+		
+		
+		objects.just_line.visible=true;
+		objects.just_line.x=430;
+		objects.just_line.y=345;
+		let dx=0;
+		for (let x=400;x<596;x++){
+			
+			objects.instr_hand.x=x;
+			
+			const sign=Math.sign(dx);
+			objects.stick.angle=objects.stick.sangle+sign*(dx*dx)*0.001;
+			objects.guide_orb.angle=objects.stick.angle;
+			objects.just_line.width=x-400;
+			//показываем направляющие
+			common.show_helper2();		
+			common.update_cue();			
+			
+			dx++;			
+			await new Promise(resolve => setTimeout(resolve, 10));				
+		}
+		
+		await anim3.wait(0.5);
+		
+		objects.just_line.visible=false;
+		objects.instr_hand.texture=assets.hand_free;
+		
+		await anim3.add(objects.instr_hand,{x:[599,810,'linear'],y:[315, 200,'linear'],scale_x:[1,-1,'linear']}, true, 1);
+		await anim3.wait(0.5);
+		objects.instr_hand.texture=assets.free_click;
+		await anim3.wait(0.5);
+		
+		
+		for (let y=200;y<320;y++){
+			objects.instr_hand.y=y;
+			objects.hit_level.y=objects.hit_level.sy+y-200;
+			common.cue_power=1+(y-200)*0.1;
+			common.update_cue();
+			await new Promise(resolve => setTimeout(resolve, 10));		
+		}
+		
+		await anim3.wait(0.5);
+		objects.instr_hand.texture=assets.hand_free;
+		common.cue_power=8;
+		common.hit_down();
+		anim3.add(objects.instr_hand,{alpha:[1,0,'linear'],x:[810,900,'linear']}, false, 1);
+		
+		app.stage.interactive=true;	
+		objects.spgame_exit_btn.visible=true;
 		
 	},
 	
@@ -4049,8 +4134,8 @@ sp_game={
 		clearInterval(this.timer);
 		
 		//показываем все элементы игры
-		anim2.add(objects.hit_level_cont,{x:[objects.hit_level_cont.x, 800]}, false, 0.4,'linear');
-		anim2.add(objects.board_stuff_cont,{y:[0,450]}, false, 0.5,'linear');
+		anim3.add(objects.hit_level_cont,{x:[objects.hit_level_cont.x, 800,'linear']}, false, 0.4);
+		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5);
 		this.on=0;
 		
 	},
@@ -4095,8 +4180,8 @@ sp_game={
 		if (this.cur_level_data.type==='pocket_after_hit')
 			this.balls_in_puzzle.forEach(b=>b.alpha=0.6);
 		
-		anim2.add(objects.stick,{alpha:[0,1]}, true, 0.5,'flick');
-		anim2.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx]}, true, 0.4,'linear');
+		anim3.add(objects.stick,{alpha:[0,1,'flick']}, true, 0.5);
+		anim3.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx,'linear']}, true, 0.4);
 		sound.play('ready2');
 	
 	},
@@ -4163,7 +4248,13 @@ sp_game={
 				return;
 			}	
 		}
+
+		if (this.cur_level_data.type==='instruction'){
+			this.show_fin_dialog('win');				
+			return;
+		}
 		
+
 	},
 	
 	border_hit(ball){		
@@ -4307,7 +4398,7 @@ sp_game={
 			}	
 			
 		}	
-				
+								
 		if (!this.attemps_left){
 			this.show_fin_dialog('no_attemps');
 			return;
@@ -4345,7 +4436,7 @@ sp_game={
 		if (result==='win')
 			objects.spfin_dlg_title1.text=['Задание выполнено!','Complete!'][LANG];
 		
-		await anim2.add(objects.spfin_dlg_cont,{alpha:[0,1],y:[objects.spfin_dlg_cont.sy-30,objects.spfin_dlg_cont.sy]}, true, 0.25,'linear');
+		await anim3.add(objects.spfin_dlg_cont,{alpha:[0,1,'linear'],y:[objects.spfin_dlg_cont.sy-30,objects.spfin_dlg_cont.sy,'linear']}, true, 0.25);
 		
 		
 		if (result==='win'){
@@ -4362,19 +4453,19 @@ sp_game={
 
 
 		
-		await anim2.add(objects.spfin_dlg_star0,{alpha:[0,1],scale_xy:[0.666,1]}, true, 0.15,'linear');
-		await anim2.add(objects.spfin_dlg_star1,{alpha:[0,1],scale_xy:[0.666,1]}, true, 0.15,'linear');
-		await anim2.add(objects.spfin_dlg_star2,{alpha:[0,1],scale_xy:[0.666,1]}, true, 0.15,'linear');
+		await anim3.add(objects.spfin_dlg_star0,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
+		await anim3.add(objects.spfin_dlg_star1,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
+		await anim3.add(objects.spfin_dlg_star2,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
 
 	},
 		
 	exit_btn_down(){
 		
-		if (anim2.any_on()){
+		if (anim3.any_on()){
 			sound.play('locked');
 			return
 		};	
-		//anim2.add(objects.spfin_cont,{alpha:[1,0]}, false, 0.25,'linear');
+		//anim3.add(objects.spfin_cont,{alpha:[1,0]}, false, 0.25,'linear');
 		
 		sound.play('close_it');
 		
@@ -4385,12 +4476,12 @@ sp_game={
 	
 	next_btn_down(){
 		this.activate(this.cur_level+1);
-		anim2.add(objects.spfin_dlg_cont,{alpha:[1,0]}, false, 0.25,'linear');
+		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25);
 	},
 
 	replay_btn_down(){
 		this.activate(this.cur_level);
-		anim2.add(objects.spfin_dlg_cont,{alpha:[1,0]}, false, 0.25,'linear');
+		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25);
 	},
 	
 }
@@ -4486,13 +4577,13 @@ common={
 	async hit_down(){
 
 		if(!objects.stick.visible) return;
-		if (anim2.any_on()) return;
+		if (anim3.any_on()) return;
 				
 		sound.play('cue');
 
 		const s=objects.stick;
 		const b=objects.balls[15];
-		await anim2.add(s,{x:[s.x,b.x],y:[s.y,b.y]}, true, 0.05,'linear');
+		await anim3.add(s,{x:[s.x,b.x,'linear'],y:[s.y,b.y,'linear']}, true, 0.05);
 		
 		const ang=objects.stick.rotation;
 		const power=this.cue_power;		
@@ -4501,9 +4592,9 @@ common={
 		b.set_dir(dx,dy);
 		
 		objects.stick_direction.visible=false;
-		anim2.add(objects.stick,{alpha:[1,0]}, false, 0.4,'linear');
-		anim2.add(objects.guide_orb,{alpha:[1,0]}, false, 0.4,'linear');
-		anim2.add(objects.hit_level_cont,{x:[objects.hit_level_cont.x, 800]}, false, 0.5,'linear');
+		anim3.add(objects.stick,{alpha:[1,0,'linear']}, false, 0.4);
+		anim3.add(objects.guide_orb,{alpha:[1,0,'linear']}, false, 0.4);
+		anim3.add(objects.hit_level_cont,{x:[objects.hit_level_cont.x, 800,'linear']}, false, 0.5);
 		
 		//уведомляем игру о начале ход
 		online_game.move_start_event(dx,dy);
@@ -5112,9 +5203,6 @@ common={
 
 				//если есть столкновение
 				if (distance<ball_class.BALL_DIAMETER){		
-
-
-
 					
 					//отмечаем первый шар
 					if (!this.first_ball_hited){
@@ -5245,20 +5333,21 @@ common={
 
 	show_info(t){
 		objects.t_help_info.text=t;
-		anim2.add(objects.help_info_cont,{y:[600,objects.help_info_cont.sy]},true,0.25,'easeOutBack',false);	
+		anim3.add(objects.help_info_cont,{y:[600,objects.help_info_cont.sy,'easeOutBack']},true,0.25,false);	
 		objects.info.text=t;
 		sound.play('popup');
 		
 		clearTimeout(this.help_info_timer);
 		this.help_info_timer=setTimeout(()=>{
-			anim2.add(objects.help_info_cont,{y:[objects.help_info_cont.sy,600]},false,0.25,'easeInBack',false);	
+			sp_game.info_window_close_event();
+			anim3.add(objects.help_info_cont,{y:[objects.help_info_cont.sy,600,'easeInBack']},false,0.25,false);	
 		},5000)
 		
 	},
 	
 	show_info_down(){		
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};	
@@ -5266,7 +5355,8 @@ common={
 		
 		sound.play('close_it');
 		clearTimeout(this.help_info_timer);
-		anim2.add(objects.help_info_cont,{y:[objects.help_info_cont.sy,600]},false,0.25,'easeInBack',false);	
+		sp_game.info_window_close_event();
+		anim3.add(objects.help_info_cont,{y:[objects.help_info_cont.sy,600,'easeInBack']},false,0.25,false);	
 	},
 
 	process(){
@@ -5277,7 +5367,7 @@ common={
 		this.run_balls();
 		
 		//проверяем что все шары остановлены
-		const balls_stopped = objects.balls.every(b =>b.speed===0)&&(!anim2.any_on());
+		const balls_stopped = objects.balls.every(b =>b.speed===0)&&(!anim3.any_on());
 		if (balls_stopped){
 			this.move_on=0;
 			online_game.move_finish_event();
@@ -5287,142 +5377,7 @@ common={
 	}
 	
 
-
 }
-
-instr={
-	
-	on:0,
-
-	
-	async activate(){
-		
-		this.on=1;
-		
-		//сначала все отключаем
-		objects.balls.forEach(b=>{b.on=0;b.visible=false});
-		common.move_on=0;
-		
-		//ссылка на текущий уровень
-		const cur_level_data=sp_game.levels_data[1];
-		
-		
-		//располагаем белый шар в центре
-		const white_ball=objects.balls[15];
-		white_ball.reset();
-		white_ball.x=cur_level_data.board[0][0];
-		white_ball.y=cur_level_data.board[0][1];
-		white_ball.random_orientation();
-		white_ball.on=1;
-		white_ball.visible=true;	
-
-		
-		//остальные шары в соответствии с уровнями
-		this.balls_in_puzzle=[];
-		for (let i=1;i<cur_level_data.board.length;i++){
-			
-			const ball=objects.balls[i-1];
-			ball.on=1;
-			ball.alpha=1;
-			ball.visible=true;
-			ball.random_orientation();
-			ball.reset();	
-			ball.set_color(cur_level_data.board[i][2])
-			ball.x=cur_level_data.board[i][0];
-			ball.y=cur_level_data.board[i][1];
-			ball.touched=0;
-		}			
-	
-
-		
-		//показываем все элементы игры
-		await anim2.add(objects.board_stuff_cont,{y:[450,0],alpha:[0,1]}, true, 0.5,'linear');
-				
-		//готовим ход
-		sp_game.prepare_next_move();		
-		
-		//общие параметры
-		common.initial_draw_amount=pref.get_draw_amount();
-		
-		common.reset_cue();
-		
-		//обновляем кий
-		common.set_cue_level(my_data.cue_id);
-		
-		while(true){
-			await this.run();			
-			if (!this.on) return;
-		}
-
-
-		
-	},
-	
-	close_btn_down(){
-		
-		if (anim2.any_on()) {
-			sound.play('locked');
-			return
-		};
-		
-		this.on=0;
-		sp_game.close();
-		anim2.add(objects.instr_cont,{alpha:[1,0]}, false, 1,'linear');
-		main_menu.activate();
-		
-	},
-	
-	async run(){
-		
-		objects.instr_cont.visible=true;
-		objects.instr_graph.visible=false;
-		objects.instr_point.visible=false;
-		
-		objects.instr_hand.texture=assets.free_hand;
-		
-		await anim2.add(objects.instr_hand,{x:[objects.instr_hand.x, 305],y:[objects.instr_hand.y,314]}, true, 1,'linear');
-		await new Promise(resolve => setTimeout(resolve, 500));	
-		if (!this.on) return;
-		
-		objects.instr_point.visible=true;
-		objects.instr_graph.visible=true;
-		objects.instr_hand.texture=assets.click_hand;
-		objects.instr_graph_mask.x=310;
-		let dx=0;
-		const start_ang=objects.guide_orb.angle;
-		for (let i=0;i<242;i++){			
-			
-			objects.instr_graph_mask.width=i+19;
-			objects.instr_hand.x=i+objects.instr_graph.sx;		
-			objects.instr_point.x=330+i;
-			objects.instr_point.y=309-i*i*0.002772;
-			objects.stick.angle=start_ang+i*i*0.002;		
-			objects.guide_orb.angle=objects.stick.angle;				
-			common.update_cue();
-		
-			await new Promise(resolve => setTimeout(resolve, 5));				
-
-		}		
-		
-		objects.instr_hand.texture=assets.free_hand;
-		await anim2.add(objects.instr_hand,{x:[objects.instr_hand.x, 752],y:[objects.instr_hand.y,185]}, true, 1,'linear');
-		if (!this.on) return;
-		await new Promise(resolve => setTimeout(resolve, 500));		
-		if (!this.on) return;
-		objects.instr_hand.texture=assets.click_hand;
-		
-		
-		anim2.add(objects.hit_level,{y:[objects.hit_level.sy,objects.hit_level.sy+140]}, true, 1,'linear');
-		await anim2.add(objects.instr_hand,{y:[objects.instr_hand.y,325]}, true, 1,'linear');		
-		objects.instr_hand.texture=assets.free_hand;
-		anim2.add(objects.instr_hand,{alpha:[1,0]}, false, 0.5,'linear');
-		anim2.add(objects.hit_level,{y:[objects.hit_level.y,objects.hit_level.sy]}, true, 0.1,'linear');
-		
-		//await anim2.add(objects.instr_cont,{alpha:[1,0]}, false, 2,'linear');
-		
-	}
-	
-},
 
 anim_bcg={
 	
@@ -5540,24 +5495,25 @@ main_menu={
 				
 		//vk
 		if (game_platform==='VK')
-		anim2.add(objects.vk_buttons_cont,{alpha:[0,1]}, true, 0.5,'linear');	
+		anim3.add(objects.vk_buttons_cont,{alpha:[0,1,'linear']}, true, 0.5);	
 				
 		objects.bcg.texture=assets.main_bcg_img;			
-		anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.5,'linear');			
+		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);			
 	
-		anim2.add(objects.title_cont,{y:[-400,objects.title_cont.sy],alpha:[0,1]}, true, 0.5,'linear');	
+		anim3.add(objects.title_cont,{y:[-400,objects.title_cont.sy,'linear'],alpha:[0,1,'linear']}, true, 0.5);	
 		
-		anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.2,'linear');	
+		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.2);	
 		
-		anim2.add(objects.cue_1,{x:[1000,objects.cue_1.sx]}, true, 1,'easeOutQuart');	
-		anim2.add(objects.cue_2,{x:[-1000,objects.cue_2.sx]}, true, 1,'easeOutQuart');	
+		anim3.add(objects.cue_1,{x:[1000,objects.cue_1.sx,'easeOutQuart']}, true, 1);	
+		anim3.add(objects.cue_2,{x:[-1000,objects.cue_2.sx,'easeOutQuart']}, true, 1);	
 		
-		anim2.add(objects.anim_ball_cont,{x:[-500,objects.anim_ball_cont.sx],y:[-500,objects.anim_ball_cont.sy]}, true, 1,'easeOutQuart');	
+		anim3.add(objects.anim_ball_cont,{x:[-500,objects.anim_ball_cont.sx,'easeOutQuart'],y:[-500,objects.anim_ball_cont.sy,'easeOutQuart']}, true, 1);	
 		
+		levels.load_stat();
 
 		some_process.main_menu=this.process;
 		//кнопки
-		await anim2.add(objects.main_btn_cont,{x:[800,objects.main_btn_cont.sx],alpha:[0,1]}, true, 0.75,'linear');	
+		await anim3.add(objects.main_btn_cont,{x:[800,objects.main_btn_cont.sx,'linear'],alpha:[0,1,'linear']}, true, 0.75);	
 
 	},
 	
@@ -5573,17 +5529,17 @@ main_menu={
 		
 		//игровой титл
 		
-		//anim2.add(objects.bcg,{alpha:[1,0]}, false, 0.5,'linear');	
+		//anim3.add(objects.bcg,{alpha:[1,0]}, false, 0.5,'linear');	
 		
-		anim2.add(objects.cue_1,{x:[objects.cue_1.x,1000]}, false, 0.5,'linear');	
-		anim2.add(objects.cue_2,{x:[objects.cue_2.x,-1000]}, false, 0.5,'linear');	
+		anim3.add(objects.cue_1,{x:[objects.cue_1.x,1000,'linear']}, false, 0.5);	
+		anim3.add(objects.cue_2,{x:[objects.cue_2.x,-1000,'linear']}, false, 0.5);	
 		
-		anim2.add(objects.main_btn_cont,{x:[objects.main_btn_cont.x,-800]}, false, 0.5,'linear');	
+		anim3.add(objects.main_btn_cont,{x:[objects.main_btn_cont.x,-800,'linear']}, false, 0.5);	
 
 		//кнопки
-		anim2.add(objects.title_cont,{y:[objects.title_cont.y, -400]}, false, 0.5,'linear');		
+		anim3.add(objects.title_cont,{y:[objects.title_cont.y, -400,'linear']}, false, 0.5);		
 						
-		await anim2.add(objects.anim_ball_cont,{x:[objects.anim_ball_cont.x,1000],y:[objects.anim_ball_cont.y,1000]}, false, 1,'easeInBack');
+		await anim3.add(objects.anim_ball_cont,{x:[objects.anim_ball_cont.x,1000,'easeInBack'],y:[objects.anim_ball_cont.y,1000,'easeInBack']}, false, 1);
 		
 		objects.main_menu_cont.visible=false;		
 		some_process.main_menu=function(){};		
@@ -5592,7 +5548,7 @@ main_menu={
 
 	async sp_btn_down () {
 
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -5607,10 +5563,16 @@ main_menu={
 	
 	async online_btn_down () {
 
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
+
+		if (!levels.stat||!levels.stat.length) {
+			sys_msg.add('Пройдите туториал в одиночной игре для доступа')
+			return
+		};
+
 
 		sound.play('click');
 
@@ -5622,7 +5584,7 @@ main_menu={
 
 	async lb_btn_down() {
 
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -5636,7 +5598,7 @@ main_menu={
 
 	instr_btn_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -5650,7 +5612,7 @@ main_menu={
 
 	pref_btn_down () {
 
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -5664,14 +5626,14 @@ main_menu={
 
 	rules_ok_down () {
 
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};
 		
 		sound.play('close_it');
 
-		anim2.add(objects.rules,{y:[objects.rules.sy, -450]}, false, 0.5,'easeInBack');
+		anim3.add(objects.rules,{y:[objects.rules.sy, -450,'easeInBack']}, false, 0.5);
 
 	},
 	
@@ -5718,10 +5680,10 @@ lobby={
 		
 		
 		objects.bcg.texture=assets.lobby_bcg_img;
-		anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.5,'linear');	
-		anim2.add(objects.cards_cont,{alpha:[0, 1]}, true, 0.1,'linear');
-		anim2.add(objects.lobby_footer_cont,{y:[450, objects.lobby_footer_cont.sy]}, true, 0.1,'linear');
-		anim2.add(objects.lobby_header_cont,{y:[-50, objects.lobby_header_cont.sy]}, true, 0.1,'linear');
+		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);	
+		anim3.add(objects.cards_cont,{alpha:[0, 1,'linear']}, true, 0.1);
+		anim3.add(objects.lobby_footer_cont,{y:[450, objects.lobby_footer_cont.sy,'linear']}, true, 0.1);
+		anim3.add(objects.lobby_header_cont,{y:[-50, objects.lobby_header_cont.sy,'linear']}, true, 0.1);
 		objects.cards_cont.x=0;
 		this.on=1;
 		
@@ -5790,7 +5752,7 @@ lobby={
 	pref_btn_down(){
 		
 		//если какая-то анимация
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -5800,15 +5762,15 @@ lobby={
 		//подсветка
 		objects.lobby_btn_hl.x=objects.lobby_pref_btn.x;
 		objects.lobby_btn_hl.y=objects.lobby_pref_btn.y;
-		anim2.add(objects.lobby_btn_hl,{alpha:[0,1]}, false, 0.25,'ease3peaks',false);	
+		anim3.add(objects.lobby_btn_hl,{alpha:[0,1,'ease3peaks']}, false, 0.25,false);	
 		
 		//убираем контейнер
-		anim2.add(objects.cards_cont,{x:[objects.cards_cont.x,800]}, false, 0.2,'linear');
+		anim3.add(objects.cards_cont,{x:[objects.cards_cont.x,800,'linear']}, false, 0.2);
 		
 		
 		//меняем футер
-		anim2.add(objects.lobby_header_cont,{y:[objects.lobby_footer_cont.y,-100]}, false, 0.2,'linear');
-		anim2.add(objects.lobby_footer_cont,{y:[objects.lobby_footer_cont.sy,450]}, true, 0.2,'linear');
+		anim3.add(objects.lobby_header_cont,{y:[objects.lobby_footer_cont.y,-100,'linear']}, false, 0.2);
+		anim3.add(objects.lobby_footer_cont,{y:[objects.lobby_footer_cont.sy,450,'linear']}, true, 0.2);
 		pref.activate();
 		
 	},
@@ -6172,7 +6134,7 @@ lobby={
 					
 		
 		//если какая-то анимация или открыт диалог
-		if (anim2.any_on() || pending_player!=='') {
+		if (anim3.any_on() || pending_player!=='') {
 			sound.play('locked');
 			return
 		};
@@ -6181,7 +6143,7 @@ lobby={
 		//закрываем диалог стола если он открыт
 		if(objects.invite_cont.visible) this.close_invite_dialog();
 		
-		anim2.add(objects.td_cont,{x:[800, objects.td_cont.sx]}, true, 0.1,'linear');
+		anim3.add(objects.td_cont,{x:[800, objects.td_cont.sx,'linear']}, true, 0.1);
 		
 		const card=objects.mini_cards[card_id];
 		
@@ -6200,13 +6162,13 @@ lobby={
 	
 	close_table_dialog() {
 		sound.play('click');
-		anim2.add(objects.td_cont,{x:[objects.td_cont.x, 800]}, false, 0.1,'linear');
+		anim3.add(objects.td_cont,{x:[objects.td_cont.x, 800,'linear']}, false, 0.1);
 	},
 
 	show_invite_dialog(card_id) {
 
 		//если какая-то анимация или уже сделали запрос
-		if (anim2.any_on() || pending_player!=='') {
+		if (anim3.any_on() || pending_player!=='') {
 			sound.play('locked');
 			return
 		};		
@@ -6223,7 +6185,7 @@ lobby={
 		//показыаем кнопку приглашения
 		objects.invite_button.texture=assets.invite_button;
 	
-		anim2.add(objects.invite_cont,{x:[800, objects.invite_cont.sx]}, true, 0.15,'linear');
+		anim3.add(objects.invite_cont,{x:[800, objects.invite_cont.sx,'linear']}, true, 0.15);
 		
 		const card=objects.mini_cards[card_id];
 		
@@ -6279,7 +6241,7 @@ lobby={
 	async show_invite_dialog_from_chat(uid,name) {
 
 		//если какая-то анимация или уже сделали запрос
-		if (anim2.any_on() || pending_player!=='') {
+		if (anim3.any_on() || pending_player!=='') {
 			sound.play('locked');
 			return
 		};		
@@ -6296,7 +6258,7 @@ lobby={
 		//показыаем кнопку приглашения
 		objects.invite_button.texture=assets.invite_button;
 	
-		anim2.add(objects.invite_cont,{x:[800, objects.invite_cont.sx]}, true, 0.15,'linear');
+		anim3.add(objects.invite_cont,{x:[800, objects.invite_cont.sx,'linear']}, true, 0.15);
 		
 		let player_data={uid};
 		//await this.update_players_cache_data(uid);
@@ -6404,9 +6366,9 @@ lobby={
 		
 
 		//плавно все убираем
-		anim2.add(objects.cards_cont,{alpha:[1, 0]}, false, 0.1,'linear');
-		anim2.add(objects.lobby_footer_cont,{y:[ objects.lobby_footer_cont.y,450]}, false, 0.2,'linear');
-		anim2.add(objects.lobby_header_cont,{y:[objects.lobby_header_cont.y,-50]}, false, 0.2,'linear');
+		anim3.add(objects.cards_cont,{alpha:[1, 0,'linear']}, false, 0.1);
+		anim3.add(objects.lobby_footer_cont,{y:[ objects.lobby_footer_cont.y,450,'linear']}, false, 0.2);
+		anim3.add(objects.lobby_header_cont,{y:[objects.lobby_header_cont.y,-50,'linear']}, false, 0.2);
 		
 		//больше ни ждем ответ ни от кого
 		pending_player='';
@@ -6430,7 +6392,7 @@ lobby={
 		await players_cache.update_avatar(data.uid);		
 		
 		sound.play('inst_msg');		
-		anim2.add(objects.inst_msg_cont,{alpha:[0, 1]},true,0.4,'linear',false);		
+		anim3.add(objects.inst_msg_cont,{alpha:[0,1,'linear']},true,0.4,false);		
 		objects.inst_msg_avatar.texture=players_cache.players[data.uid].texture||PIXI.Texture.WHITE;
 		objects.inst_msg_text.set2(data.msg,290);
 		objects.inst_msg_cont.tm=Date.now();
@@ -6455,13 +6417,13 @@ lobby={
 		const tm=Date.now();
 		if (objects.inst_msg_cont.visible&&objects.inst_msg_cont.ready)
 			if (tm>objects.inst_msg_cont.tm+7000)
-				anim2.add(objects.inst_msg_cont,{alpha:[1, 0]},false,0.4,'linear');
+				anim3.add(objects.inst_msg_cont,{alpha:[1, 0,'linear']},false,0.4);
 
 	},
 	
 	peek_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -6505,7 +6467,7 @@ lobby={
 			pending_player='';
 		}
 
-		anim2.add(objects.invite_cont,{x:[objects.invite_cont.x, 800]}, false, 0.15,'linear');
+		anim3.add(objects.invite_cont,{x:[objects.invite_cont.x, 800,'linear']}, false, 0.15);
 	},
 
 	async send_invite() {
@@ -6516,7 +6478,7 @@ lobby={
 			return
 		};
 
-		if (anim2.any_on()){
+		if (anim3.any_on()){
 			sound.play('locked');
 			return
 		};
@@ -6571,7 +6533,7 @@ lobby={
 	},
 
 	chat_btn_down(){
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -6581,7 +6543,7 @@ lobby={
 		//подсветка
 		objects.lobby_btn_hl.x=objects.lobby_chat_btn.x;
 		objects.lobby_btn_hl.y=objects.lobby_chat_btn.y;
-		anim2.add(objects.lobby_btn_hl,{alpha:[0,1]}, false, 0.25,'ease3peaks',false);	
+		anim3.add(objects.lobby_btn_hl,{alpha:[0,1,'ease3peaks']}, false, 0.25,false);	
 		
 		this.close();
 		chat.activate();
@@ -6590,7 +6552,7 @@ lobby={
 
 	quiz_btn_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};		
@@ -6603,7 +6565,7 @@ lobby={
 		//подсветка
 		objects.lobby_btn_hl.x=objects.lobby_quiz_btn.x;
 		objects.lobby_btn_hl.y=objects.lobby_quiz_btn.y;
-		anim2.add(objects.lobby_btn_hl,{alpha:[0,1]}, false, 0.25,'ease3peaks',false);	
+		anim3.add(objects.lobby_btn_hl,{alpha:[0,1,'ease3peaks']}, false, 0.25,false);	
 		
 		this.close();
 		quiz.activate();
@@ -6611,7 +6573,7 @@ lobby={
 
 	async lb_btn_down() {
 
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -6621,7 +6583,7 @@ lobby={
 		//подсветка
 		objects.lobby_btn_hl.x=objects.lobby_lb_btn.x;
 		objects.lobby_btn_hl.y=objects.lobby_lb_btn.y;
-		anim2.add(objects.lobby_btn_hl,{alpha:[0,1]}, false, 0.25,'ease3peaks',false);	
+		anim3.add(objects.lobby_btn_hl,{alpha:[0,1,'ease3peaks']}, false, 0.25,false);	
 
 
 		await this.close();
@@ -6630,7 +6592,7 @@ lobby={
 	
 	list_btn_down(dir){
 		
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -6644,7 +6606,7 @@ lobby={
 		const tar_btn={'-1':objects.lobby_left_btn,'1':objects.lobby_right_btn}[dir];
 		objects.lobby_btn_hl.x=tar_btn.x;
 		objects.lobby_btn_hl.y=tar_btn.y;
-		anim2.add(objects.lobby_btn_hl,{alpha:[0,1]}, false, 0.25,'ease3peaks',false);	
+		anim3.add(objects.lobby_btn_hl,{alpha:[0,1,'ease3peaks']}, false, 0.25,false);	
 		
 		
 		if (new_x>0 || new_x<-800) {
@@ -6652,12 +6614,12 @@ lobby={
 			return
 		}
 		
-		anim2.add(objects.cards_cont,{x:[cur_x, new_x]},true,0.2,'easeInOutCubic');
+		anim3.add(objects.cards_cont,{x:[cur_x, new_x,'easeInOutCubic']},true,0.2);
 	},
 
 	async back_btn_down() {
 
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -6671,7 +6633,7 @@ lobby={
 
 	info_btn_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -6690,19 +6652,19 @@ lobby={
 			objects.info_cont.init=1;
 		}
 		
-		anim2.add(objects.info_cont,{alpha:[0,1]}, true, 0.25,'linear');
+		anim3.add(objects.info_cont,{alpha:[0,1,'linear']}, true, 0.25);
 
 	},
 	
 	info_close_down(){
 		
-		if (anim2.any_on()) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
 		sound.play('close');
 		
-		anim2.add(objects.info_cont,{alpha:[1,0]}, false, 0.25,'linear');
+		anim3.add(objects.info_cont,{alpha:[1,0,'linear']}, false, 0.25);
 		
 	}
 
@@ -6716,16 +6678,16 @@ lb={
 	show() {
 
 		objects.bcg.texture=assets.lb_bcg;
-		anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.5,'linear');
+		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);
 		
-		anim2.add(objects.lb_1_cont,{x:[-150, objects.lb_1_cont.sx]}, true, 0.5,'easeOutBack');
-		anim2.add(objects.lb_2_cont,{x:[-150, objects.lb_2_cont.sx]}, true, 0.5,'easeOutBack');
-		anim2.add(objects.lb_3_cont,{x:[-150, objects.lb_3_cont.sx]}, true, 0.5,'easeOutBack');
-		anim2.add(objects.lb_cards_cont,{x:[450, 0]}, true, 0.5,'easeOutCubic');
+		anim3.add(objects.lb_1_cont,{x:[-150, objects.lb_1_cont.sx,'easeOutBack']}, true, 0.5);
+		anim3.add(objects.lb_2_cont,{x:[-150, objects.lb_2_cont.sx,'easeOutBack']}, true, 0.5);
+		anim3.add(objects.lb_3_cont,{x:[-150, objects.lb_3_cont.sx,'easeOutBack']}, true, 0.5);
+		anim3.add(objects.lb_cards_cont,{x:[450, 0,'easeOutCubic']}, true, 0.5);
 				
 		objects.lb_cards_cont.visible=true;
 		
-		anim2.add(objects.lb_back_btn,{y:[450, objects.lb_back_btn.sy]}, true, 0.25,'linear');
+		anim3.add(objects.lb_back_btn,{y:[450, objects.lb_back_btn.sy,'linear']}, true, 0.25);
 
 		for (let i=0;i<7;i++) {
 			objects.lb_cards[i].x=this.cards_pos[i][0];
@@ -6755,7 +6717,7 @@ lb={
 
 	back_btn_down() {
 
-		if (anim2.any_on()===true) {
+		if (anim3.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -6984,6 +6946,10 @@ main_loader={
 		this.t_progress.anchor.set(1,0);
 		
 		objects.load_cont=new PIXI.Container();
+		objects.load_cont.pivot.x=M_WIDTH*0.5
+		objects.load_cont.pivot.y=M_HEIGHT*0.5
+		objects.load_cont.x=M_WIDTH*0.5
+		objects.load_cont.y=M_HEIGHT*0.5
 		objects.load_cont.addChild(load_bar_bcg,load_bar_progress,this.load_bar_mask,this.t_progress)
 		app.stage.addChild(objects.load_cont);
 	
@@ -7078,9 +7044,8 @@ main_loader={
 		script.textContent = assets.multiavatar;
 		document.head.appendChild(script);
 				
-		anim2.add(objects.load_cont,{alpha:[1,0]}, false, 0.5,'linear');
-		//await anim2.add(objects.loader_cont,{alpha:[1,0]}, false, 0.5,'linear');
-		//await anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.5,'linear');
+		await anim3.add(objects.load_cont,{alpha:[1,0,'linear'],scale_xy:[1,3,'linear'],angle:[0,-30,'linear']}, false, 0.25);
+
 		//return
 		//короткое обращение к ресурсам
 		//gres=game_res.resources;
@@ -7343,7 +7308,7 @@ async function init_game_env(lang) {
 	await main_loader.load1();	
 	await main_loader.load2();		
 
-	anim2.add(objects.id_cont,{alpha:[0, 1]}, true,0.5	,'linear');
+	anim3.add(objects.id_cont,{alpha:[0,1,'linear'],y:[-200,objects.id_cont.sy,'easeOutBack']}, true,0.5);
 	some_process.loup_anim=()=>{objects.id_gear.rotation+=0.02}
 
 	//идентификация
@@ -7388,8 +7353,8 @@ async function init_game_env(lang) {
 	objects.id_avatar.set_texture(players_cache.players[my_data.uid].texture);
 	objects.id_name.set2(my_data.name,150);	
 	objects.id_rating.text=my_data.rating;
-	anim2.add(objects.id_name,{alpha:[0,1]}, true, 0.55,'linear');
-	anim2.add(objects.id_rating,{alpha:[0,1]}, true, 0.55,'linear');
+	anim3.add(objects.id_name,{alpha:[0,1,'linear']}, true, 0.55);
+	anim3.add(objects.id_rating,{alpha:[0,1,'linear']}, true, 0.55);
 			
 	//обновляем почтовый ящик
 	fbs.ref('inbox/'+my_data.uid).set({sender:'-',message:'-',tm:'-',data:9});
@@ -7450,7 +7415,7 @@ async function init_game_env(lang) {
 
 	//убираем попап
 	some_process.loup_anim = function(){};
-	setTimeout(function(){anim2.add(objects.id_cont,{y:[objects.id_cont.sy, -200]}, false, 0.5,'easeInBack')},500);
+	setTimeout(function(){anim3.add(objects.id_cont,{y:[objects.id_cont.sy, -300,'linear'],x:[objects.id_cont.sx,1200,'linear'],angle:[0,200,'linear']}, false, 0.4)},500);
 			
 	//это разные события
 	document.addEventListener("visibilitychange", function(){tabvis.change()});
@@ -7507,7 +7472,7 @@ function main_loop() {
 		some_process[key]();		
 	
 	game_tick+=0.016666666;
-	anim2.process();
+	anim3.process();
 	requestAnimationFrame(main_loop);
 }
 
