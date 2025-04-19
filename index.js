@@ -318,7 +318,7 @@ anim3={
 					}
 					
 					slot.obj.visible=slot.vis_on_end;
-					slot.obj.alpha = 1*slot.vis_on_end;
+					if(!slot.vis_on_end) slot.obj.alpha=1;
 					
 					slot.obj.ready=true;
 					slot.p_resolve(1);
@@ -7475,7 +7475,6 @@ function main_loop() {
 	anim3.process();
 	requestAnimationFrame(main_loop);
 }
-
 
 
 
