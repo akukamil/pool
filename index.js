@@ -196,6 +196,23 @@ anim3={
 		return x * x * x;
 	},
 	
+	ease3peaks(x){
+
+		if (x < 0.16666) {
+			return x / 0.16666;
+		} else if (x < 0.33326) {
+			return 1-(x - 0.16666) / 0.16666;
+		} else if (x < 0.49986) {
+			return (x - 0.3326) / 0.16666;
+		} else if (x < 0.66646) {
+			return 1-(x - 0.49986) / 0.16666;
+		} else if (x < 0.83306) {
+			return (x - 0.6649) / 0.16666;
+		} else if (x >= 0.83306) {
+			return 1-(x - 0.83306) / 0.16666;
+		}		
+	},
+	
 	ease2back(x) {
 		return Math.sin(x*Math.PI);
 	},
