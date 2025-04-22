@@ -691,10 +691,11 @@ class ball_class extends PIXI.Container{
 		//common.ball_potted_event(this,hole_data);
 		
 		sound.play('ball_potted');
-
-		online_game.ball_potted_event(this,hole_data);
-		sp_game.ball_potted_event(this,hole_data);		
-		await anim3.add(this,{alpha:[1,0,'linear'],x:[this.x,hole_data[0],'linear'],y:[this.y,hole_data[1],'linear']}, false, 0.25);
+		
+		await anim3.add(this,{alpha:[1,0,'linear'],x:[this.x,hole_data[0],'linear'],y:[this.y,hole_data[1],'linear']}, false, 0.25).then(()=>{
+			online_game.ball_potted_event(this,hole_data);
+			sp_game.ball_potted_event(this,hole_data);		
+		})
 
 		
 	}
