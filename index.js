@@ -4244,7 +4244,7 @@ sp_game={
 				
 		if (this.cur_level_data.type==='pocket_after_hit'){			
 			const hits_to_win=this.cur_level_data.hits;			
-			if (common.potted_balls.some(ball=>{return (ball.borders_hits_before_potted+ball.balls_hits_before_potted>=hits_to_win)}) ){
+			if (common.potted_balls.some(ball=>{return (ball.borders_hits_before_potted+ball.balls_hits_before_potted>hits_to_win)}) ){
 				this.show_fin_dialog('win');				
 				return;
 			}	
