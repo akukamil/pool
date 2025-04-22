@@ -1594,10 +1594,10 @@ chat={
 		const cur_dt=Date.now();
 		this.recent_msg = this.recent_msg.filter(d =>cur_dt-d<60000);
 				
-		//if (this.recent_msg.length>3){
+		if (this.recent_msg.length>3){
 			sys_msg.add('Подождите 1 минуту')
 			return;
-		//}		
+		}		
 		
 		//добавляем отметку о сообщении
 		this.recent_msg.push(Date.now());
@@ -3138,7 +3138,7 @@ online_game={
 		if (my_turn){
 			
 			if (this.table_state==='break')
-				console.log('разбейте пирамиду!');
+				common.show_info('Ваш ход. Разбейте пирамиду.');
 			
 			if (this.table_state==='open')
 				console.log('забейте красный или синий шар!');
@@ -3156,7 +3156,7 @@ online_game={
 		}else{
 			
 			if (this.table_state==='break')
-				console.log('соперник разбивает пирамиду!');
+				common.show_info('Соперник начинает игру.');
 			
 			if (this.table_state==='open')
 				console.log('соперник должен забить красный или синий шар!');
@@ -3667,7 +3667,8 @@ levels={
 		icon.visible=true;
 		
 		if (level<this.stat.length){
-			icon.stars_icon.texture=assets.starsx1;				
+			const stars=this.stat[level];
+			icon.stars_icon.texture=assets[`starsx${stars}`];				
 			icon.stars_icon.visible=true;
 		}
 		else
@@ -3743,7 +3744,7 @@ levels={
 		
 		//если уровень еще не пройден
 		if (next_level>this.stat.length){
-			sys_msg.add(['Заверщите предыдущий уровень!','Complete previous level!'][LANG])
+			sys_msg.add(['Завершите предыдущий уровень!','Complete previous level!'][LANG])
 			sound.play('locked');
 			return;
 		} 
@@ -3830,6 +3831,7 @@ sp_game={
 	cur_level_data:0,
 	attemps_left:30,
 	seconds_left:100,
+	seconds_total:100,
 	timer:0,
 	balls_in_puzzle:[],
 	info_window_resolver:0,
@@ -3959,6 +3961,7 @@ sp_game={
 		
 		//контроль времени
 		this.timer=0;
+		this.seconds_total=this.cur_level_data.sec;
 		this.seconds_left=this.cur_level_data.sec;
 		objects.spgame_t_seconds.text='Осталось времени: '+this.format_time(this.seconds_left);	
 		this.timer=setInterval(()=>{this.tick()},1000);
@@ -4460,10 +4463,21 @@ sp_game={
 		
 		
 		if (result==='win'){
-			sound.play('sp_win');
-			levels.save_stat(this.cur_level,1);
+			
+			let stars=1+Math.floor(3*this.seconds_left/this.seconds_total);
+			
+			
+			sound.play('sp_win');			
+			levels.save_stat(this.cur_level,stars);
 			objects.spfin_dlg_action_btn.texture=assets.spfin_dlg_next_img;
 			objects.spfin_dlg_action_btn.pointerdown=()=>{this.next_btn_down()};
+						
+			await anim3.add(objects.spfin_dlg_star0,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
+			if(stars>1)
+				await anim3.add(objects.spfin_dlg_star1,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
+			if(stars>2)
+				await anim3.add(objects.spfin_dlg_star2,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
+			
 		}else{
 			sound.play('lose');
 			objects.spfin_dlg_action_btn.texture=assets.spfin_dlg_replay_img;
@@ -4471,11 +4485,8 @@ sp_game={
 			return;			
 		}
 
+	
 
-		
-		await anim3.add(objects.spfin_dlg_star0,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
-		await anim3.add(objects.spfin_dlg_star1,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
-		await anim3.add(objects.spfin_dlg_star2,{alpha:[0,1,'linear'],scale_xy:[0.666,1,'linear']}, true, 0.15);
 
 	},
 		
@@ -6927,31 +6938,25 @@ main_loader={
 		loader.add('mfont2',git_src+'/fonts/core_sans_ds/font.fnt');
 		loader.add('main_load_list',git_src+'/load_list.txt');
 
-
 		//переносим все в ассеты
 		await new Promise(res=>loader.load(res))
 		for (const res_name in loader.resources){
 			const res=loader.resources[res_name];			
 			assets[res_name]=res.texture||res.sound||res.data;			
 		}		
-		
-		
-
-		
+				
 		const load_bar_bcg=new PIXI.Sprite(assets.load_bar_bcg);
 		load_bar_bcg.x=170;
 		load_bar_bcg.y=170;
 		load_bar_bcg.width=450;
 		load_bar_bcg.height=70;
-		
-		
+				
 		this.load_bar_mask=new PIXI.Graphics();
 		this.load_bar_mask.beginFill(0xff0000);
 		this.load_bar_mask.drawRect(0,0,1,40);
 		this.load_bar_mask.x=190;
 		this.load_bar_mask.y=200;		
-		
-		
+				
 		const load_bar_progress=new PIXI.Sprite(assets.load_bar_progress);
 		load_bar_progress.x=170;
 		load_bar_progress.y=200;
@@ -6978,8 +6983,7 @@ main_loader={
 		objects.load_cont.y=M_HEIGHT*0.5
 		objects.load_cont.addChild(load_bar_bcg,load_bar_progress,this.load_bar_mask,this.t_info,this.t_progress)
 		app.stage.addChild(objects.load_cont);
-	
-	
+		
 	},
 	
 	async load2(){
@@ -7021,6 +7025,7 @@ main_loader={
 		loader.add('popup',git_src+'sounds/popup.mp3');
 		loader.add('ready2',git_src+'sounds/ready2.mp3');
 		loader.add('win2',git_src+'sounds/win2.mp3');
+		loader.add('keypress',git_src+'sounds/keypress.mp3');
 		
 		loader.add('board1',git_src+'res/boards/board1.png');
 		loader.add('board2',git_src+'res/boards/board2.png');
