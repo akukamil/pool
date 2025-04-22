@@ -7038,8 +7038,8 @@ main_loader={
 		loader.add('board9',git_src+'res/boards/board9.png');
 		loader.add('board10',git_src+'res/boards/board10.png');
 		
-		loader.add('lobby_bcg',git_src+'res/common/lobby_bcg_img.jpg');
-		loader.add('main_bcg',git_src+'res/common/main_bcg_img.jpg');
+		//loader.add('lobby_bcg',git_src+'res/common/lobby_bcg_img.jpg');
+		//loader.add('main_bcg',git_src+'res/common/main_bcg_img.jpg');
 		
 		//добавляем библиотеку аватаров
 		loader.add('multiavatar', 'https://akukamil.github.io/common/multiavatar.min.txt');	
