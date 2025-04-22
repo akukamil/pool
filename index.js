@@ -4448,6 +4448,8 @@ sp_game={
 		objects.spfin_dlg_star1.visible=false;
 		objects.spfin_dlg_star2.visible=false;		
 		
+		objects.spfin_dlg_title0.text=['Информация!','Info!'][LANG];
+		
 		if (result==='no_time')
 			objects.spfin_dlg_title1.text=['Время истекло!','No time left!'][LANG];	
 		
@@ -5602,6 +5604,7 @@ main_menu={
 
 		if (!levels.stat||!levels.stat.length) {
 			sys_msg.add('Пройдите туториал в одиночной игре для доступа')
+			anim3.add(objects.sp_btn,{scale_xy:[0.666, 1,'ease2back'],angle:[0,10,'ease2back']}, true, 0.25);
 			return
 		};
 
