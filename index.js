@@ -692,10 +692,10 @@ class ball_class extends PIXI.Container{
 		
 		sound.play('ball_potted');
 
-		await anim3.add(this,{alpha:[1,0,'linear'],x:[this.x,hole_data[0],'linear'],y:[this.y,hole_data[1],'linear']}, false, 0.25,false);
 		online_game.ball_potted_event(this,hole_data);
 		sp_game.ball_potted_event(this,hole_data);		
-		console.log(this.balls_hits_before_potted,this.borders_hits_before_potted);
+		await anim3.add(this,{alpha:[1,0,'linear'],x:[this.x,hole_data[0],'linear'],y:[this.y,hole_data[1],'linear']}, false, 0.25);
+
 		
 	}
 	
@@ -7206,11 +7206,20 @@ tabvis={
 		my_ws.send_to_sleep();		
 	},
 	
+	start_hid_process(){
+		
+		this.invis_timer=setInterval(()=>{				
+			tabvis.process();	
+		},16);
+	
+	},
+	
 	process(){
 		
-		if (!common.move_on) return;
+		//if (!common.move_on) return;
 		for (let key in some_process)
 			some_process[key]();
+		anim3.process();
 		
 	}
 }
