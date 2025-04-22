@@ -3403,7 +3403,7 @@ pref={
 				
 		const name=await keyboard.read(15);
 		
-		if (name.replaceAll(' ','').length>3){		
+		if (name.length>3&&name.replaceAll(' ','').length>3){		
 		
 			my_data.name=name;			
 			my_data.nick_tm=SERV_TM;
@@ -3736,18 +3736,21 @@ levels={
 			
 		//если это последний уровень
 		if (next_level===sp_game.levels_data.length-1){
+			sys_msg.add(['Больше нет уровней!','No more levels!'][LANG])
 			sound.play('locked');
 			return;
 		} 
 		
 		//если уровень еще не пройден
 		if (next_level>this.stat.length){
+			sys_msg.add(['Заверщите предыдущий уровень!','Complete previous level!'][LANG])
 			sound.play('locked');
 			return;
 		} 
 		
 		//если отрицательный уровень
 		if (next_level<0){
+			sys_msg.add(['Недоступно!','Error!'][LANG])
 			sound.play('locked');
 			return;
 		} 
@@ -6962,12 +6965,18 @@ main_loader={
 		this.t_progress.tint=0xFFC000;
 		this.t_progress.anchor.set(1,0);
 		
+		this.t_info=new PIXI.BitmapText(['Загрузка...','Loading...'][LANG], {fontName: 'mfont',fontSize: 20,align: 'center'});
+		this.t_info.y=195;
+		this.t_info.x=395;		
+		this.t_info.tint=0xFFC000;
+		this.t_info.anchor.set(0.5,0.5);
+		
 		objects.load_cont=new PIXI.Container();
 		objects.load_cont.pivot.x=M_WIDTH*0.5
 		objects.load_cont.pivot.y=M_HEIGHT*0.5
 		objects.load_cont.x=M_WIDTH*0.5
 		objects.load_cont.y=M_HEIGHT*0.5
-		objects.load_cont.addChild(load_bar_bcg,load_bar_progress,this.load_bar_mask,this.t_progress)
+		objects.load_cont.addChild(load_bar_bcg,load_bar_progress,this.load_bar_mask,this.t_info,this.t_progress)
 		app.stage.addChild(objects.load_cont);
 	
 	
@@ -7063,10 +7072,7 @@ main_loader={
 				
 		await anim3.add(objects.load_cont,{alpha:[1,0,'linear'],scale_xy:[1,3,'linear'],angle:[0,-30,'linear']}, false, 0.25);
 
-		//return
-		//короткое обращение к ресурсам
-		//gres=game_res.resources;
-		
+		//информация об уровнях онлайн игры
 		sp_game.levels_data=eval(assets.levels_data);
 		
 		
