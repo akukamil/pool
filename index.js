@@ -5528,8 +5528,8 @@ main_menu={
 		objects.main_menu_cont.visible=true;
 				
 		//vk
-		if (game_platform==='VK')
-		anim3.add(objects.vk_buttons_cont,{alpha:[0,1,'linear']}, true, 0.5);	
+		//if (game_platform==='VK')
+		//anim3.add(objects.vk_buttons_cont,{alpha:[0,1,'linear']}, true, 0.5);	
 				
 		objects.bcg.texture=assets.main_bcg_img;			
 		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);			
@@ -7379,16 +7379,20 @@ async function init_game_env(lang) {
 	resize();
 	window.addEventListener('resize', resize);
 	
+	
 	//запускаем главный цикл
 	main_loop();
+	
+	//идентификация
+	await auth2.init();	
+	
 	await main_loader.load1();	
 	await main_loader.load2();		
 
 	anim3.add(objects.id_cont,{alpha:[0,1,'linear'],y:[-200,objects.id_cont.sy,'easeOutBack']}, true,0.5);
 	some_process.loup_anim=()=>{objects.id_gear.rotation+=0.02}
 
-	//идентификация
-	await auth2.init();
+
 
 	//загружаем остальные данные из файербейса
 	const other_data = await fbs_once('players/' + my_data.uid)
