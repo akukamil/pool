@@ -5534,15 +5534,22 @@ main_menu={
 		objects.bcg.texture=assets.main_bcg_img;			
 		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);			
 	
-		anim3.add(objects.title_cont,{y:[-400,objects.title_cont.sy,'linear'],alpha:[0,1,'linear']}, true, 0.5);	
+		anim3.add(objects.title_cont,{alpha:[0,1,'linear']}, true, 0.5);	
 		
 		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.2);	
 		
-		anim3.add(objects.cue_1,{x:[1000,objects.cue_1.sx,'easeOutQuart']}, true, 1);	
-		anim3.add(objects.cue_2,{x:[-1000,objects.cue_2.sx,'easeOutQuart']}, true, 1);	
+		anim3.add(objects.title_eko,{x:[-100,objects.title_eko.sx,'easeOutBack']}, true, 0.5);	
+		anim3.add(objects.title_online,{x:[850,objects.title_online.sx,'easeOutBack']}, true, 0.5);	
 		
-		anim3.add(objects.anim_ball_cont,{x:[-500,objects.anim_ball_cont.sx,'easeOutQuart'],y:[-500,objects.anim_ball_cont.sy,'easeOutQuart']}, true, 1);	
 		
+		anim3.add(objects.title_rack,{x:[900,objects.title_rack.sx,'linear']}, true, 1);	
+		anim3.add(objects.title_stick,{angle:[0,-15,'linear']}, true, 0.2);	
+		
+		//rotation: 2 * dx / D
+		anim3.add(objects.anim_ball_1,{x:[-100,110,'easeOutCubic'],rotation:[-2*210*Math.PI/79,0,'easeOutCubic']}, true, 1);	
+		anim3.add(objects.anim_ball_2,{x:[-100,720,'easeOutCubic'],rotation:[-2*820*Math.PI/58+0.1,0.1,'easeOutCubic']}, true, 2);	
+		
+	
 		levels.load_stat();
 
 		some_process.main_menu=this.process;
@@ -5557,7 +5564,41 @@ main_menu={
 		if (objects.main_title_blique.x>2000)
 			objects.main_title_blique.x=0;
 		
+		objects.title_rack.rotation=Math.sin(game_tick*0.04)*2;
+		objects.title_stick.rotation=-0.256+Math.sin(game_tick*0.6)*0.1;
+		//objects.anim_ball_1.rotation+=0.002;
+		//objects.anim_ball_2.rotation-=0.002;
 	},
+	
+	ball_touched(ball,D){
+		
+		if (anim3.any_on()) {
+			sound.play('locked');
+			return
+		};
+		
+		const curx=ball.x;
+		const cur_rot=ball.rotation;
+		
+		let tar_x=0;
+		let tar_rot=0;
+		
+		if (curx>400){
+			tar_x=irnd(50,350);			
+			const dx=curx-tar_x
+			tar_rot=cur_rot-2 * dx*Math.PI / D
+		}else{
+			tar_x=irnd(450,750);
+			const dx=tar_x-curx;
+			tar_rot=cur_rot+2 * dx*Math.PI / D
+		}
+
+		anim3.add(ball,{x:[curx,tar_x,'easeOutCubic'],rotation:[cur_rot,tar_rot,'easeOutCubic']}, true,0.5);	
+		
+	},
+	
+	
+	
 
 	async close() {
 		
@@ -5565,16 +5606,14 @@ main_menu={
 		
 		//anim3.add(objects.bcg,{alpha:[1,0]}, false, 0.5,'linear');	
 		
-		anim3.add(objects.cue_1,{x:[objects.cue_1.x,1000,'linear']}, false, 0.5);	
-		anim3.add(objects.cue_2,{x:[objects.cue_2.x,-1000,'linear']}, false, 0.5);	
+		anim3.add(objects.anim_ball_1,{x:[objects.anim_ball_1.x,1000,'linear']}, false, 0.5);	
+		anim3.add(objects.anim_ball_2,{x:[objects.anim_ball_2.x,-1000,'linear']}, false, 0.5);	
 		
 		anim3.add(objects.main_btn_cont,{x:[objects.main_btn_cont.x,-800,'linear']}, false, 0.5);	
 
 		//кнопки
-		anim3.add(objects.title_cont,{y:[objects.title_cont.y, -400,'linear']}, false, 0.5);		
-						
-		await anim3.add(objects.anim_ball_cont,{x:[objects.anim_ball_cont.x,1000,'easeInBack'],y:[objects.anim_ball_cont.y,1000,'easeInBack']}, false, 1);
-		
+		anim3.add(objects.title_cont,{alpha:[1,0,'linear']}, false, 0.5);		
+								
 		objects.main_menu_cont.visible=false;		
 		some_process.main_menu=function(){};		
 
@@ -5582,7 +5621,7 @@ main_menu={
 
 	async sp_btn_down () {
 
-		if (anim3.any_on()===true) {
+		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
@@ -7002,10 +7041,7 @@ main_loader={
 		//добавляем текстуры стикеров
 		for (var i=0;i<16;i++)
 			loader.add('sticker_texture_'+i, git_src+'stickers/'+i+'.png');
-		
-		for (let i=0;i<ball_class.BALL_ANIM_FRAMES;i++)
-			 loader.add('ball_anim'+i, git_src+'ball_anim/'+ String(i).padStart(4, '0')+'.png');	
-			
+					
 		//добавляем из основного листа загрузки
 		const load_list=eval(assets.main_load_list);
 		for (let i = 0; i < load_list.length; i++)
@@ -7053,9 +7089,8 @@ main_loader={
 			
 		loader.add('music',git_src+'sounds/music.mp3');	
 			
-		//спрайтшит пламени
-		loader.add('flame_spritesheet', git_src+'res/flame_spritesheet.png');
-						
+		for (let i=0;i<ball_class.BALL_ANIM_FRAMES;i++)
+			 loader.add('ball_anim'+i, git_src+'ball_anim/'+ String(i).padStart(4, '0')+'.png');							
 		//прогресс
 		loader.onProgress.add((l,res)=>{
 			this.load_bar_mask.width =410*l.progress*0.01;
