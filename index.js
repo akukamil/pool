@@ -7276,7 +7276,7 @@ async function define_platform_and_language() {
 		return;
 	}
 	
-	if (s.includes('vk.com')) {
+	if (s.includes('vk.com')||s.includes('vk_app_id')) {
 		game_platform = 'VK';	
 		LANG = 0;	
 		return;
