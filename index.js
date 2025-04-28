@@ -3529,14 +3529,15 @@ pref={
 		if (game_platform==='VK') {			
 			
 			vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item: 'cue'+this.cur_cue_id}).then(data =>{
-				//удачная покупка
+				this.buy_or_update_cue(this.cur_cue_id)
 			}).catch(err => {
 				objects.shop_info.text=['Ошибка при покупке!','Error!'][LANG];
-				return;
 			});					
 		};
-		
+	},
 	
+	
+	buy_or_update_cue(cue_id){
 		
 		my_data.cue_id=this.cur_cue_id;
 		my_data.cue_dur=this.c_resource[my_data.cue_id];
@@ -3550,6 +3551,7 @@ pref={
 		
 		sound.play('note1');
 		this.send_info(['Игрок купил (обновил) кий!','Player has acquired (upadeted) a cue'][LANG]);
+		
 	},
 			
 	async avatar_switch_down(dir){
