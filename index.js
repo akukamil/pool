@@ -3547,10 +3547,10 @@ pref={
 			}).catch(err => {
 				objects.pref_info.text=['Ошибка при покупке!','Error!'][LANG];
 			});					
-		};	
-		
-		
-		this.restore_cue(this.cur_cue_id)
+		};		
+
+		if (game_platform!=='VK'&&game_platform!=='YANDEX')
+			this.restore_cue(this.cur_cue_id)
 		
 	},
 		
