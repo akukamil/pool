@@ -3531,7 +3531,7 @@ pref={
 			vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item: 'cue'+this.cur_cue_id}).then(data =>{
 				this.buy_or_update_cue(this.cur_cue_id)
 			}).catch(err => {
-				objects.shop_info.text=['Ошибка при покупке!','Error!'][LANG];
+				objects.pref_info.text=['Ошибка при покупке!','Error!'][LANG];
 			});					
 		};
 	},
