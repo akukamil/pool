@@ -3526,6 +3526,18 @@ pref={
 		};
 		sound.play('click');
 		
+		if (game_platform==='VK') {			
+			
+			vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item: 'cue'+this.cur_cue_id}).then(data =>{
+				//удачная покупка
+			}).catch(err => {
+				objects.shop_info.text=['Ошибка при покупке!','Error!'][LANG];
+				return;
+			});					
+		};
+		
+	
+		
 		my_data.cue_id=this.cur_cue_id;
 		my_data.cue_dur=this.c_resource[my_data.cue_id];
 		
@@ -5546,8 +5558,10 @@ main_menu={
 		anim3.add(objects.title_stick,{angle:[0,-15,'linear']}, true, 0.2);	
 		
 		//rotation: 2 * dx / D
-		anim3.add(objects.anim_ball_1,{x:[-100,110,'easeOutCubic'],rotation:[-2*210*Math.PI/79,0,'easeOutCubic']}, true, 1);	
-		anim3.add(objects.anim_ball_2,{x:[-100,720,'easeOutCubic'],rotation:[-2*820*Math.PI/58+0.1,0.1,'easeOutCubic']}, true, 2);	
+		objects.anim_ball_1.x=-30;
+		objects.anim_ball_2.x=820;
+		objects.anim_ball_1.spd=5;
+		objects.anim_ball_2.spd=-3;
 		
 	
 		levels.load_stat();
