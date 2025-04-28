@@ -3122,11 +3122,12 @@ online_game={
 		
 		//снижаем уровень кия
 		if (my_data.cue_id>1){
-			my_data.cue_dur--;			
-			if (my_data.cue_dur<=0)
-				this.set_cue_level(1);		
+			my_data.cue_resource[my_data.cue_dur]--;
+			if (my_data.cue_resource[my_data.cue_dur]<=0)
+				common.set_cue_level(1);		
 
-			fbs.ref('players/'+my_data.uid+'/cue_dur').set(my_data.cue_dur);	
+			//сохраняем в хранилище
+			safe_ls('pool_cue_data',my_data.cue_resource);
 		}
 		
 	},
@@ -3283,7 +3284,7 @@ pref={
 	cur_cue_id:1,	
 	cur_board_id:1,
 	cur_pic_url:'',
-	c_resource:[100,100,120,150,200,300,500,1000],
+	max_cue_resource:[100,100,120,150,200,300,500,1000],
 		
 	activate(){
 		
@@ -3304,8 +3305,7 @@ pref={
 		
 		this.avatar_switch_center=this.avatar_swtich_cur=irnd(9999,999999);
 		this.cur_pic_url=my_data.pic_url;
-		
-		
+				
 		this.cur_cue_id=my_data.cue_id;
 		this.cue_switch_down(0);
 		
@@ -3498,62 +3498,104 @@ pref={
 		if (this.cur_cue_id>7)this.cur_cue_id=7;
 		if (this.cur_cue_id<1)this.cur_cue_id=1;
 		
-		if (this.cur_cue_id===my_data.cue_id)
+		const cur_cue_resource=my_data.cue_resource[this.cur_cue_id];
+		const cur_cue_max_resource=this.max_cue_resource[this.cur_cue_id];
+		
+		//нельзя восстановить первый кий или максимальный кий
+		if (cur_cue_resource===cur_cue_max_resource||this.cur_cue_id===1)
 			objects.pref_cue_buy_btn.alpha=0.5
 		else
-			objects.pref_cue_buy_btn.alpha=1
-		
+			objects.pref_cue_buy_btn.alpha=1		
 		
 		objects.pref_cue_level.text=['Уровень: ','Level: '][LANG]+this.cur_cue_id;
 		
-		objects.pref_cue_info.text=['Ресурс: ','Durability: '][LANG]+this.c_resource[this.cur_cue_id];
-		if (this.cur_cue_id===my_data.cue_id){
-			objects.pref_cue_level.text+=[' (активный)',' (active)'][LANG];
-			objects.pref_cue_info.text+= ([' (осталось: ',' (left: '][LANG] +my_data.cue_dur+')');			
-		}
-
-				
+		objects.pref_cue_info.text=['Ресурс: ','Durability: '][LANG]+cur_cue_resource+"/"+cur_cue_max_resource;
+		if (this.cur_cue_id===my_data.cue_id)
+			objects.pref_cue_level.text+=[' (активный)',' (active)'][LANG];			
+		
+		//кнопка выбора работает только где есть ресурс
+		if (cur_cue_resource===0||this.cur_cue_id===my_data.cue_id)
+			objects.pref_cue_select_btn.alpha=0.5;
+		else
+			objects.pref_cue_select_btn.alpha=1;			
+		
 		objects.pref_cue_photo.texture=assets['cue'+this.cur_cue_id];
 		
 	},
 	
-	cue_buy_down(){
-		
+	cue_buy_down(){		
 		
 		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
+
+		
+		//нельзя восстановить первый кий или максимальный кий
+		if (objects.pref_cue_buy_btn.alpha!==1){
+			this.send_info(['Невозможно восстановить!','Can not resore!'][LANG])			
+			sound.play('locked');
+			return;
+		}
+		
 		sound.play('click');
 		
 		if (game_platform==='VK') {			
 			
 			vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item: 'cue'+this.cur_cue_id}).then(data =>{
-				this.buy_or_update_cue(this.cur_cue_id)
+				this.restore_cue(this.cur_cue_id)
 			}).catch(err => {
 				objects.pref_info.text=['Ошибка при покупке!','Error!'][LANG];
 			});					
-		};
+		};	
+		
+		
+		this.restore_cue(this.cur_cue_id)
+		
 	},
-	
-	
-	buy_or_update_cue(cue_id){
 		
-		my_data.cue_id=this.cur_cue_id;
-		my_data.cue_dur=this.c_resource[my_data.cue_id];
+	restore_cue(cue_id){
+				
+		if (anim3.any_on()) {
+			sound.play('locked');
+			return
+		};			
 		
-		//обновляем в фб
-		fbs.ref('players/'+my_data.uid+'/cue_id').set(my_data.cue_id);	
-		fbs.ref('players/'+my_data.uid+'/cue_dur').set(my_data.cue_dur);		
+		//восстанавливаем максимальный ресурс
+		my_data.cue_resource[this.cur_cue_id]=this.max_cue_resource[this.cur_cue_id]
 		
-		this.cue_switch_down(0);
-		objects.pref_cue_buy_btn.alpha=0.5;
+		this.cue_switch_down(0)		
+		
+		//записываем в хранилище
+		safe_ls('pool_cue_data',my_data.cue_resource)
 		
 		sound.play('note1');
-		this.send_info(['Игрок купил (обновил) кий!','Player has acquired (upadeted) a cue'][LANG]);
+		this.send_info(['Игрок купил (обновил) кий!','Player has acquired (upadeted) a cue'][LANG])
 		
 	},
-			
+	
+	cue_select_down(){		
+		
+		if (anim3.any_on()) {
+			sound.play('locked');
+			return
+		};		
+		
+		//нельзя восстановить первый кий или максимальный кий
+		if (objects.pref_cue_select_btn.alpha!==1){
+			this.send_info(['Невозможно выбрать!','Can not choose!'][LANG])
+			sound.play('locked');
+			return;
+		}
+		
+		this.send_info(['Игрок изменил кий!','Player has changes cue!'][LANG])
+		
+		sound.play('note1')
+		my_data.cue_id=this.cur_cue_id;
+		this.cue_switch_down(0);
+		
+	},
+		
 	async avatar_switch_down(dir){
 		
 		if (dir&&anim3.any_on()) {
@@ -4616,10 +4658,6 @@ common={
 		const hit_level_texture=new PIXI.Texture(stick_texture.baseTexture, region, null, null, 2);
 		objects.hit_level.texture=hit_level_texture;
 		
-		//у базового кия всегда прочность 100
-		if(level===1)
-			my_data.cue_dur=100;
-			
 	},
 
 	async hit_down(){
@@ -5623,10 +5661,7 @@ main_menu={
 		
 		//игровой титл
 		
-		//anim3.add(objects.bcg,{alpha:[1,0]}, false, 0.5,'linear');	
-		
-		anim3.add(objects.anim_ball_1,{x:[objects.anim_ball_1.x,1000,'linear']}, false, 0.5);	
-		anim3.add(objects.anim_ball_2,{x:[objects.anim_ball_2.x,-1000,'linear']}, false, 0.5);	
+		//anim3.add(objects.bcg,{alpha:[1,0]}, false, 0.5,'linear');			
 		
 		anim3.add(objects.main_btn_cont,{x:[objects.main_btn_cont.x,-800,'linear']}, false, 0.5);	
 
@@ -7411,7 +7446,8 @@ async function init_game_env(lang) {
 	anim3.add(objects.id_cont,{alpha:[0,1,'linear'],y:[-200,objects.id_cont.sy,'easeOutBack']}, true,0.5);
 	some_process.loup_anim=()=>{objects.id_gear.rotation+=0.02}
 
-
+	//загрузка сокета
+	await auth2.load_script('https://akukamil.github.io/common/my_ws.js');	
 
 	//загружаем остальные данные из файербейса
 	const other_data = await fbs_once('players/' + my_data.uid)
@@ -7425,15 +7461,16 @@ async function init_game_env(lang) {
 
 	my_data.rating = 1400;//(other_data?.rating) || 1400;
 	my_data.games = (other_data?.games) || 0;
-	my_data.nick_tm = (other_data?.nick_tm) || 0;
 	my_data.name = (other_data?.name)||my_data.name;
 	my_data.country = other_data?.country || await auth2.get_country_code() || await auth2.get_country_code2();
-	my_data.cue_id=other_data?.cue_id||1;
-	my_data.cue_dur=other_data?.cue_dur||1;
 	my_data.nick_tm = other_data?.nick_tm || 0;
 	my_data.avatar_tm = other_data?.avatar_tm || 0;
-	my_data.board_id = other_data?.board_id || 1;
 	
+	//из локального хранилища
+	my_data.board_id = safe_ls('pool_board_id')||0;
+	my_data.cue_id = safe_ls('pool_cue_id')||1;
+	my_data.cue_resource = safe_ls('pool_cue_data')||[9,100,0,0,0,0,0,0];
+		
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
 		my_data.pic_url=other_data.pic_url
@@ -7468,9 +7505,6 @@ async function init_game_env(lang) {
 		rating:my_data.rating,
 		nick_tm:my_data.nick_tm,
 		avatar_tm:my_data.avatar_tm,
-		cue_id:my_data.cue_id,
-		cue_dur:my_data.cue_dur,
-		board_id:my_data.board_id,
 		games:my_data.games,
 		country:my_data.country||'',
 		tm:firebase.database.ServerValue.TIMESTAMP,
@@ -7483,10 +7517,7 @@ async function init_game_env(lang) {
 				
 	//номер комнаты
 	room_name= 'states1';
-	
-	//загрузка сокета
-	await auth2.load_script('https://akukamil.github.io/common/my_ws.js');	
-	
+		
 	//ждем загрузки чата
 	await Promise.race([
 		chat.init(),
