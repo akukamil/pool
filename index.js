@@ -7467,7 +7467,7 @@ async function init_game_env(lang) {
 	my_data.avatar_tm = other_data?.avatar_tm || 0;
 	
 	//из локального хранилища
-	my_data.board_id = safe_ls('pool_board_id')||0;
+	my_data.board_id = safe_ls('pool_board_id')||1;
 	my_data.cue_id = safe_ls('pool_cue_id')||1;
 	my_data.cue_resource = safe_ls('pool_cue_data')||[9,100,0,0,0,0,0,0];
 		
