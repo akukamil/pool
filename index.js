@@ -5566,8 +5566,20 @@ main_menu={
 		
 		objects.title_rack.rotation=Math.sin(game_tick*0.04)*2;
 		objects.title_stick.rotation=-0.256+Math.sin(game_tick*0.6)*0.1;
-		//objects.anim_ball_1.rotation+=0.002;
-		//objects.anim_ball_2.rotation-=0.002;
+		
+		const balls=[objects.anim_ball_1,objects.anim_ball_2];
+			for (const ball of balls){
+			if (ball.spd!=0){
+				ball.x+=ball.spd;
+				ball.rotation+=ball.spd/39.5;
+				ball.spd*=0.98;
+				if (ball.spd>0&&ball.spd<0.02)
+					ball.spd=0;
+				if (ball.spd<0&&ball.spd>-0.02)
+					ball.spd=0;
+			}		
+		}
+
 	},
 	
 	ball_touched(ball,D){
@@ -5584,22 +5596,13 @@ main_menu={
 		let tar_rot=0;
 		
 		if (curx>400){
-			tar_x=irnd(50,350);			
-			const dx=curx-tar_x
-			tar_rot=cur_rot-2 * dx*Math.PI / D
+			ball.spd=-irnd(1,7);
 		}else{
-			tar_x=irnd(450,750);
-			const dx=tar_x-curx;
-			tar_rot=cur_rot+2 * dx*Math.PI / D
+			ball.spd=irnd(1,7);;
 		}
-
-		anim3.add(ball,{x:[curx,tar_x,'easeOutCubic'],rotation:[cur_rot,tar_rot,'easeOutCubic']}, true,0.5);	
 		
 	},
 	
-	
-	
-
 	async close() {
 		
 		//игровой титл
