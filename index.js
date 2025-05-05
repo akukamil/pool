@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, assets={},fbs,SERV_TM, game, client_id, objects={}, state='',my_role="", game_tick=0, made_moves=0, game_id=0, my_turn=0, opponent=0,connected = 1, LANG = 0, hidden=0, h_state=0, game_platform="",git_src='./', room_name = '',game_name='pool',pending_player='',tm={}, some_process = {}, my_data={opp_id : ''},opp_data={};
+var app, assets={},fbs,SERV_TM, game_name='pool', yndx_payments, game, client_id, objects={}, state='',my_role="", game_tick=0, made_moves=0, game_id=0, my_turn=0, opponent=0,connected = 1, LANG = 0, hidden=0, h_state=0, game_platform="",git_src='./', room_name = '',game_name='pool',pending_player='',tm={}, some_process = {}, my_data={opp_id : ''},opp_data={};
 
 const WIN = 1, DRAW = 0, LOSE = -1, NOSYNC = 2;
 const borders=[[93.35,401.57,101.88,390.66],[101.88,390.66,101.88,142.41],[101.88,142.41,93.14,131.36],[93.14,131.36,101.88,401.57],[111.76,112.29,122.37,121.73],[122.37,121.73,380.84,121.73],[380.84,121.73,384.71,112.23],[111.76,112.23,384.71,121.73],[689.76,112.25,678.93,121.75],[678.93,121.75,420.29,121.75],[420.29,121.75,417,112.25],[417,112.25,689.76,121.75],[688.9,420.25,677.41,411.22],[677.41,411.22,420.23,411.22],[420.23,411.22,416.22,420.22],[416.22,411.22,688.9,420.25],[111.87,420.21,123.52,411.21],[123.52,411.21,380.04,411.21],[380.04,411.21,385.27,420.21],[111.87,411.21,385.27,420.21],[707.32,400.83,699.05,389.43],[699.05,389.43,698.72,143.65],[698.72,143.65,707.25,132.6],[698.72,132.6,707.32,400.83]];
@@ -1906,21 +1906,25 @@ fin_dialog={
 		anim3.add(objects.fin_dlg_cont,{y:[objects.fin_dlg_cont.sy+30,objects.fin_dlg_cont.sy,'linear'],alpha:[0,1,'linear']},true, 0.3);	
 		
 		const res_data={
-			me_black_potted:{type:LOSE,t1:'Поражение!',t2:'Вы забили черный шар! Этого нельзя делать!'},
-			opp_black_potted:{type:WIN,t1:'Победа!',t2:'Соперник забил черный шар! Этого нельзя делать!'},
-			me_black_potted_wrong:{type:LOSE,t1:'Поражение!',t2:'Вы забили черный шар, но начали удар с чужого шара!'},
-			opp_black_potted_wrong:{type:WIN,t1:'Победа!',t2:'Соперник забил черный шар, но начал удар с чужого шара!'},
-			me_win:{type:WIN,t1:'Победа!',t2:'Вы забили все шары своей группы и черный шар по всем правилам!'},
-			opp_win:{type:LOSE,t1:'Поражение!',t2:'Соперник забил все шары своей группы и черный шар по всем правилам!'},
-			my_no_connection:{type:LOSE,t1:'Поражение!',t2:'Пропала интернет связь!'},
-			my_timeout:{type:LOSE,t1:'Поражение!',t2:'У вас закончилось время на ход!'},
-			opp_timeout:{type:WIN,t1:'Победа!',t2:'У соперника закончилось время на ход!'},
-			timer_error:{type:LOSE,t1:'Поражение!',t2:'Ошибка таймера!'},
-			my_giveup:{type:LOSE,t1:'Поражение!',t2:'Вы сдались!'},
-			opp_giveup:{type:WIN,t1:'Победа!',t2:'Соперник сдался!'},
-			no_focus:{type:LOSE,t1:'Поражение!',t2:'Вы покинули игровое поле!'},
-			no_opp_conf:{type:NOSYNC,t1:'---!',t2:'Похоже соперник не смог начать игру!'},
+			me_black_potted:{type:LOSE,t2:['Вы забили черный шар! Этого нельзя сейчас делать!','You potted black ball in wrong time!'][LANG]},
+			opp_black_potted:{type:WIN,t2:['Соперник забил черный шар! Этого нельзя делать сейчас!','Opponent potted black ball in wrong time!'][LANG]},
+			me_black_potted_wrong:{type:LOSE,t2:['Вы забили черный шар, но начали с чужого!',"You lost! You potted the black ball but started with an opponent's ball!"][LANG]},
+			opp_black_potted_wrong:{type:WIN,t2:['Соперник забил черный шар, но начал с чужого!','You win! Opponent potted black ball but started with wrong ball'][LANG]},
+			me_win:{type:WIN,t2:['Вы забили все шары своей группы и черный шар по всем правилам!',"You potted all your group’s balls and the black ball by the rules!"][LANG]},
+			opp_win:{type:LOSE,t2:['Соперник забил все шары своей группы и черный шар по всем правилам!',"Your opponent potted all their group’s balls and the black ball by the rules!"][LANG]},
+			my_no_connection:{type:LOSE,t2:['Пропала интернет связь!','Connection is lost!'][LANG]},
+			my_timeout:{type:LOSE,t2:['У вас закончилось время на ход!','You have run out of time'][LANG]},
+			opp_timeout:{type:WIN,t2:['У соперника закончилось время на ход!','The opponent has run out of time to move!'][LANG]},
+			timer_error:{type:LOSE,t2:['Ошибка таймера!','Timer error!'][LANG]},
+			my_giveup:{type:LOSE,t2:['Вы сдались!','You gave up!'][LANG]},
+			opp_giveup:{type:WIN,t2:['Соперник сдался!','The opponent has surrendered!'][LANG]},
+			no_opp_conf:{type:NOSYNC,t2:['Похоже соперник не смог начать игру!',"Looks like the opponent couldn't start the game!"][LANG]},
 		}[result];
+		
+		
+		//главные заголовок
+		const t1={'1':['Победа!','You won!'][LANG],'-1':['Поражение!','You lost!'][LANG],'2':'---!'}[res_data.type];
+		
 		
 		
 		//определяем новый рейтинг
@@ -1980,7 +1984,7 @@ fin_dialog={
 		objects.fin_dlg_avatar2.set_texture(players_cache.players[opp_data.uid].texture);
 		
 		//заполняем данные с результатами игры
-		objects.fin_dlg_title1.text=res_data.t1;
+		objects.fin_dlg_title1.text=t1;
 		objects.fin_dlg_title2.text=res_data.t2;
 		
 		objects.fin_dlg_rating1.text=old_rating+' >>> '+my_data.rating;
@@ -2391,6 +2395,11 @@ auth2={
 			
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
+		
+			//загружаем магазин
+			ysdk.getPayments({ signed: true }).then(_payments => {
+				yndx_payments = _payments;
+			}).catch(err => {})	
 		
 			return;
 		}
@@ -2847,9 +2856,9 @@ online_game={
 				if (white_potted){				
 
 					if (my_turn)
-						common.show_info('Вы забили белый шар! Переход хода.');
+						common.show_info(['Вы забили белый шар! Переход хода.','You potted the white ball! The turn passes to your opponent.'][LANG]);
 					else
-						common.show_info('Соперник забил белый шар! Переход хода.');
+						common.show_info(['Соперник забил белый шар! Переход хода.','Opponent potted the white ball! Your turn.'][LANG]);
 					
 					my_turn=1-my_turn;				
 					//возвращаем белый шар на доску
@@ -2860,16 +2869,15 @@ online_game={
 					if (any_potted){		
 
 						if (my_turn)
-							common.show_info('Вы забили один из цветных шаров! Следующий забитый шар определит цветовую группу шаров которая будет закреплена за игроками.');
+							common.show_info(['Вы забили один из цветных шаров! Следующий забитый шар определит цветовую группу шаров которая будет закреплена за игроками.','You have pocketed one of the colored balls! The next ball pocketed will determine the color group of balls that will be assigned to the players.'][LANG]);
 						else
-							common.show_info('Соперник забил один из цветных шаров! Следующий забитый шар определит цветовую группу шаров которая будет закреплена за игроками.');
-						
+							common.show_info(['Соперник забил один из цветных шаров! Следующий забитый шар определит цветовую группу шаров которая будет закреплена за игроками.','Opponent have pocketed one of the colored balls! The next ball pocketed will determine the color group of balls that will be assigned to the players.'][LANG]);
 					}else{				
 
 						if (my_turn)
-							common.show_info('Вы ничего не забили!  Ход переходит к сопернику.');
+							common.show_info(['Вы ничего не забили!  Ход переходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
 						else
-							common.show_info('Соперник ничего не забил!  Теперь Ваш ход.');
+							common.show_info(['Соперник ничего не забил!  Теперь Ваш ход.',"Your opponent didn't pot anything! It's your turn now."][LANG]);
 
 						my_turn=1-my_turn;					
 					}			
@@ -2891,10 +2899,10 @@ online_game={
 
 					if (my_turn){
 						this.finish_event('me_black_potted');
-						common.show_info('Вы забили черный шар! Этого нельзя делать!  Вы проиграли.');					
+						common.show_info(['Вы забили черный шар! Этого нельзя делать!  Вы проиграли.',"You potted the black ball! That's not allowed! You lost!"][LANG]);						
 					} else {
 						this.finish_event('opp_black_potted');
-						common.show_info('Соперник забил черный шар! Этого нельзя делать!  Вы выиграли.');					
+						common.show_info(['Соперник забил черный шар! Этого нельзя делать!  Вы выиграли.',"Your opponent potted the black ball! That's not allowed! You win!"][LANG]);					
 					}
 					return;
 				}
@@ -2903,9 +2911,9 @@ online_game={
 				if (white_potted){
 					
 					if (my_turn)
-						common.show_info('Белый шар попал в лузу! Этого нельзя делать!  Ход переходит к сопернику.');
+						common.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ход переходит к сопернику.',"The white ball went into the pocket! That's not allowed! The turn passes to your opponent."][LANG]);
 					else
-						common.show_info('Белый шар попал в лузу! Этого нельзя делать!  Ваш ход.');
+						common.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ваш ход.',"The white ball went into the pocket! That's not allowed! Your turn."][LANG]);
 					
 					my_turn=1-my_turn;
 					
@@ -2936,18 +2944,18 @@ online_game={
 											
 						
 						if (my_turn)
-							common.show_info(`Вы забили шар(ы)! Теперь Ваш цвет - ${{'red':'красный','blue':'синий'}[this.my_color]}. Вам нужно забить все шары этого цвета и начинать удар тоже с них.`);
+							common.show_info([`Вы забили шар(ы)! Теперь Ваш цвет - ${{'red':'красный','blue':'синий'}[this.my_color]}. Вам нужно забить все шары этого цвета и начинать удар тоже с них.`,`You potted ball(s). Now your color is ${this.my_color}. You need to pot all balls of this color and start your turn with them too.`][LANG]);
 						else
-							common.show_info(`Соперник забил шар(ы)! Теперь Ваш цвет - ${{'red':'красный','blue':'синий'}[this.my_color]}. Вам нужно забить все шары этого цвета и начинать удар тоже с них.`);
+							common.show_info([`Соперник забил шар(ы)! Теперь Ваш цвет - ${{'red':'красный','blue':'синий'}[this.my_color]}. Вам нужно забить все шары этого цвета и начинать удар тоже с них.`,`Opponents potted ball(s)! Now your colos is this.my_color. You need to pot all balls of this color and start your turn with them too.`][LANG]);
 
 											
 					}else{	
 					
 						
 						if (my_turn)
-							common.show_info('Вы ничего не забили!  Ход переходит к сопернику.');
+							common.show_info(['Вы ничего не забили!  Ход переходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
 						else
-							common.show_info('Соперник ничего не забил!  Теперь Ваш ход.');
+							common.show_info(['Соперник ничего не забил!  Теперь Ваш ход.',"Your opponent didn't pot anything! It's your turn now."][LANG]);
 						
 						
 						my_turn=1-my_turn;					
@@ -2967,10 +2975,10 @@ online_game={
 					if(left_to_pot){					
 						
 						if (my_turn){
-							common.show_info('Вы проиграли! Черный шар можно забивать только после того как забьете все шары своего цвета!');
+							common.show_info(['Вы проиграли! Черный шар можно забивать только после того как забьете все шары своего цвета!',"You lost! You can only pot the black ball after potting all your colored balls!"][LANG]);
 							this.finish_event('me_black_potted');
 						} else {
-							common.show_info('Вы выиграли! Соперник забил черный шар до того как забил все шары своего цвета!');
+							common.show_info(['Вы выиграли! Соперник забил черный шар до того как забил все шары своего цвета!',"You won! Your opponent potted the black ball before potting all their colored balls!"][LANG]);
 							this.finish_event('opp_black_potted_wrong');
 						}
 						
@@ -2980,10 +2988,10 @@ online_game={
 					if(common.first_ball_hited!=='black'){
 						
 						if (my_turn){
-							common.show_info('Вы проиграли! Забили черный шар, но начали с чужого!');
+							common.show_info(['Вы проиграли! Забили черный шар, но начали с чужого!',"You lost! You potted the black ball but started with an opponent's ball!"][LANG]);
 							this.finish_event('me_black_potted_wrong');
 						} else {
-							common.show_info('Вы выиграли! Соперник забил черный шар, но начал с чужого!');
+							common.show_info(['Вы выиграли! Соперник забил черный шар, но начал с чужого!',"You won! Your opponent potted the black ball but started with an opponent's ball!"][LANG]);
 							this.finish_event('opp_black_potted_wrong');
 						}
 						
@@ -2991,23 +2999,22 @@ online_game={
 					}
 					
 					if(white_potted||opp_potted.length){
-						common.show_info('Игрок проиграл так как закатил не только черный шар!')	
-						
+					
 						if (my_turn){
-							common.show_info('Вы проиграли! Забили черный шар, но также забили чужой шар!');
+							common.show_info(['Вы проиграли! Забили черный шар, но также забили чужой шар!',"You lost! You potted the black ball but also potted an opponent's ball!"][LANG]);
 							this.finish_event('me_black_potted_wrong');
 						} else {
-							common.show_info('Вы выиграли! Соперник забил черный шар, но также забил чужой шар!');
+							common.show_info(['Вы выиграли! Соперник забил черный шар, но также забил чужой шар!',"You won! Your opponent potted the black ball but also potted an opponent's ball!"][LANG]);
 							this.finish_event('opp_black_potted_wrong');
 						}					
 						return;
 					}				
 		
 					if (my_turn){
-						common.show_info('Вы выиграли! Забили все шары своей группы и черный шар по всем правилам!');
+						common.show_info(['Вы выиграли! Забили все шары своей группы и черный шар по всем правилам!',"You won! You potted all your group’s balls and the black ball by the rules!"][LANG]);
 						this.finish_event('me_win');
 					} else {
-						common.show_info('Вы проиграли! Соперник забил все шары своей группы и черный шар по всем правилам!');
+						common.show_info(['Вы проиграли! Соперник забил все шары своей группы и черный шар по всем правилам!',"You lost! Your opponent potted all their group’s balls and the black ball by the rules!"][LANG]);
 						this.finish_event('opp_win');
 					}
 		
@@ -3017,9 +3024,9 @@ online_game={
 				if (white_potted){				
 					
 					if (my_turn)
-						common.show_info('Белый шар попал в лузу! Этого нельзя делать!  Ход переходит к сопернику.');
+						common.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ход переходит к сопернику.',"The white ball went into the pocket! That's not allowed! The turn passes to your opponent."][LANG]);
 					else
-						common.show_info('Белый шар попал в лузу! Этого нельзя делать!  Ваш ход.');
+						common.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ваш ход.',"The white ball went into the pocket! That's not allowed! Your turn."][LANG]);
 					
 					my_turn=1-my_turn;
 					
@@ -3034,15 +3041,15 @@ online_game={
 						
 							if (my_turn){
 								if (left_to_pot)
-									common.show_info('Вы забили правильный шар! Продолжайте игру.');
+									common.show_info(['Вы забили правильный шар! Продолжайте игру.',"You potted the right ball! Keep playing."][LANG]);
 								else
-									common.show_info('Вы забили все ваши шары! Осталось забить черный шар.');
+									common.show_info(['Вы забили все ваши шары! Осталось забить черный шар.',"You potted all your balls! Now pot the black ball to win."][LANG]);
 							}
 							else {
 								if (left_to_pot)
-									common.show_info('Соперник забил правильный шар и продолжает игру.');
+									common.show_info(['Соперник забил правильный шар и продолжает игру.',"Your opponent potted the correct ball and continues its turn."][LANG]);
 								else
-									common.show_info('Соперник забил все свои шары! Ему осталось забить черный шар.');
+									common.show_info(['Соперник забил все свои шары! Ему осталось забить черный шар.',"Your opponent potted all their balls! He need to pot the black ball next."][LANG]);
 							}
 							
 						}else{
@@ -3050,16 +3057,16 @@ online_game={
 							if (any_potted){
 								
 								if (my_turn)
-									common.show_info('Вы забили, но чужой шар(ы)! Ход перходит к сопернику.');
+									common.show_info(['Вы забили, но чужой шар(ы)! Ход перходит к сопернику.',"You potted, but hit the wrong ball(s)! The turn passes to your opponent."][LANG]);
 								else
-									common.show_info('Соперник забил, но чужой шар(ы)! Ваш ход.');
+									common.show_info(['Соперник забил, но чужой шар(ы)! Ваш ход.',"Your opponent potted, but hit the wrong ball(s)! Your turn."][LANG]);
 								
 							} else {
 								
 								if (my_turn)
-									common.show_info('Вы ничего не забили! Ход перходит к сопернику.');
+									common.show_info(['Вы ничего не забили! Ход перходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
 								else
-									common.show_info('Соперник ничего не забил! Ваш ход.');
+									common.show_info(['Соперник ничего не забил! Ваш ход.',"Your opponent didn't pot anything! Your turn."][LANG]);
 								
 							}
 								
@@ -3073,9 +3080,9 @@ online_game={
 						if (common.first_ball_hited==='black'&&!left_to_pot){		
 
 							if (my_turn)
-								common.show_info('У Вас не получилось забить черный шар! Ход перходит к сопернику.');
+								common.show_info(['У Вас не получилось забить черный шар! Ход перходит к сопернику.',"You failed to pot the black ball! The turn passes to your opponent."][LANG]);
 							else
-								common.show_info('У соперника не получилось забить черный шар! Ваш ход.');
+								common.show_info(['У соперника не получилось забить черный шар! Ваш ход.',"Your opponent failed to pot the black ball! Your turn."][LANG]);
 							
 							my_turn=1-my_turn;
 							return;
@@ -3085,17 +3092,17 @@ online_game={
 						if (any_potted){
 							
 							if (my_turn)
-								common.show_info('Вы забили, но начали не со своего шара! Ход перходит к сопернику.');
+								common.show_info(['Вы забили, но начали не со своего шара! Ход перходит к сопернику.',"You potted but didn't start with your ball"][LANG]);
 							else
-								common.show_info('Соперник забил, о начал не со своего шара! Ваш ход.');
+								common.show_info(['Соперник забил, о начал не со своего шара! Ваш ход.',"The opponent potted, but he didn't start with his ball! Your turn."][LANG]);
 							
 							
 						} else {
 							
 							if (my_turn)
-								common.show_info('Вы ничего не забили! Ход перходит к сопернику.');
+								common.show_info(['Вы ничего не забили! Ход переходит к сопернику.',"You didn't pot anything! Opponent's turn."][LANG]);
 							else
-								common.show_info('Соперник ничего не забил! Ваш ход.');
+								common.show_info(['Соперник ничего не забил! Ваш ход.',"The opponent didn't pot anything! Your turn."][LANG]);
 							
 						}
 				
@@ -3122,9 +3129,12 @@ online_game={
 		
 		//снижаем уровень кия
 		if (my_data.cue_id>1){
-			my_data.cue_resource[my_data.cue_dur]--;
-			if (my_data.cue_resource[my_data.cue_dur]<=0)
-				common.set_cue_level(1);		
+			my_data.cue_resource[my_data.cue_id]--;
+			if (my_data.cue_resource[my_data.cue_id]<=0){
+				common.set_cue_level(1);					
+				sys_msg.add(['Ресурс кия закончился!','Cue is exhausted!'][LANG])
+			}
+	
 
 			//сохраняем в хранилище
 			safe_ls('pool_cue_data',my_data.cue_resource);
@@ -3285,10 +3295,14 @@ pref={
 	cur_board_id:1,
 	cur_pic_url:'',
 	max_cue_resource:[100,100,120,150,200,300,500,1000],
-		
+	hours_to_nick_change:0,
+	hours_to_photo_change:0,
+	
 	activate(){
 		
-		this.update_server_time();
+		//последние изменения имен и аватар
+		my_data.avatar_tm=safe_ls('pool_avatar_tm')||1;
+		my_data.nick_tm=safe_ls('pool_nick_tm')||1;
 		
 		anim3.add(objects.pref_cont,{x:[-800,objects.pref_cont.sx,'linear']}, true, 0.2);
 		//this.set_stick_perc_level(this.stick_perc);
@@ -3312,12 +3326,44 @@ pref={
 		this.cur_board_id=my_data.board_id;
 		this.table_switch_down(0);
 		
-	},	
+		this.update_buttons();
+		
+	},		
 	
-	async update_server_time(){		
-		SERV_TM=await my_ws.get_tms();		
+	update_buttons(){
+		
+		objects.pref_save_photo_btn.visible=false;
+		
+		//исходное фото если другое
+		objects.pref_reset_photo_btn.visible=this.cur_pic_url!==my_data.orig_pic_url		
+		
+		//сколько осталось до изменения
+		const tm=Date.now();
+		this.hours_to_photo_change=Math.max(0,Math.floor(720-(tm-my_data.avatar_tm)*0.001/3600));
+		this.hours_to_nick_change=Math.max(0,Math.floor(720-(tm-my_data.nick_tm)*0.001/3600));
+		
+		//определяем какие кнопки доступны
+		objects.pref_change_name_btn.alpha=(this.hours_to_nick_change>0)?0.5:1;
+		objects.pref_prv_avatar_btn.alpha=(this.hours_to_photo_change>0)?0.5:1;
+		objects.pref_next_avatar_btn.alpha=(this.hours_to_photo_change>0)?0.5:1;	
+		
 	},
 	
+	getHoursEnding(hours) {
+		hours = Math.abs(hours) % 100;
+		let lastDigit = hours % 10;
+
+		if (hours > 10 && hours < 20) {
+			return 'часов';
+		} else if (lastDigit == 1) {
+			return 'час';
+		} else if (lastDigit >= 2 && lastDigit <= 4) {
+			return 'часа';
+		} else {
+			return 'часов';
+		}
+	},
+		
 	table_switch_down(dir){
 		
 		if (dir&&anim3.any_on()) {
@@ -3400,18 +3446,30 @@ pref={
 			sound.play('locked');
 			return
 		};
+		
+		//провряем можно ли менять фото
+		if(this.hours_to_nick_change>0){
+			this.send_info(`Имя можно поменять через ${this.hours_to_nick_change} ${this.getHoursEnding(this.hours_to_nick_change)}.`);
+			sound.play('locked');
+			return;
+		} 	
+		
 		sound.play('click');
 				
 		const name=await keyboard.read(15);
 		
 		if (name.length>3&&name.replaceAll(' ','').length>3){		
 		
-			my_data.name=name;			
-			my_data.nick_tm=SERV_TM;
-			fbs.ref(`players/${my_data.uid}/nick_tm`).set(my_data.nick_tm);
-			fbs.ref(`players/${my_data.uid}/name`).set(my_data.name);
-			
+			//устанавливаем новое имя
+			my_data.name=name;	
 			objects.pref_name.set2(name,260);
+			
+			//запоминаем дату установки
+			my_data.nick_tm=Date.now();
+			safe_ls('pool_nick_tm',my_data.nick_tm)
+			
+			this.update_buttons();			
+
 			sound.play('note1');
 			this.send_info(['Имя игрока было изменено!',"Player's name has been changed!"][LANG]);
 
@@ -3540,14 +3598,26 @@ pref={
 		
 		sound.play('click');
 		
+		const item='cue'+this.cur_cue_id;
+		
 		if (game_platform==='VK') {			
-			
-			vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item: 'cue'+this.cur_cue_id}).then(data =>{
+			vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item}).then(data =>{
 				this.restore_cue(this.cur_cue_id)
+				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id:item}});
 			}).catch(err => {
 				objects.pref_info.text=['Ошибка при покупке!','Error!'][LANG];
 			});					
-		};		
+		};	
+		
+		if (game_platform==='YANDEX') {
+			yndx_payments.purchase({id: item }).then(purchase => {	
+				this.restore_cue(this.cur_cue_id)
+				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id:item}});		
+			}).catch(err => {
+				objects.shop_info.text=['Ошибка при покупке!','Error!'][LANG];
+			})			
+		}
+		
 
 		if (game_platform!=='VK'&&game_platform!=='YANDEX')
 			this.restore_cue(this.cur_cue_id)
@@ -3570,7 +3640,7 @@ pref={
 		safe_ls('pool_cue_data',my_data.cue_resource)
 		
 		sound.play('note1');
-		this.send_info(['Игрок купил (обновил) кий!','Player has acquired (upadeted) a cue'][LANG])
+		this.send_info(['Игрок восстановил кий!','Player has updated a cue'][LANG])
 		
 	},
 	
@@ -3603,24 +3673,28 @@ pref={
 			return
 		};				
 		
+		//провряем можно ли менять фото
+		if(this.hours_to_photo_change>0){
+			this.send_info(`Фото можно поменять через ${this.hours_to_photo_change} ${this.getHoursEnding(this.hours_to_photo_change)}.`);
+			sound.play('locked');
+			return;
+		} 	
+		
 		if(dir) sound.play('click');		
-		
-		objects.pref_save_photo_btn.alpha=1;
-		
-		this.avatar_changed=1;
-				
+						
 		//перелистываем аватары
 		this.avatar_swtich_cur+=dir;
 		if (this.avatar_swtich_cur===this.avatar_switch_center){
-			this.cur_pic_url=players_cache.players[my_data.uid].pic_url
+			objects.pref_save_photo_btn.visible=false;	
+			this.cur_pic_url=my_data.pic_url;
 		}else{
+			objects.pref_save_photo_btn.visible=true;
 			this.cur_pic_url='mavatar'+this.avatar_swtich_cur;
 		}		
-		
+				
 		this.tex_loading=1;		
 		const t=await players_cache.my_texture_from(multiavatar(this.cur_pic_url));
-		this.tex_loading=0;
-		
+		this.tex_loading=0;		
 		objects.pref_avatar.set_texture(t);
 		
 	},
@@ -3634,18 +3708,22 @@ pref={
 		sound.play('click');
 	
 		objects.pref_save_photo_btn.alpha=0.5;
-	
+		
+		//запоминаем новое имя
+		my_data.pic_url=this.cur_pic_url;			
 		fbs.ref(`players/${my_data.uid}/pic_url`).set(this.cur_pic_url);
-
-		my_data.avatar_tm=Date.now();
-		fbs.ref(`players/${my_data.uid}/avatar_tm`).set(my_data.avatar_tm);
+		
+		//запоминаем дату
+		my_data.avatar_tm=Date.now();		
+		safe_ls('pool_avatar_tm',my_data.avatar_tm)
+				
+		this.update_buttons();
 			
 		//обновляем аватар в кэше
 		players_cache.update_avatar_forced(my_data.uid,this.cur_pic_url).then(()=>{
 			const my_card=objects.mini_cards.find(card=>card.uid===my_data.uid);
 			my_card.avatar.set_texture(players_cache.players[my_data.uid].texture);				
 		})		
-		
 		
 		sound.play('note1');
 		this.send_info(['Игрок обновил фото!',"Player's photo has been changed!"][LANG]);
@@ -3663,7 +3741,7 @@ pref={
 		this.cur_pic_url=my_data.orig_pic_url;
 		const t=await players_cache.my_texture_from(my_data.orig_pic_url);
 		objects.pref_avatar.set_texture(t);
-		this.send_info(['Нажмите ОК чтобы сохранить','Press OK to confirm'][LANG]);
+		objects.pref_save_photo_btn.visible=true;
 		
 	},
 	
@@ -3934,7 +4012,7 @@ sp_game={
 		if (this.seconds_left<=0) return;		
 			
 		this.seconds_left--;		
-		objects.spgame_t_seconds.text='Осталось времени: '+this.format_time(this.seconds_left);		
+		objects.spgame_t_seconds.text=['Осталось времени: ','Time left: '][LANG]+this.format_time(this.seconds_left);		
 		
 		if (!common.move_on&&!this.seconds_left)
 			this.show_fin_dialog('no_time');
@@ -3958,7 +4036,7 @@ sp_game={
 		//ссылка на текущий уровень
 		this.cur_level_data=this.levels_data[this.cur_level];
 		
-		objects.spgame_t_level.text='Уровень: '+this.cur_level;
+		objects.spgame_t_level.text=['Уровень: ','Level: '][LANG]+this.cur_level;
 		//objects.spgame_t_shots_left.text='Осталось попыток: '+this.shots_left;
 		
 		//располагаем белый шар в центре
@@ -4020,12 +4098,12 @@ sp_game={
 		this.timer=0;
 		this.seconds_total=this.cur_level_data.sec;
 		this.seconds_left=this.cur_level_data.sec;
-		objects.spgame_t_seconds.text='Осталось времени: '+this.format_time(this.seconds_left);	
+		objects.spgame_t_seconds.text=['Осталось времени: ','Time left: '][LANG]+this.format_time(this.seconds_left);	
 		this.timer=setInterval(()=>{this.tick()},1000);
 		
 		//контроль попыток
 		this.attemps_left=this.cur_level_data.attemps;			
-		objects.spgame_t_attemps.text='Осталось попыток: '+this.attemps_left;	
+		objects.spgame_t_attemps.text=['Осталось попыток: ','Attempts remaining: '][LANG]+this.attemps_left;	
 				
 		my_turn=1;
 		
@@ -4225,7 +4303,7 @@ sp_game={
 		if (!this.on) return;
 		
 		this.attemps_left--;
-		objects.spgame_t_attemps.text='Осталось попыток: '+this.attemps_left;	
+		objects.spgame_t_attemps.text=['Осталось попыток: ','Attempts remaining: '][LANG]+this.attemps_left;	
 
 
 	},
