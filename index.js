@@ -2399,7 +2399,7 @@ auth2={
 			//загружаем магазин и необработанные покупки
 			ysdk.getPayments({ signed: true }).then(_payments => {
 				yndx_payments = _payments;				
-				yndx_payments.getPurchases().then(purchases => purchases.forEach((purchse)=>{					
+				yndx_payments.getPurchases().then(purchases => purchases.forEach((purchase)=>{					
 					
 					if (purchase.productID.includes('cue')){
 						
