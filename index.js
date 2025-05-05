@@ -3752,21 +3752,13 @@ pref={
 				if (purchase.productID.includes('cue')){					
 					this.restore_cue(+purchase.productID.slice(-1));
 					yndx_payments.consumePurchase(purchase.purchaseToken)						
-				}
-
-					
+				}					
 			}));				
 			
 		}).catch(err => {
 			alert('Ошибка при загрузке покупок!')
 		})	
-		
-		
-		
 	}
-			
-
-			
 }
 
 levels={
@@ -7692,7 +7684,10 @@ async function init_game_env(lang) {
 		[min_x,min_y,min_x,max_y]
 	);
 		
-	main_menu.activate();
+	main_menu.activate();	
+	
+	//покупки яндекса
+	pref.counume_yndx_purchases();
 }
 
 function main_loop() {
