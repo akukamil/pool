@@ -7408,7 +7408,7 @@ tabvis={
 
 async function define_platform_and_language() {
 	
-	let s = window.location.href;
+	const s = window.location.href;
 	
 	if (s.includes('yandex')) {		
 		game_platform = 'YANDEX';		
