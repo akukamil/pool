@@ -2396,9 +2396,20 @@ auth2={
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
 		
-			//загружаем магазин
+			//загружаем магазин и необработанные покупки
 			ysdk.getPayments({ signed: true }).then(_payments => {
-				yndx_payments = _payments;
+				yndx_payments = _payments;				
+				yndx_payments.getPurchases().then(purchases => purchases.forEach((purchse)=>{					
+					
+					if (purchase.productID.includes('cue')){
+						
+						pref.restore_cue(+purchase.productID.slice(-1));
+						yndx_payments.consumePurchase(purchase.purchaseToken)						
+					}
+
+						
+				}));				
+				
 			}).catch(err => {})	
 		
 			return;
@@ -3612,7 +3623,8 @@ pref={
 		if (game_platform==='YANDEX') {
 			yndx_payments.purchase({id: item }).then(purchase => {	
 				this.restore_cue(this.cur_cue_id)
-				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id:item}});		
+				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id:item}});	
+				yndx_payments.consumePurchase(purchase.purchaseToken);
 			}).catch(err => {
 				objects.shop_info.text=['Ошибка при покупке!','Error!'][LANG];
 			})			
@@ -7589,9 +7601,13 @@ async function init_game_env(lang) {
 		session_start:firebase.database.ServerValue.TIMESTAMP		
 	})
 	
-	//первый вход с 25.09.2024	
-	if(!other_data?.first_log_tm)
-		fbs.ref('players/'+my_data.uid+'/first_log_tm').set(firebase.database.ServerValue.TIMESTAMP);
+	//первый вход и начальные бонусы
+	if(!other_data?.first_log_tm){
+		fbs.ref('players/'+my_data.uid+'/first_log_tm').set(firebase.database.ServerValue.TIMESTAMP);		
+		my_data.cue_resource = [9,100,100,50,10,0,0,0];
+		safe_ls('pool_cue_data',my_data.cue_resource);
+	}
+
 				
 	//номер комнаты
 	room_name= 'states1';
