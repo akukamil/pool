@@ -2396,6 +2396,13 @@ auth2={
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
 				
+			//загружаем покупки
+			ysdk.getPayments({ signed: true }).then(_payments => {
+				yndx_payments = _payments;		
+			}).catch(err => {
+				alert('Ошибка при загрузке покупок!')
+			})	
+				
 			return;
 		}
 		
@@ -3744,20 +3751,14 @@ pref={
 		
 		if(!yndx_payments) return;
 		
-		//загружаем магазин и необработанные покупки
-		ysdk.getPayments({ signed: true }).then(_payments => {
-			yndx_payments = _payments;				
-			yndx_payments.getPurchases().then(purchases => purchases.forEach((purchase)=>{					
-				
-				if (purchase.productID.includes('cue')){					
-					this.restore_cue(+purchase.productID.slice(-1));
-					yndx_payments.consumePurchase(purchase.purchaseToken)						
-				}					
-			}));				
-			
-		}).catch(err => {
-			alert('Ошибка при загрузке покупок!')
-		})	
+		//необработанные покупки				
+		yndx_payments.getPurchases().then(purchases => purchases.forEach(purchase=>{				
+			if (purchase.productID.includes('cue')){					
+				this.restore_cue(+purchase.productID.slice(-1));
+				yndx_payments.consumePurchase(purchase.purchaseToken)						
+			}					
+		}));				
+
 	}
 }
 
