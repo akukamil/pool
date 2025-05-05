@@ -2395,23 +2395,7 @@ auth2={
 			
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
-		
-			//загружаем магазин и необработанные покупки
-			ysdk.getPayments({ signed: true }).then(_payments => {
-				yndx_payments = _payments;				
-				yndx_payments.getPurchases().then(purchases => purchases.forEach((purchase)=>{					
-					
-					if (purchase.productID.includes('cue')){
-						
-						pref.restore_cue(+purchase.productID.slice(-1));
-						yndx_payments.consumePurchase(purchase.purchaseToken)						
-					}
-
-						
-				}));				
 				
-			}).catch(err => {})	
-		
 			return;
 		}
 		
@@ -3637,14 +3621,9 @@ pref={
 	},
 		
 	restore_cue(cue_id){
-				
-		if (anim3.any_on()) {
-			sound.play('locked');
-			return
-		};			
-		
+	
 		//восстанавливаем максимальный ресурс
-		my_data.cue_resource[this.cur_cue_id]=this.max_cue_resource[this.cur_cue_id]
+		my_data.cue_resource[cue_id||this.cur_cue_id]=this.max_cue_resource[cue_id||this.cur_cue_id]
 		
 		this.cue_switch_down(0)		
 		
@@ -3760,7 +3739,34 @@ pref={
 	get_draw_amount(){	
 		return [200,200,230,260,300,350,400,450,450,450,450,450][my_data.cue_id];//[1-7]
 	},	
+	
+	counume_yndx_purchases(){
+		
+		if(!yndx_payments) return;
+		
+		//загружаем магазин и необработанные покупки
+		ysdk.getPayments({ signed: true }).then(_payments => {
+			yndx_payments = _payments;				
+			yndx_payments.getPurchases().then(purchases => purchases.forEach((purchase)=>{					
 				
+				if (purchase.productID.includes('cue')){					
+					this.restore_cue(+purchase.productID.slice(-1));
+					yndx_payments.consumePurchase(purchase.purchaseToken)						
+				}
+
+					
+			}));				
+			
+		}).catch(err => {
+			alert('Ошибка при загрузке покупок!')
+		})	
+		
+		
+		
+	}
+			
+
+			
 }
 
 levels={
