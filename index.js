@@ -1318,10 +1318,7 @@ chat={
 		if (game_platform!=='YANDEX') return;			
 				
 		if(this.payments) return;
-		
-		ysdk.getPayments({ signed: true }).then(_payments => {
-			chat.payments = _payments;
-		}).catch(err => {})			
+
 		
 	},	
 
@@ -2396,8 +2393,10 @@ auth2={
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
 				
+			window.ysdk.features.LoadingAPI?.ready()
+				
 			//загружаем покупки
-			ysdk.getPayments({ signed: true }).then(_payments => {
+			window.ysdk.getPayments({ signed: true }).then(_payments => {
 				yndx_payments = _payments;		
 			}).catch(err => {
 				alert('Ошибка при загрузке покупок!')
