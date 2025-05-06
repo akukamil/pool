@@ -1348,7 +1348,7 @@ chat={
 		
 	},
 		
-	block_player(uid){
+	async block_player(uid){
 		
 		fbs.ref('blocked/'+uid).set(Date.now());
 		fbs.ref('inbox/'+uid).set({message:'CHAT_BLOCK',tm:Date.now()});
@@ -1356,6 +1356,10 @@ chat={
 		//увеличиваем количество блокировок
 		fbs.ref('players/'+uid+'/block_num').transaction(val=> {return (val || 0) + 1});
 		
+		//сообщаем в чат
+		const name=await fbs_once(`players/${uid}/name`);
+		const msg=`Игрок ${name} занесен в черный список.`;
+		my_ws.socket.send(JSON.stringify({cmd:'push',path:'chat',val:{uid:'admin',name:'Админ',msg,tm:'TMS'}}));
 	},
 		
 	async chat_load(data) {
@@ -2374,8 +2378,24 @@ auth2={
 				
 		if (game_platform === 'YANDEX') {			
 		
-			try {await this.load_script('https://yandex.ru/games/sdk/v2')} catch (e) {alert(e)};										
-					
+			async function initSDK() {
+				try {
+					await new Promise((resolve, reject) => {
+						var s = document.createElement('script');
+						s.src = "https://sdk.games.s3.yandex.net/sdk.js";
+						s.async = true;
+						s.onload = resolve;
+						s.onerror = reject;
+						document.body.appendChild(s);
+					});
+					console.log("SDK loaded successfully");
+				} catch (error) {
+					console.error("Failed to load SDK:", error);
+				}
+			}
+
+			await initSDK();
+			
 			let _player;
 			
 			try {
@@ -2392,9 +2412,7 @@ auth2={
 			
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
-				
-			window.ysdk.features.LoadingAPI?.ready()
-				
+							
 			//загружаем покупки
 			window.ysdk.getPayments({ signed: true }).then(_payments => {
 				yndx_payments = _payments;		
@@ -3134,11 +3152,10 @@ online_game={
 			if (my_data.cue_resource[my_data.cue_id]<=0){
 				common.set_cue_level(1);					
 				sys_msg.add(['Ресурс кия закончился!','Cue is exhausted!'][LANG])
-			}
-	
+			}	
 
-			//сохраняем в хранилище
-			safe_ls('pool_cue_data',my_data.cue_resource);
+			//сохраняем...
+			fbs.ref('players/' + my_data.uid+'/cue_data').set(my_data.cue_resource);
 		}
 		
 	},
@@ -3633,8 +3650,8 @@ pref={
 		
 		this.cue_switch_down(0)		
 		
-		//записываем в хранилище
-		safe_ls('pool_cue_data',my_data.cue_resource)
+		//сохраняем...
+		fbs.ref('players/' + my_data.uid+'/cue_data').set(my_data.cue_resource);
 		
 		sound.play('note1');
 		this.send_info(['Игрок восстановил кий!','Player has updated a cue'][LANG])
@@ -3659,6 +3676,10 @@ pref={
 		
 		sound.play('note1')
 		my_data.cue_id=this.cur_cue_id;
+		
+		//сохраняем...
+		fbs.ref('players/' + my_data.uid+'/cue_id').set(my_data.cue_id);
+		
 		this.cue_switch_down(0);
 		
 	},
@@ -3749,6 +3770,9 @@ pref={
 	counume_yndx_purchases(){
 		
 		if(!yndx_payments) return;
+		
+		//также запускаем ready api для яндекса
+		window.ysdk.features.LoadingAPI?.ready()
 		
 		//необработанные покупки				
 		yndx_payments.getPurchases().then(purchases => purchases.forEach(purchase=>{				
@@ -7556,8 +7580,8 @@ async function init_game_env(lang) {
 	
 	//из локального хранилища
 	my_data.board_id = safe_ls('pool_board_id')||1;
-	my_data.cue_id = safe_ls('pool_cue_id')||1;
-	my_data.cue_resource = safe_ls('pool_cue_data')||[9,100,0,0,0,0,0,0];
+	my_data.cue_id = other_data?.cue_id ||1;
+	my_data.cue_resource = other_data?.cue_data||[9,100,0,0,0,0,0,0];
 		
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
@@ -7594,6 +7618,8 @@ async function init_game_env(lang) {
 		nick_tm:my_data.nick_tm,
 		avatar_tm:my_data.avatar_tm,
 		games:my_data.games,
+		cue_data:my_data.cue_resource,
+		cue_id:my_data.cue_id,
 		country:my_data.country||'',
 		tm:firebase.database.ServerValue.TIMESTAMP,
 		session_start:firebase.database.ServerValue.TIMESTAMP		
@@ -7603,7 +7629,8 @@ async function init_game_env(lang) {
 	if(!other_data?.first_log_tm){
 		fbs.ref('players/'+my_data.uid+'/first_log_tm').set(firebase.database.ServerValue.TIMESTAMP);		
 		my_data.cue_resource = [9,100,100,50,10,0,0,0];
-		safe_ls('pool_cue_data',my_data.cue_resource);
+		fbs.ref('players/' + my_data.uid+'/cue_data').set(my_data.cue_resource);
+		
 	}
 
 				
