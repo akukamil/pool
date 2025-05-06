@@ -2412,7 +2412,10 @@ auth2={
 			
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
-							
+			
+			//выбор языка по яндексу
+			LANG=window.ysdk.environment.i18n.lang==='ru'?0:1;
+				
 			//загружаем покупки
 			window.ysdk.getPayments({ signed: true }).then(_payments => {
 				yndx_payments = _payments;		
@@ -7483,8 +7486,12 @@ async function define_platform_and_language() {
 }
 
 async function init_game_env(lang) {			
-						
+				
+	
 	await define_platform_and_language();
+	
+	//идентификация
+	await auth2.init();		
 			
 	//инициируем файербейс
 	if (!firebase.apps.length) {
@@ -7549,8 +7556,7 @@ async function init_game_env(lang) {
 	//запускаем главный цикл
 	main_loop();
 	
-	//идентификация
-	await auth2.init();	
+
 	
 	await main_loader.load1();	
 	await main_loader.load2();		
