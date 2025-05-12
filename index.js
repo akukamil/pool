@@ -3587,20 +3587,20 @@ pref={
 			objects.pref_cue_upg_price.visible=false
 			objects.pref_cue_upg_price_icon.visible=false		
 		}else{
-			objects.pref_cue_buy_btn.alpha=1				
+			
+			objects.pref_cue_buy_btn.alpha=1	
+			objects.pref_cue_upg_price.visible=true
+			objects.pref_cue_upg_price_icon.visible=true
+			
 			if (game_platform==='YANDEX'){
-				objects.pref_cue_upg_price.visible=true
-				objects.pref_cue_upg_price_icon.visible=true
 				const currency=pref.yndx_catalog[this.cur_cue_id-2].price		
-				objects.pref_cue_upg_price.text=currency			
+				objects.pref_cue_upg_price.text=currency		
 			}		
 			
 			if (game_platform==='VK'){
-				objects.pref_cue_upg_price.visible=true
 				objects.pref_cue_upg_price_icon.texture=assets.vk_price_icon
 				objects.pref_cue_upg_price.text=[10,20,30,50,100,200][this.cur_cue_id-2]		
-			}
-			
+			}			
 			
 		}
 	
