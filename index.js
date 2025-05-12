@@ -3318,6 +3318,7 @@ pref={
 	max_cue_resource:[100,100,120,150,200,300,500,1000],
 	hours_to_nick_change:0,
 	hours_to_photo_change:0,
+	yndx_catalog:0,
 	
 	activate(){
 		
@@ -3783,8 +3784,11 @@ pref={
 				this.restore_cue(+purchase.productID.slice(-1));
 				yndx_payments.consumePurchase(purchase.purchaseToken)						
 			}					
-		}));				
+		}));		
 
+		//загрузка каталога
+		this.yndx_payments.getCatalog().then(c=>{this.yndx_catalog=c});
+		
 	}
 }
 
