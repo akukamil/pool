@@ -3582,12 +3582,11 @@ pref={
 		const cur_cue_max_resource=this.max_cue_resource[this.cur_cue_id];
 		
 		//нельзя восстановить первый кий или максимальный кий
-		if (cur_cue_resource===cur_cue_max_resource||this.cur_cue_id===1)
+		if (cur_cue_resource===cur_cue_max_resource||this.cur_cue_id===1){
 			objects.pref_cue_buy_btn.alpha=0.5
 			objects.pref_cue_upg_price.visible=false;
-			objects.pref_cue_upg_price_icon.visible=false;
-		
-		else{
+			objects.pref_cue_upg_price_icon.visible=false;			
+		}else{
 			objects.pref_cue_buy_btn.alpha=1				
 			if (game_platform==='YANDEX'){
 				objects.pref_cue_upg_price.visible=true;
