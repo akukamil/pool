@@ -3603,10 +3603,8 @@ pref={
 		
 		
 		if (game_platform==='YANDEX'){
-			const currency=pref.yndx_catalog[this.cur_cue_id-1].price;
-			objects.objects.pref_cue_upg_price_icon.texture=await PIXI.Texture.fromURL('//yastatic.net/s3/games-static/static-data/images/payments/sdk/руб/currency-icon-m.png')
-			objects.pref_cue_upg_price.text=currency
-			
+			const currency=pref.yndx_catalog[this.cur_cue_id-1].price;			
+			objects.pref_cue_upg_price.text=currency			
 		}
 		
 	},
@@ -3779,7 +3777,7 @@ pref={
 		return [200,200,230,260,300,350,400,450,450,450,450,450][my_data.cue_id];//[1-7]
 	},	
 	
-	counume_yndx_purchases(){
+	async counume_yndx_purchases(){
 		
 		if(!yndx_payments) return;
 		
@@ -3795,8 +3793,10 @@ pref={
 		}));		
 
 		//загрузка каталога
-		yndx_payments.getCatalog().then(c=>{this.yndx_catalog=c});
-		
+		this.yndx_catalog=await yndx_payments.getCatalog()
+		const icon_url=this.yndx_catalog[0].getPriceCurrencyImage('svg')
+		objects.pref_cue_upg_price_icon.texture=await PIXI.Texture.fromURL(icon_url)
+
 	}
 }
 
