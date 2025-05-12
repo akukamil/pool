@@ -3787,7 +3787,7 @@ pref={
 		}));		
 
 		//загрузка каталога
-		this.yndx_payments.getCatalog().then(c=>{this.yndx_catalog=c});
+		yndx_payments.getCatalog().then(c=>{this.yndx_catalog=c});
 		
 	}
 }
