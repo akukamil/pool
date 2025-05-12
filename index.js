@@ -3601,6 +3601,14 @@ pref={
 		
 		objects.pref_cue_photo.texture=assets['cue'+this.cur_cue_id];
 		
+		
+		if (game_platform==='YANDEX'){
+			const currency=pref.yndx_catalog[this.cur_cue_id-1].price;
+			objects.objects.pref_cue_upg_price_icon.texture=await PIXI.Texture.fromURL('//yastatic.net/s3/games-static/static-data/images/payments/sdk/руб/currency-icon-m.png')
+			objects.pref_cue_upg_price.text=currency
+			
+		}
+		
 	},
 	
 	cue_buy_down(){		
