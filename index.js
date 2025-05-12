@@ -3584,8 +3584,19 @@ pref={
 		//нельзя восстановить первый кий или максимальный кий
 		if (cur_cue_resource===cur_cue_max_resource||this.cur_cue_id===1)
 			objects.pref_cue_buy_btn.alpha=0.5
-		else
-			objects.pref_cue_buy_btn.alpha=1		
+			objects.pref_cue_upg_price.visible=false;
+			objects.pref_cue_upg_price_icon.visible=false;
+		
+		else{
+			objects.pref_cue_buy_btn.alpha=1				
+			if (game_platform==='YANDEX'){
+				objects.pref_cue_upg_price.visible=true;
+				objects.pref_cue_upg_price_icon.visible=true;
+				const currency=pref.yndx_catalog[this.cur_cue_id-2].price;			
+				objects.pref_cue_upg_price.text=currency			
+			}			
+		}
+	
 		
 		objects.pref_cue_level.text=['Уровень: ','Level: '][LANG]+this.cur_cue_id;
 		
@@ -3602,10 +3613,7 @@ pref={
 		objects.pref_cue_photo.texture=assets['cue'+this.cur_cue_id];
 		
 		
-		if (game_platform==='YANDEX'&&this.cur_cue_id>1){
-			const currency=pref.yndx_catalog[this.cur_cue_id-2].price;			
-			objects.pref_cue_upg_price.text=currency			
-		}
+
 		
 	},
 	
