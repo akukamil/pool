@@ -3602,8 +3602,8 @@ pref={
 		objects.pref_cue_photo.texture=assets['cue'+this.cur_cue_id];
 		
 		
-		if (game_platform==='YANDEX'){
-			const currency=pref.yndx_catalog[this.cur_cue_id-1].price;			
+		if (game_platform==='YANDEX'&&this.cur_cue_id>1){
+			const currency=pref.yndx_catalog[this.cur_cue_id-2].price;			
 			objects.pref_cue_upg_price.text=currency			
 		}
 		
