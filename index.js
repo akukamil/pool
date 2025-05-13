@@ -6780,9 +6780,9 @@ lobby={
 		lobby._opp_data={};
 		this.close_invite_dialog();
 		if(msg==='REJECT_ALL')
-			big_message.show(['Соперник пока не принимает приглашения.','The opponent refused to play.'][LANG],'---');
+			sys_msg.add(['Соперник пока не принимает приглашения.','The opponent refused to play.'][LANG]);
 		else
-			big_message.show(['Соперник отказался от игры. Повторить приглашение можно через 1 минуту.','The opponent refused to play. You can repeat the invitation in 1 minute'][LANG],'---');
+			sys_msg.add(['Соперник отказался от игры. Повторить приглашение можно через 1 минуту.','The opponent refused to play. You can repeat the invitation in 1 minute'][LANG]);
 
 	},
 
