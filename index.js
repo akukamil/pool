@@ -4031,6 +4031,10 @@ sp_game={
 			
 	activate(level){
 		
+		
+		//устанавливаем локальный и удаленный статус
+		set_state ({state : 'b'});
+		
 		this.cur_level=level;
 		
 		//сначала все отключаем
@@ -4339,7 +4343,10 @@ sp_game={
 	},
 	
 	close(){
-	
+		
+		//устанавливаем локальный и удаленный статус
+		set_state ({state : 'o'});
+		
 		objects.spgame_cont.visible=false;
 		objects.spfin_dlg_cont.visible=false;
 				
