@@ -1940,18 +1940,18 @@ fin_dialog={
 			case WIN:
 				objects.fin_dlg_crown.visible=true;
 				objects.fin_dlg_orb1.visible=true;
-				objects.fin_dlg_orb2visiblex=true;
+				objects.fin_dlg_orb2.visible=true;
 				tar_x=objects.fin_dlg_avatar1.x+objects.fin_dlg_avatar1.w*0.5;
 				objects.fin_dlg_crown.x=tar_x;
 				objects.fin_dlg_orb1.x=tar_x;
-				objects.fin_dlg_orb2.x=tar_x;
+				objects.fin_dlg_orb2.x=tar_x;				
 				sound.play('win2');
 			break;
 			
 			case LOSE:
 				objects.fin_dlg_crown.visible=true;
 				objects.fin_dlg_orb1.visible=true;
-				objects.fin_dlg_orb2visiblex=true;
+				objects.fin_dlg_orb2.visible=true;
 				tar_x=objects.fin_dlg_avatar2.x+objects.fin_dlg_avatar2.w*0.5;
 				objects.fin_dlg_crown.x=tar_x;
 				objects.fin_dlg_orb1.x=tar_x;
@@ -1962,7 +1962,7 @@ fin_dialog={
 			default:
 				objects.fin_dlg_crown.visible=false;
 				objects.fin_dlg_orb1.visible=false;
-				objects.fin_dlg_orb2visiblex=false;
+				objects.fin_dlg_orb2.visible=false;
 				sound.play('lose');
 			break;
 			
@@ -1981,7 +1981,9 @@ fin_dialog={
 		objects.fin_dlg_title2.text=res_data.t2;
 		
 		objects.fin_dlg_rating1.text=old_rating+' >>> '+my_data.rating;
-		objects.fin_dlg_rating2.text=old_rating+' >>> '+my_data.rating;
+		
+		const opp_new_rating=opp_data.rating+(old_rating-my_data.rating)
+		objects.fin_dlg_rating2.text=opp_data.rating+' >>> '+opp_new_rating;
 		
 		some_process.fin_dlg_anim=function(){fin_dialog.winner_anim()};
 		
