@@ -1894,7 +1894,7 @@ stickers={
 		
 		if (res === 'forced') return;
 
-		anim3.add(objects.rec_sticker_area,{x:[objects.rec_sticker_area.sx, -150,'easeInBack']}, false, 0.5);
+		anim3.add(objects.rec_sticker_area,{x:[objects.rec_sticker_area.x, 900,'easeInBack']}, false, 0.5);
 
 	}
 
