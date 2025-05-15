@@ -914,7 +914,7 @@ class chat_record_class extends PIXI.Container {
 		
 		this.name.set2(msg_data.name,150);
 		this.name.tint=this.nameToColor(msg_data.name);
-		//this.msg_tm.text = new Date(msg_data.tm).toLocaleString();
+		this.msg_tm.text = new Date(msg_data.tm).toLocaleString();
 		this.msg.text=msg_data.msg;
 		this.visible = true;
 		
