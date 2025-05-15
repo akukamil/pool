@@ -2512,16 +2512,20 @@ timer={
 		
 		//положение таймера
 		if (my_turn){
+			objects.my_timer_bar.scale_x=1;
 			objects.my_timer_bar.width=210;
 			objects.my_timer_bar.visible=true;
 			objects.opp_timer_bar.visible=false;
 			this.cur_bar=objects.my_timer_bar;
 		} else {
+			objects.opp_timer_bar.scale_x=1;
 			objects.opp_timer_bar.width=210;
 			objects.my_timer_bar.visible=false;
 			objects.opp_timer_bar.visible=true;
 			this.cur_bar=objects.opp_timer_bar;
 		}
+		
+		
 		
 	},
 	
