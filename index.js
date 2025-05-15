@@ -1860,7 +1860,7 @@ stickers={
 		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:"MSG",tm:Date.now(),data:id});
 		objects.sent_sticker_area.texture=assets['sticker_texture_'+id];
 		
-		await anim3.add(objects.sent_sticker_area,{x:[-150, objects.sent_sticker_area.sx,'easeOutBack']}, true, 0.5);
+		await anim3.add(objects.sent_sticker_area,{alpha:[0, 0.8,'linear']}, true, 0.5);
 
 		const res = await new Promise((resolve, reject) => {
 				stickers.promise_resolve_send = resolve;
@@ -1870,7 +1870,7 @@ stickers={
 		
 		if (res === 'forced') return;
 
-		anim3.add(objects.sent_sticker_area,{x:[objects.sent_sticker_area.sx, -150,'easeInBack']}, false, 0.5);
+		anim3.add(objects.sent_sticker_area,{alpha:[0.8, 0,'linear']}, false, 0.5);
 	},
 
 	async receive(id) {
@@ -1884,7 +1884,7 @@ stickers={
 
 		objects.rec_sticker_area.texture=assets['sticker_texture_'+id];
 	
-		await anim3.add(objects.rec_sticker_area,{x:[900, objects.rec_sticker_area.sx,'easeOutBack']}, true, 0.5);
+		await anim3.add(objects.rec_sticker_area,{alpha:[0, 0.8,'linear']}, true, 0.5);
 
 		const res = await new Promise((resolve, reject) => {
 				stickers.promise_resolve_recive = resolve;
@@ -1894,7 +1894,7 @@ stickers={
 		
 		if (res === 'forced') return;
 
-		anim3.add(objects.rec_sticker_area,{x:[objects.rec_sticker_area.x, 900,'easeInBack']}, false, 0.5);
+		anim3.add(objects.rec_sticker_area,{alpha:[0.8, 0,'easeInBack']}, false, 0.5);
 
 	}
 
