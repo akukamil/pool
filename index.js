@@ -5728,6 +5728,30 @@ anim_bcg={
 	
 }
 
+vk={
+	
+	invite_button_down(){
+		if (anim3.any_on()) return;
+		
+		sound.play('click');
+		vkBridge.send('VKWebAppShowInviteBox');
+		anim3.add(objects.vk_buttons_cont,{y:[objects.vk_buttons_cont.y,-150,'linear']}, false, 0.75);	
+		
+	},
+	
+	share_button_down(){
+		
+		if (anim3.any_on()) return;
+		
+		sound.play('click');
+		vkBridge.send('VKWebAppShowWallPostBox', { message: 'Я играю в Эко Бильард Онлайн и мне нравится!','attachments': 'https://vk.com/app53480594'})
+		anim3.add(objects.vk_buttons_cont,{y:[objects.vk_buttons_cont.y,-150,'linear']}, false, 0.75);	
+		
+	}
+	
+	
+}
+
 main_menu={
 
 	async activate() {
@@ -5736,9 +5760,6 @@ main_menu={
 		//music.activate();
 		objects.main_menu_cont.visible=true;
 				
-		//vk
-		//if (game_platform==='VK')
-		//anim3.add(objects.vk_buttons_cont,{alpha:[0,1,'linear']}, true, 0.5);	
 				
 		objects.bcg.texture=assets.main_bcg_img;			
 		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);			
@@ -5760,6 +5781,8 @@ main_menu={
 		objects.anim_ball_1.spd=5;
 		objects.anim_ball_2.spd=-3;
 		
+		if (game_platform==='VK')
+			anim3.add(objects.vk_buttons_cont,{alpha:[0,1,'linear']}, true, 0.5);	
 	
 		levels.load_stat();
 
@@ -5827,6 +5850,10 @@ main_menu={
 								
 		objects.main_menu_cont.visible=false;		
 		some_process.main_menu=function(){};		
+
+		//vk
+		if(objects.vk_buttons_cont.visible)
+			anim3.add(objects.vk_buttons_cont,{alpha:[1,0,'linear']}, false, 0.25);	
 
 	},
 
@@ -7721,7 +7748,7 @@ async function init_game_env(lang) {
 		chat.wheel_event(Math.sign(event.deltaY));
 	});	
 	window.addEventListener('keydown', function(event) { keyboard.keydown(event.key)});
-	window.addEventListener('contextmenu', event => event.preventDefault());
+	//window.addEventListener('contextmenu', event => event.preventDefault());
 
 	
 	//черный шар
