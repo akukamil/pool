@@ -5389,7 +5389,6 @@ common={
 			if (this.prv_dx!==-999){
 				objects.stick.rotation+=angleInRadiansSigned
 				objects.guide_orb.rotation=objects.stick.rotation	
-				console.log(angleInRadiansSigned)
 			}
 			
 			this.prv_dx=dx
