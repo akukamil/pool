@@ -1847,6 +1847,7 @@ stickers={
 
 	},
 
+
 	async send(id) {
 
 		if (objects.stickers_cont.ready===false)
@@ -4737,6 +4738,8 @@ common={
 	
 	mx:-1,
 	my:-1,
+	prv_dx:-999,
+	prv_dy:-999,
 	power:0,
 	level:1,
 	spower:0,
@@ -5361,20 +5364,36 @@ common={
 		
 		if(!objects.stick.visible) return;
 				
-		if(!this.drag_on) return;
+		if(!this.drag_on) return;		
 		
+		const mx=e.data.global.x/app.stage.scale.x;
+		const my=e.data.global.y/app.stage.scale.y;
 		
-		const cx=e.data.global.x/app.stage.scale.x;
-		const cy=e.data.global.y/app.stage.scale.y;
-		
-		const dx=cx-this.mx;
-		const dy=cy-this.my;
+		//const dx=cx-this.mx;
+		//const dy=cy-this.my;
 		
 		if (this.tapped_object==='board'){
 			
-			const sign=Math.sign(dx);
-			objects.stick.angle=objects.stick.sangle+sign*(dx*dx)*0.001;
-			objects.guide_orb.angle=objects.stick.angle;
+			const white_ball=objects.balls[15];
+			const dx=mx-white_ball.x
+			const dy=my-white_ball.y
+						
+			const dotProduct = dx * this.prv_dx + dy * this.prv_dy
+			const magnitudeA = Math.sqrt(dx ** 2 + dy ** 2)
+			const magnitudeB = Math.sqrt(this.prv_dx ** 2 + this.prv_dy ** 2)
+			const cosTheta = dotProduct / (magnitudeA * magnitudeB)			
+			const determinant = dx * this.prv_dy - dy * this.prv_dx;
+			const angleInRadians = Math.acos(cosTheta)
+			const angleInRadiansSigned = determinant >= 0 ? -angleInRadians : angleInRadians;
+			
+			if (this.prv_dx!==-999){
+				objects.stick.rotation+=angleInRadiansSigned
+				objects.guide_orb.rotation=objects.stick.rotation	
+				console.log(angleInRadiansSigned)
+			}
+			
+			this.prv_dx=dx
+			this.prv_dy=dy			
 			
 			//показываем направляющие
 			this.show_helper2();		
@@ -5383,7 +5402,7 @@ common={
 		}
 		
 		if (this.tapped_object==='hit_level'){			
-			this.update_power_level(cy);
+			this.update_power_level(my);
 		}	
 				
 	},
@@ -5412,8 +5431,11 @@ common={
 
 		this.drag_on=0;
 
-		this.px=-1;
-		this.py=-1;
+		this.px=-1
+		this.py=-1
+		this.prv_dx=-999
+		this.prv_dy=-999
+		
 		objects.stick.spower=objects.stick.power;
 
 		if (this.tapped_object==='hit_level')
