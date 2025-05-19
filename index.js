@@ -5381,7 +5381,9 @@ common={
 			const dotProduct = dx * this.prv_dx + dy * this.prv_dy
 			const magnitudeA = Math.sqrt(dx ** 2 + dy ** 2)
 			const magnitudeB = Math.sqrt(this.prv_dx ** 2 + this.prv_dy ** 2)
-			const cosTheta = dotProduct / (magnitudeA * magnitudeB)			
+			let cosTheta = dotProduct / (magnitudeA * magnitudeB)	
+			cosTheta = Math.max(-1, Math.min(1, cosTheta)); // Clamp to [-1, 1]
+			
 			const determinant = dx * this.prv_dy - dy * this.prv_dx;
 			const angleInRadians = Math.acos(cosTheta)
 			const angleInRadiansSigned = determinant >= 0 ? -angleInRadians : angleInRadians;
