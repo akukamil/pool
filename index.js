@@ -2765,7 +2765,7 @@ online_game={
 		let buttons_pos = [this.stickers_button_pos, this.chat_button_pos, this.giveup_button_pos];
 		
 		let min_dist=999;
-		let min_button=-1;
+		let min_button_id=-1;
 		
 		for (let b = 0 ; b < 3 ; b++) {			
 			
@@ -2774,7 +2774,7 @@ online_game={
 			const dy = my-anchor_pos[1];
 			const d = Math.sqrt(dx * dx + dy * dy);		
 
-			if (d < 40 && d < min_dist) {
+			if (d < 40) {
 				min_dist = d;
 				min_button_id = b;
 			}
@@ -3192,6 +3192,7 @@ online_game={
 			objects.stick_direction.visible=true;
 			objects.guide_orb.visible=true;			
 			anim3.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx,'linear']}, true, 0.4);
+			anim3.add(objects.fine_tune_cont,{alpha:[0, 1,'linear']}, true, 0.4);
 
 		
 			
@@ -3209,6 +3210,7 @@ online_game={
 			objects.stick.visible=false;
 			objects.stick_direction.visible=false;
 			objects.hit_level_cont.visible=false;
+			objects.fine_tune_cont.visible=false;
 			objects.guide_orb.visible=false;
 		}	
 		
@@ -3227,6 +3229,7 @@ online_game={
 		//убираем таймер
 		timer.stop();
 		objects.hit_level_cont.visible=false;
+		objects.fine_tune_cont.visible=false;
 		objects.game_buttons.visible=false;
 		
 		some_process.game=function(){};		
@@ -3307,6 +3310,7 @@ online_game={
 		this.on=0;
 		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5);
 		objects.hit_level_cont.visible=false;
+		objects.fine_tune_cont.visible=false;
 		objects.swords.visible=false;
 		objects.my_card_cont.visible=false;
 		objects.opp_card_cont.visible=false;
@@ -4223,52 +4227,111 @@ sp_game={
 		objects.instr_hand.alpha=1;
 		objects.instr_hand.scale_x=1;
 		objects.instr_hand.texture=assets.hand_free;
-		await anim3.add(objects.instr_hand,{x:[800, 400,'linear'],y:[450, 315,'linear']}, true, 1);
+		await anim3.add(objects.instr_hand,{x:[800, 485,'linear'],y:[450, 146,'linear']}, true, 1);
 		await anim3.wait(0.5);
 		objects.instr_hand.texture=assets.free_click;
 		await anim3.wait(0.5);
 		
-		
+		//основное направление
 		objects.just_line.visible=true;
-		objects.just_line.x=430;
-		objects.just_line.y=345;
+		objects.just_line.x=522;
+		objects.just_line.y=172;
+		objects.just_line.width=1
 		let dx=0;
-		for (let x=400;x<596;x++){
+		let x_path=[485,507]
+		let y_path=[146,315]
+		let x_d=(x_path[1]-x_path[0])*0.01
+		let y_d=(y_path[1]-y_path[0])*0.01
+		
+		for (let i=0;i<101;i++){
 			
-			objects.instr_hand.x=x;
+			objects.instr_hand.x=x_path[0]+i*x_d;
+			objects.instr_hand.y=y_path[0]+i*y_d;			
 			
-			const sign=Math.sign(dx);
-			objects.stick.angle=objects.stick.sangle+sign*(dx*dx)*0.001;
+			objects.stick.angle=objects.stick.sangle+i/2.53;
 			objects.guide_orb.angle=objects.stick.angle;
-			objects.just_line.width=x-400;
+			
+			objects.just_line.width=165*i*0.01
+			
 			//показываем направляющие
 			common.show_helper2();		
-			common.update_cue();			
-			
-			dx++;			
+			common.update_cue();	
 			await new Promise(resolve => setTimeout(resolve, 10));				
 		}
 		
 		await anim3.wait(0.5);
+		objects.instr_hand.texture=assets.hand_free
+		objects.just_line.visible=false
 		
-		objects.just_line.visible=false;
-		objects.instr_hand.texture=assets.hand_free;
+		//перемещаем руку на корректировку
+		await anim3.wait(0.5);
 		
-		await anim3.add(objects.instr_hand,{x:[599,810,'linear'],y:[315, 200,'linear'],scale_x:[1,-1,'linear']}, true, 1);
+		x_path=[x_path[1],-2]
+		y_path=[y_path[1],306]
+		x_d=(x_path[1]-x_path[0])*0.01
+		y_d=(y_path[1]-y_path[0])*0.01
+		
+		for (let i=0;i<101;i++){			
+			objects.instr_hand.x=x_path[0]+i*x_d;
+			objects.instr_hand.y=y_path[0]+i*y_d;			
+			await new Promise(resolve => setTimeout(resolve, 10));				
+		}
+		
+		//коррректор
 		await anim3.wait(0.5);
 		objects.instr_hand.texture=assets.free_click;
 		await anim3.wait(0.5);
+		x_path=[x_path[1],-1]
+		y_path=[y_path[1],205]
+		x_d=(x_path[1]-x_path[0])*0.01
+		y_d=(y_path[1]-y_path[0])*0.01
 		
-		
-		for (let y=200;y<320;y++){
-			objects.instr_hand.y=y;
-			objects.hit_level.y=objects.hit_level.sy+y-200;
-			common.cue_power=1+(y-200)*0.1;
-			common.update_cue();
-			await new Promise(resolve => setTimeout(resolve, 10));		
+		for (let i=0;i<101;i++){			
+			objects.instr_hand.x=x_path[0]+i*x_d
+			objects.instr_hand.y=y_path[0]+i*y_d
+			common.update_fine_tune(y_d)
+			await new Promise(resolve => setTimeout(resolve, 10))			
 		}
 		
+		//перемещаем на запуск
 		await anim3.wait(0.5);
+		objects.instr_hand.texture=assets.hand_free	
+		objects.instr_hand.scale_x*=-1
+		objects.instr_hand.x+=160
+		await anim3.wait(0.5);
+		x_path=[160,810]
+		y_path=[y_path[1],172]
+		x_d=(x_path[1]-x_path[0])*0.01
+		y_d=(y_path[1]-y_path[0])*0.01
+		
+		for (let i=0;i<101;i++){			
+			objects.instr_hand.x=x_path[0]+i*x_d;
+			objects.instr_hand.y=y_path[0]+i*y_d;			
+			await new Promise(resolve => setTimeout(resolve, 10));				
+		}
+		
+		
+		//запускаем
+		await anim3.wait(0.5);
+		objects.instr_hand.texture=assets.free_click	
+		await anim3.wait(0.5);
+		x_path=[x_path[1],810]
+		y_path=[y_path[1],299]
+		x_d=(x_path[1]-x_path[0])*0.01
+		y_d=(y_path[1]-y_path[0])*0.01
+		
+		for (let i=0;i<101;i++){			
+			objects.instr_hand.x=x_path[0]+i*x_d;
+			objects.instr_hand.y=y_path[0]+i*y_d;	
+			objects.hit_level.y=objects.hit_level.sy+i*1.27;
+			common.cue_power=1+i*0.127
+			common.update_cue();
+			await new Promise(resolve => setTimeout(resolve, 10));				
+		}
+			
+		
+		objects.just_line.visible=false;
+
 		objects.instr_hand.texture=assets.hand_free;
 		common.cue_power=8;
 		common.hit_down();
@@ -4373,6 +4436,7 @@ sp_game={
 		
 		//показываем все элементы игры
 		anim3.add(objects.hit_level_cont,{x:[objects.hit_level_cont.x, 800,'linear']}, false, 0.4);
+		anim3.add(objects.fine_tune_cont,{alpha:[1,0,'linear']}, false, 0.4);
 		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5);
 		this.on=0;
 		
@@ -4420,6 +4484,7 @@ sp_game={
 		
 		anim3.add(objects.stick,{alpha:[0,1,'flick']}, true, 0.5);
 		anim3.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx,'linear']}, true, 0.4);
+		anim3.add(objects.fine_tune_cont,{alpha:[0,1,'linear']}, true, 0.4);
 		sound.play('ready2');
 	
 	},
@@ -4736,8 +4801,10 @@ sp_game={
 
 common={	
 	
-	mx:-1,
-	my:-1,
+	prv_mx:-999,
+	prv_my:-999,
+	s_mx:-999,
+	s_my:-999,
 	prv_dx:-999,
 	prv_dy:-999,
 	power:0,
@@ -4841,6 +4908,7 @@ common={
 		anim3.add(objects.stick,{alpha:[1,0,'linear']}, false, 0.4);
 		anim3.add(objects.guide_orb,{alpha:[1,0,'linear']}, false, 0.4);
 		anim3.add(objects.hit_level_cont,{x:[objects.hit_level_cont.x, 800,'linear']}, false, 0.5);
+		anim3.add(objects.fine_tune_cont,{alpha:[1,0,'linear']}, false, 0.4);
 		
 		//уведомляем игру о начале ход
 		online_game.move_start_event(dx,dy);
@@ -5337,7 +5405,9 @@ common={
 		
 		//определяем доска или уровень кликнули
 		this.mx=e.data.global.x/app.stage.scale.x;
-		this.my=e.data.global.y/app.stage.scale.y;		
+		this.my=e.data.global.y/app.stage.scale.y;	
+		this.s_mx=this.mx
+		this.s_my=this.my
 	
 		//определяем от какого объета считать драг
 		this.tapped_object='';
@@ -5353,6 +5423,12 @@ common={
 		//если по уровню тапнули
 		if (this.is_obj_hited(this,objects.hit_level_cont)){
 			this.tapped_object='hit_level';			
+			this.drag_on=1;
+		}
+				
+		//если по уровню корректору
+		if (this.is_obj_hited(this,objects.fine_tune_cont)){
+			this.tapped_object='fine_tune';			
 			this.drag_on=1;
 		}
 		
@@ -5403,16 +5479,29 @@ common={
 		}
 		
 		if (this.tapped_object==='hit_level'){			
-			this.update_power_level(my);
+			this.update_power_level(my-this.s_my);
 		}	
+		
+		if (this.tapped_object==='fine_tune')			
+			this.update_fine_tune(my-this.prv_my);
+		
+		this.prv_mx=mx
+		this.prv_my=my
 				
 	},
 
-	update_power_level(mouse_y){
+	update_fine_tune(dy){
 		
-		//сдвиг кия относительно начала
-		let cue_shift=mouse_y-this.my;		
+		objects.stick.rotation+=Math.sign(dy)*0.00025
+		objects.guide_orb.rotation=objects.stick.rotation	
+		objects.fine_tune_tile.tilePosition.y+=dy
+		//показываем направляющие
+		this.show_helper2();		
+		this.update_cue();
+	},
 
+	update_power_level(cue_shift){
+		
 		//ограничиваем перемещение ползунка
 		if (cue_shift>200) cue_shift=200;
 		if (cue_shift<0) cue_shift=0;
