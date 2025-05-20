@@ -4817,6 +4817,7 @@ common={
 	drag_on:0,
 	cue_power:5,
 	initial_draw_amount:100,
+	prv_call:0,
 
 	init(){
 		
@@ -5536,6 +5537,13 @@ common={
 	},
 
 	run_balls(){
+		
+		//ограничиваем ход
+		const tm = Date.now();
+		const dtm = tm-this.prv_call
+		if (dtm < 14) return
+		this.prv_call=tm
+		
 		
 		//двигаем шары по направлению
 		for (let ball of objects.balls)
