@@ -5493,6 +5493,9 @@ common={
 
 	update_fine_tune(dy){
 		
+		if (!assets.tune.isPlaying)
+			sound.play('tune')
+		
 		objects.stick.rotation+=Math.sign(dy)*0.00025
 		objects.guide_orb.rotation=objects.stick.rotation	
 		objects.fine_tune_tile.tilePosition.y+=dy
@@ -7424,6 +7427,7 @@ main_loader={
 		loader.add('ready2',git_src+'sounds/ready2.mp3');
 		loader.add('win2',git_src+'sounds/win2.mp3');
 		loader.add('keypress',git_src+'sounds/keypress.mp3');
+		loader.add('tune',git_src+'sounds/tune.mp3');
 		
 		loader.add('board1',git_src+'res/boards/board1.png');
 		loader.add('board2',git_src+'res/boards/board2.png');
