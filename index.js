@@ -2656,7 +2656,7 @@ online_game={
 		for (let i=7;i<14;i++) objects.balls[i].set_color('blue');
 
 		const s_balls=[1,2,3,4,5,6,8,9,10,11,12,13]
-		const weights = array.map(() => this.get_random());
+		const weights = s_balls.map(() => this.get_random());
 		s_balls.sort((a, b) => weights[a] - weights[b]);
 		s_balls.splice(4,0,14);
 		s_balls.splice(10,0,0);
