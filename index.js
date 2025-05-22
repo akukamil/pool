@@ -7856,7 +7856,7 @@ async function init_game_env(lang) {
 	//ждем загрузки чата
 	await Promise.race([
 		chat.init(),
-		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 5000))
+		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 2000))
 	]);
 		
 	//включаем музыку
