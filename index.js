@@ -3907,21 +3907,17 @@ levels={
 		
 	},	
 	
-	load_stat(){
+	async load_stat(){
 		
-		const stat_str=safe_ls(STAT_LS_KEY);
-		if (stat_str)
-			this.stat=stat_str.split('').map(Number);
-		else
-			this.stat=[];
+		this.stat=await fbs_once(`players/${my_data.uid}/lev_stat`)||[]
+
 	},
 	
 	save_stat(level,stars){
 		
-		const this_level_stat=this.stat[this.cur_level];
 		this.stat[level]=stars;
-		safe_ls(STAT_LS_KEY,this.stat.join(''));	
-		
+		fbs.ref(`players/${my_data.uid}/lev_stat`).set(this.stat);		
+	
 	},
 	
 	update_stars(level_icon){
@@ -7793,6 +7789,7 @@ async function init_game_env(lang) {
 	my_data.country = other_data?.country || await auth2.get_country_code() || await auth2.get_country_code2();
 	my_data.nick_tm = other_data?.nick_tm || 0;
 	my_data.avatar_tm = other_data?.avatar_tm || 0;
+	levels.stat=other_data?.lev_stat || []
 	
 	//из локального хранилища
 	my_data.board_id = safe_ls('pool_board_id')||1;
@@ -7836,6 +7833,7 @@ async function init_game_env(lang) {
 		games:my_data.games,
 		cue_data:my_data.cue_resource,
 		cue_id:my_data.cue_id,
+		lev_stat:levels.stat,
 		country:my_data.country||'',
 		tm:firebase.database.ServerValue.TIMESTAMP,
 		session_start:firebase.database.ServerValue.TIMESTAMP		
@@ -7927,6 +7925,7 @@ async function init_game_env(lang) {
 		[min_x,min_y,min_x,max_y]
 	);
 		
+	
 	main_menu.activate();	
 	
 	//покупки яндекса
