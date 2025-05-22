@@ -2655,7 +2655,9 @@ online_game={
 		for (let i=0;i<7;i++) objects.balls[i].set_color('red');		
 		for (let i=7;i<14;i++) objects.balls[i].set_color('blue');
 
-		const s_balls=[1,2,3,4,5,6,8,9,10,11,12,13].sort(() => 500-online_game.get_random()%1000);
+		const s_balls=[1,2,3,4,5,6,8,9,10,11,12,13]
+		const weights = array.map(() => this.get_random());
+		s_balls.sort((a, b) => weights[a] - weights[b]);
 		s_balls.splice(4,0,14);
 		s_balls.splice(10,0,0);
 		s_balls.push(7);		
@@ -7293,6 +7295,21 @@ players_cache={
 		
 	},
 	
+}
+
+function sss (){
+	
+	objects.balls[0].x=660
+	objects.balls[0].y=135
+	
+	objects.balls[1].x=685
+	objects.balls[1].y=360
+	
+	objects.balls[2].x=635
+	objects.balls[2].y=135
+		
+	objects.balls[15].x=600
+	objects.balls[15].y=215
 }
 
 keep_alive = function() {
