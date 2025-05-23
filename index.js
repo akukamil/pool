@@ -3504,6 +3504,7 @@ pref={
 			//запоминаем дату установки
 			my_data.nick_tm=Date.now();
 			safe_ls('pool_nick_tm',my_data.nick_tm)
+			fbs.ref(`players/${my_data.uid}/name`).set(my_data.name)
 			
 			this.update_buttons();			
 
