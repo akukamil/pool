@@ -7761,8 +7761,7 @@ async function init_game_env(lang) {
 	
 	
 	//запускаем главный цикл
-	main_loop();
-	
+	main_loop();	
 
 	
 	await main_loader.load1();	
@@ -7784,7 +7783,7 @@ async function init_game_env(lang) {
 		fbs.ref('players/'+my_data.uid+'/s_msg').remove();
 	}
 
-	my_data.rating = 1400;//(other_data?.rating) || 1400;
+	my_data.rating = (other_data?.rating) || 1400;
 	my_data.games = (other_data?.games) || 0;
 	my_data.name = (other_data?.name)||my_data.name;
 	my_data.country = other_data?.country || await auth2.get_country_code() || await auth2.get_country_code2();
