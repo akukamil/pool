@@ -3233,7 +3233,7 @@ online_game={
 	
 	opp_aiming(){
 				
-		if (Math.random()>0.98)
+		if (Math.random()>0.99)
 			this.opp_aiming_dir=Math.random()*0.018-0.008
 		
 		objects.stick.rotation+=this.opp_aiming_dir;
