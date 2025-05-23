@@ -1167,9 +1167,10 @@ req_dialog={
 
 	_opp_data : {} ,
 	
-	async show(uid) {
+	async show(msg) {
 		
 		//если нет в кэше то загружаем из фб
+		const uid=msg.sender
 		await players_cache.update(uid);
 		await players_cache.update_avatar(uid);
 		
@@ -1183,6 +1184,7 @@ req_dialog={
 		req_dialog._opp_data.uid=uid;		
 		req_dialog._opp_data.name=player.name;		
 		req_dialog._opp_data.rating=player.rating;
+		req_dialog._opp_data.cue_id=msg.cue_id;
 				
 		objects.req_name.set2(player.name,200);
 		objects.req_rating.text=player.rating;
@@ -1219,7 +1221,7 @@ req_dialog={
 		//отправляем информацию о согласии играть с идентификатором игры и сидом
 		game_id=irnd(1,9999);
 		const seed = irnd(1,9999);
-		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed});
+		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),cue_id:my_data.cue_id,game_id,seed});
 
 		main_menu.close();
 		lobby.close();
@@ -1659,7 +1661,7 @@ process_new_message = function(msg) {
 		//в данном случае я мастер и хожу вторым
 		opp_data.uid=msg.sender;
 		game_id=msg.game_id;
-		lobby.accepted_invite(msg.seed);
+		lobby.accepted_invite(msg);
 	}
 
 	//принимаем также отрицательный ответ от соответствующего соперника
@@ -1721,7 +1723,7 @@ process_new_message = function(msg) {
 	if(state==='o'||state==='b') {
 		
 		if (msg.message==='INV') {
-			req_dialog.show(msg.sender);
+			req_dialog.show(msg);
 		}
 		
 		if (msg.message==='INV_REM') {
@@ -1734,7 +1736,7 @@ process_new_message = function(msg) {
 
 }
 
-message =  {
+message = {
 	
 	promise_resolve :0,
 	
@@ -2600,6 +2602,7 @@ online_game={
 	help_info_timer:0,
 	my_color:'',
 	opp_color:'',
+	opp_aiming_dir:0.001,
 	table_state:'break',
 	
 	get_random(){		
@@ -2698,8 +2701,8 @@ online_game={
 		this.opp_color='';
 		
 		//шкалы шаров пока невидимы
-		objects.my_potted_balls.forEach(b=>b.visible=false);
-		objects.opp_potted_balls.forEach(b=>b.visible=false);
+		objects.my_potted_balls.forEach(b=>b.visible=false)
+		objects.opp_potted_balls.forEach(b=>b.visible=false)
 				
 		//располагаем белый шар
 		const white_ball=objects.balls[15];
@@ -2709,7 +2712,7 @@ online_game={
 		
 		
 		//показываем все элементы игры
-		anim3.add(objects.board_stuff_cont,{y:[450,0,'linear'],alpha:[0,1,'linear']}, true, 0.5);
+		anim3.add(objects.board_stuff_cont,{y:[450,0,'linear'],alpha:[0,1,'linear']}, true, 0.5)
 		
 		this.prepare_next_move();
 		
@@ -2718,17 +2721,18 @@ online_game={
 		
 		
 		//отправляем подтверждение что мы тоже играем
-		clearTimeout(this.confirm_check_timer);
-		clearTimeout(this.confirm_start_timer);
+		clearTimeout(this.confirm_check_timer)
+		clearTimeout(this.confirm_start_timer)
 		
 		//через 3 секунды отправляем сообщение что мы играем
 		this.confirm_start_timer=setTimeout(function(){
 			fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'CONF_START',tm:Date.now()});			
-		},2000);
+		},2000)
 
 		//через 10 секунд проверяем сообщение от соперника
+		this.opp_conf_play=0
 		this.confirm_check_timer=setTimeout(function(){
-			online_game.check_confirm();			
+			online_game.check_confirm()	
 		},10000);
 			
 	
@@ -3160,6 +3164,9 @@ online_game={
 		if (!this.on) return;
 		this.send_move({sender:my_data.uid,message:'MOVE',data:{dx,dy},tm:Date.now()});
 		
+		//убираем процессинг эйминга соперника
+		some_process.opp_aiming=function(){}
+		
 		//снижаем уровень кия
 		if (my_data.cue_id>1){
 			my_data.cue_resource[my_data.cue_id]--;
@@ -3190,12 +3197,13 @@ online_game={
 			if (this.table_state==='game')
 				console.log('забейте шар вашего цвета!');
 				
+			common.change_only_stick(my_data.cue_id)
 			objects.stick.visible=true;
 			objects.stick_direction.visible=true;
 			objects.guide_orb.visible=true;			
 			anim3.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx,'linear']}, true, 0.4);
 			anim3.add(objects.fine_tune_cont,{alpha:[0, 1,'linear']}, true, 0.4);
-
+			some_process.opp_aiming=function(){}
 		
 			
 		}else{
@@ -3208,17 +3216,31 @@ online_game={
 			
 			if (this.table_state==='game')
 				console.log('соперник должен забить свой шар!');
-			
-			objects.stick.visible=false;
-			objects.stick_direction.visible=false;
-			objects.hit_level_cont.visible=false;
-			objects.fine_tune_cont.visible=false;
-			objects.guide_orb.visible=false;
+
+			common.change_only_stick(opp_data.cue_id)
+			objects.stick.visible=true
+			objects.stick_direction.visible=true
+			objects.hit_level_cont.visible=false
+			objects.fine_tune_cont.visible=false
+			objects.guide_orb.visible=false
+			some_process.opp_aiming=function(){online_game.opp_aiming()}
 		}	
 		
 		common.reset_cue();
-		timer.start();
+		timer.start();		
 		
+	},
+	
+	opp_aiming(){
+				
+		if (Math.random()>0.98)
+			this.opp_aiming_dir=Math.random()*0.018-0.008
+		
+		objects.stick.rotation+=this.opp_aiming_dir;
+		objects.guide_orb.rotation=objects.stick.rotation	
+
+		//показываем направляющие
+		common.update_cue(opp_data.cue_id);
 		
 	},
 		
@@ -3308,6 +3330,9 @@ online_game={
 		
 		clearTimeout(this.confirm_check_timer);
 		clearTimeout(this.confirm_start_timer);
+		
+		//убираем процессинг эйминга соперника
+		some_process.opp_aiming=function(){}
 		
 		this.on=0;
 		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5);
@@ -3590,12 +3615,12 @@ pref={
 		};				
 		if(dir) sound.play('click');
 		
-		this.cur_cue_id+=dir;
-		if (this.cur_cue_id>7)this.cur_cue_id=7;
-		if (this.cur_cue_id<1)this.cur_cue_id=1;
+		this.cur_cue_id+=dir
+		if (this.cur_cue_id>7)this.cur_cue_id=7
+		if (this.cur_cue_id<1)this.cur_cue_id=1
 		
-		const cur_cue_resource=my_data.cue_resource[this.cur_cue_id];
-		const cur_cue_max_resource=this.max_cue_resource[this.cur_cue_id];
+		const cur_cue_resource=my_data.cue_resource[this.cur_cue_id]
+		const cur_cue_max_resource=this.max_cue_resource[this.cur_cue_id]
 		
 		//нельзя восстановить первый кий или максимальный кий
 		if (cur_cue_resource===cur_cue_max_resource||this.cur_cue_id===1){
@@ -3619,23 +3644,20 @@ pref={
 			}			
 			
 		}
-	
-		
-		objects.pref_cue_level.text=['Уровень: ','Level: '][LANG]+this.cur_cue_id;
+			
+		objects.pref_cue_level.text=['Уровень: ','Level: '][LANG]+this.cur_cue_id
 		
 		objects.pref_cue_info.text=['Ресурс: ','Durability: '][LANG]+cur_cue_resource+"/"+cur_cue_max_resource;
 		if (this.cur_cue_id===my_data.cue_id)
-			objects.pref_cue_level.text+=[' (активный)',' (active)'][LANG];			
+			objects.pref_cue_level.text+=[' (активный)',' (active)'][LANG]			
 		
 		//кнопка выбора работает только где есть ресурс
 		if (cur_cue_resource===0||this.cur_cue_id===my_data.cue_id)
-			objects.pref_cue_select_btn.alpha=0.5;
+			objects.pref_cue_select_btn.alpha=0.5
 		else
-			objects.pref_cue_select_btn.alpha=1;			
+			objects.pref_cue_select_btn.alpha=1		
 		
-		objects.pref_cue_photo.texture=assets['cue'+this.cur_cue_id];
-		
-		
+		objects.pref_cue_photo.texture=assets['cue'+this.cur_cue_id]
 
 		
 	},
@@ -3804,8 +3826,8 @@ pref={
 		
 	},
 	
-	get_draw_amount(){	
-		return [200,200,230,260,300,350,400,450,450,450,450,450][my_data.cue_id];//[1-7]
+	get_draw_amount(cue_id){	
+		return [200,200,230,260,300,350,400,450,450,450,450,450][cue_id];//[1-7]
 	},	
 	
 	async counume_yndx_purchases(){
@@ -4212,8 +4234,7 @@ sp_game={
 		objects.spgame_exit_btn.visible=false;
 		
 		//показываем направляющие
-		common.show_helper2();		
-		common.update_cue();
+		common.update_cue(my_data.cue_id);
 		
 		//ждем закрытия окна
 		await new Promise(resolve => {
@@ -4253,8 +4274,7 @@ sp_game={
 			objects.just_line.width=165*i*0.01
 			
 			//показываем направляющие
-			common.show_helper2();		
-			common.update_cue();	
+			common.update_cue(my_data.cue_id);	
 			await new Promise(resolve => setTimeout(resolve, 10));				
 		}
 		
@@ -4324,7 +4344,7 @@ sp_game={
 			objects.instr_hand.y=y_path[0]+i*y_d;	
 			objects.hit_level.y=objects.hit_level.sy+i*1.27;
 			common.cue_power=1+i*0.127
-			common.update_cue();
+			common.update_cue(my_data.cue_id);
 			await new Promise(resolve => setTimeout(resolve, 10));				
 		}
 			
@@ -4827,7 +4847,7 @@ common={
 		this.potted_balls_total=[];
 		
 		//получем уровень кия из настроек
-		this.initial_draw_amount=pref.get_draw_amount();
+		this.initial_draw_amount=pref.get_draw_amount(my_data.cue_id);
 		
 		this.reset_cue();
 		
@@ -4872,9 +4892,8 @@ common={
 		
 		//получем уровень кия из настроек
 		my_data.cue_id=level;//[1-7]
-		this.initial_draw_amount=pref.get_draw_amount();
-		this.show_helper2();		
-		this.update_cue();
+		this.initial_draw_amount=pref.get_draw_amount(my_data.cue_id);
+		this.update_cue(my_data.cue_id);
 		
 		//меняем текстуру кия
 		const stick_texture=assets['cue'+my_data.cue_id];		
@@ -4885,6 +4904,31 @@ common={
 		const hit_level_texture=new PIXI.Texture(stick_texture.baseTexture, region, null, null, 2);
 		objects.hit_level.texture=hit_level_texture;
 		
+	},
+	
+	change_only_stick(id){
+		
+		this.initial_draw_amount=pref.get_draw_amount(id);
+		const stick_texture=assets['cue'+id];		
+		objects.stick.texture=stick_texture;
+		
+	},
+
+	opp_hit_down(){		
+				
+		sound.play('cue');	
+
+		some_process.opp_aiming=function(){}
+		
+		const s=objects.stick
+		const b=objects.balls[15]
+		s.rotation=Math.atan2(b.dir.y, b.dir.x)
+		
+		anim3.add(s,{x:[s.x,b.x,'linear'],y:[s.y,b.y,'linear']}, true, 0.05);
+				
+		objects.stick_direction.visible=false;
+		anim3.add(objects.stick,{alpha:[1,0,'linear']}, false, 0.4);
+					
 	},
 
 	async hit_down(){
@@ -4942,7 +4986,7 @@ common={
 			return;
 		}
 		
-		//обрабатываем на стороне 
+		//таймер пока выключаем
 		timer.stop();
 		
 		const white_ball=objects.balls[15];
@@ -4951,10 +4995,12 @@ common={
 		//заново объявляем
 		this.potted_balls=[];
 		this.first_ball_hited='';
-		this.move_on=1;		
+		this.move_on=1;	
 		
 		//убираем боковые шары
 		objects.move_potted_balls.forEach(b=>b.visible=false);
+		
+		this.opp_hit_down()
 		
 	},
 	
@@ -5123,7 +5169,7 @@ common={
 
 	},
 
-	show_helper2(){
+	show_helper2(cue_id){
 
 		const wball=objects.balls[15];
 		wball.dx=Math.cos(objects.stick.rotation);
@@ -5150,7 +5196,7 @@ common={
 			const left_to_draw=left_to_draw_top-draw_consumed1;
 					
 			//point 2
-			if (my_data.cue_id>=2){
+			if (cue_id>=2){
 				
 				//это запуск белого шара после первого столкновения
 				run_res1=this.predict_hit(ball0,ball1);
@@ -5164,11 +5210,11 @@ common={
 					const left_to_draw1=left_to_draw-draw_consumed;
 					
 					//point 4
-					if (my_data.cue_id>=4)
+					if (cue_id>=4)
 						this.draw_run_with_check(b0,b1,left_to_draw1);
 					
 					//point 5
-					if (my_data.cue_id>=5)
+					if (cue_id>=5)
 						this.draw_run_with_check(b1,b0,left_to_draw1);					
 						
 				} else {				
@@ -5179,7 +5225,7 @@ common={
 
 			
 			//point 3			
-			if (my_data.cue_id>=3) {
+			if (cue_id>=3) {
 				
 				//это запуск второго шара после первого столкновения
 				run_res2=this.predict_hit(ball1,ball0);
@@ -5193,11 +5239,11 @@ common={
 					const left_to_draw2=left_to_draw-draw_consumed;
 					
 					//point 6
-					if (my_data.cue_id>=6)
+					if (cue_id>=6)
 						this.draw_run_with_check(b0,b1,left_to_draw2);
 					
 					//point 7
-					if(my_data.cue_id>=7)
+					if(cue_id>=7)
 						this.draw_run_with_check(b1,b0,left_to_draw2);
 					
 				} else {
@@ -5338,7 +5384,7 @@ common={
 		}		
 	},
 
-	update_cue(){
+	update_cue(cue_id){
 		
 		const s=objects.stick;
 		const ang=s.rotation;
@@ -5347,7 +5393,7 @@ common={
 		s.x=s.sx-dx*this.cue_power*10;
 		s.y=s.sy-dy*this.cue_power*10;
 		
-		this.show_helper2();
+		this.show_helper2(cue_id);
 		
 	},
 
@@ -5400,6 +5446,7 @@ common={
 		
 		this.tapped_object='board';
 		
+		if(!my_turn) return;
 		if(!objects.stick.visible) return;
 		if(!online_game.on&&!sp_game.on) return;
 		
@@ -5432,7 +5479,7 @@ common={
 			this.drag_on=1;
 		}
 		
-		this.update_cue();
+		this.update_cue(my_data.cue_id)
 
 	},
 
@@ -5473,8 +5520,7 @@ common={
 			this.prv_dy=dy			
 			
 			//показываем направляющие
-			this.show_helper2();		
-			this.update_cue();
+			this.update_cue(my_data.cue_id);
 			
 		}
 		
@@ -5499,8 +5545,7 @@ common={
 		objects.guide_orb.rotation=objects.stick.rotation	
 		objects.fine_tune_tile.tilePosition.y+=dy
 		//показываем направляющие
-		this.show_helper2();		
-		this.update_cue();
+		this.update_cue(my_data.cue_id);
 	},
 
 	update_power_level(cue_shift){
@@ -5514,7 +5559,7 @@ common={
 		this.cue_power=12*cue_shift/200+1;
 		
 		//обновляем положение кия
-		this.update_cue();
+		this.update_cue(my_data.cue_id);
 	},
 
 	pointerup(e){
@@ -6001,12 +6046,11 @@ main_menu={
 			return
 		};
 
-		if (!levels.stat||!levels.stat.length) {
+		/*if (!levels.stat||!levels.stat.length) {
 			sys_msg.add('Пройдите туториал в одиночной игре для доступа')
 			anim3.add(objects.sp_btn,{scale_xy:[0.666, 1,'ease2back'],angle:[0,10,'ease2back']}, true, 0.25);
 			return
-		};
-
+		};*/
 
 		sound.play('click');
 
@@ -6906,7 +6950,6 @@ lobby={
 
 	async send_invite() {
 
-
 		if (!objects.invite_cont.ready||!objects.invite_cont.visible||objects.invite_button.texture===assets.invite_wait_img){
 			sound.play('locked');
 			return
@@ -6917,9 +6960,7 @@ lobby={
 			return
 		};
 		
-
-		if (lobby._opp_data.uid==='bot')
-		{
+		if (lobby._opp_data.uid==='bot') {
 			await this.close();	
 
 			opp_data.name=['Бот','Bot'][LANG];
@@ -6929,7 +6970,7 @@ lobby={
 		} else {
 			sound.play('click');
 			objects.invite_button.texture=assets.invite_wait_img;
-			fbs.ref('inbox/'+lobby._opp_data.uid).set({sender:my_data.uid,message:'INV',tm:Date.now()});
+			fbs.ref('inbox/'+lobby._opp_data.uid).set({sender:my_data.uid,message:'INV',cue_id:my_data.cue_id,tm:Date.now()});
 			pending_player=lobby._opp_data.uid;
 
 		}
@@ -6949,18 +6990,19 @@ lobby={
 
 	},
 
-	async accepted_invite(seed) {
+	async accepted_invite(data) {
 
 
 		//убираем запрос на игру если он открыт
 		req_dialog.hide();
 		
 		//устанаваем окончательные данные оппонента
-		opp_data=lobby._opp_data;
+		opp_data=lobby._opp_data
+		opp_data.cue_id=data.cue_id
 		
 		//закрываем меню и начинаем игру
 		await lobby.close();
-		online_game.activate(seed,0);
+		online_game.activate(data.seed,0);
 		//game2.activate('master');
 
 		
