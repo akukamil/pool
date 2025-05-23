@@ -2741,7 +2741,7 @@ online_game={
 	check_confirm(){
 		
 		//проверяем было ли подтверждение от соперника
-		if (!this.opp_conf_play) game.finish_event('no_opp_conf');
+		if (!this.opp_conf_play) online_game.finish_event('no_opp_conf');
 		
 	},	
 			
