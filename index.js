@@ -5700,6 +5700,7 @@ common={
 					sp_game.border_hit(ball0)
 				}
 					
+				sound.play('border_hit',0,ball0.speed*0.1);
 
 
 				const overlap=ball_class.BALL_RADIUS-coll_obj.d+0.002;
