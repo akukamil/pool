@@ -5621,7 +5621,15 @@ common={
 					
 				const ball0=coll_ball
 				const ball1=coll_obj
-				
+
+				//раздвигаем шары чтобы не было пересечения
+				if ((ball0.speed===0 && ball1.speed!==0)|| (ball0.speed!==0 && ball1.speed===0)){
+					//здесь по правилам чтобы движущийся шар вернулся на идеальную позицию
+					if(ball0.speed>0)
+						this.kick_back(ball0,ball1);
+					else
+						this.kick_back(ball1,ball0);						
+				}
 				
 				//отмечаем первый шар
 				if (!this.first_ball_hited){
