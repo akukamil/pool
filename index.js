@@ -7958,7 +7958,6 @@ async function init_game_env(lang) {
 	//первый вход и начальные бонусы
 	if(!other_data?.first_log_tm){
 		fbs.ref('players/'+my_data.uid+'/first_log_tm').set(firebase.database.ServerValue.TIMESTAMP);
-		my_data.cue_resource = [9,100,100,50,10,0,0,0];
 		fbs.ref('players/' + my_data.uid+'/cue_data').set(my_data.cue_resource);
 
 	}
