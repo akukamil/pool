@@ -6708,8 +6708,8 @@ lobby={
 		objects.td_rating1.text = card.rating_text1.text;
 		objects.td_rating2.text = card.rating_text2.text;
 
-		objects.td_name1.set2(card.name1, 240);
-		objects.td_name2.set2(card.name2, 240);
+		objects.td_name1.set2(card.name1, 220);
+		objects.td_name2.set2(card.name2, 220);
 
 	},
 
@@ -7911,7 +7911,7 @@ async function init_game_env(lang) {
 	//из локального хранилища
 	my_data.board_id = safe_ls('pool_board_id')||1;
 	my_data.cue_id = other_data?.cue_id ||4;
-	my_data.cue_resource = other_data?.cue_data||[9,100,50,50,150,0,0,0];
+	my_data.cue_resource = other_data?.cue_data||[9,100,50,50,500,0,0,0];
 
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
