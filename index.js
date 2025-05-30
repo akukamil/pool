@@ -3801,7 +3801,7 @@ pref={
 	},
 
 	get_draw_amount(cue_id){
-		return [200,200,230,260,300,350,400,450,450,450,450,450][cue_id];//[1-7]
+		return [200,250,265,275,300,310,320,330,350,450,450,450][cue_id];//[1-7]
 	},
 
 	async counume_yndx_purchases(){
@@ -5158,7 +5158,10 @@ common={
 		objects.stick_direction.clear();
 		objects.stick_direction.alpha=0.5;
 		objects.stick_direction.lineStyle(1, 0xffffff)
-
+		
+		//пока все самое лучшее
+		cue_id=100
+		
 		//point 1
 		if (run_res0_hit){
 
