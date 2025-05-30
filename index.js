@@ -5160,7 +5160,7 @@ common={
 		objects.stick_direction.lineStyle(1, 0xffffff)
 		
 		//пока все самое лучшее
-		cue_id=100
+		cue_id=4
 		
 		//point 1
 		if (run_res0_hit){
