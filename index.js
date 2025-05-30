@@ -7890,8 +7890,7 @@ async function init_game_env(lang) {
 	anim3.add(objects.id_cont,{alpha:[0,1,'linear'],y:[-200,objects.id_cont.sy,'easeOutBack']}, true,0.5);
 	some_process.loup_anim=()=>{objects.id_gear.rotation+=0.02}
 
-	//загрузка сокета
-	await auth2.load_script('https://akukamil.github.io/common/my_ws.js');
+
 
 	//загружаем остальные данные из файербейса
 	const other_data = await fbs_once('players/' + my_data.uid)
@@ -7910,6 +7909,10 @@ async function init_game_env(lang) {
 	my_data.nick_tm = other_data?.nick_tm || 0;
 	my_data.avatar_tm = other_data?.avatar_tm || 0;
 	levels.stat=other_data?.lev_stat || []
+
+
+	//загрузка сокета
+	await auth2.load_script('https://akukamil.github.io/common/my_ws.js');
 
 	//из локального хранилища
 	my_data.board_id = safe_ls('pool_board_id')||1;
@@ -7969,6 +7972,8 @@ async function init_game_env(lang) {
 
 	//номер комнаты
 	room_name= 'states1';
+
+
 
 	//ждем загрузки чата
 	await Promise.race([
