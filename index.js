@@ -1957,8 +1957,8 @@ fin_dialog={
 
 
 		//заполняем имя
-		objects.fin_dlg_name1.text=my_data.name;
-		objects.fin_dlg_name2.text=opp_data.name;
+		objects.fin_dlg_name1.set2(my_data.name,150);
+		objects.fin_dlg_name2.set2(opp_data.name,150);
 
 		objects.fin_dlg_avatar1.set_texture(players_cache.players[my_data.uid].texture);
 		objects.fin_dlg_avatar2.set_texture(players_cache.players[opp_data.uid].texture);
@@ -5160,7 +5160,7 @@ common={
 		objects.stick_direction.lineStyle(1, 0xffffff)
 		
 		//пока все самое лучшее
-		cue_id=4
+		cue_id=3
 		
 		//point 1
 		if (run_res0_hit){
