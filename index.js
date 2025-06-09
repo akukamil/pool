@@ -3142,7 +3142,7 @@ online_game={
 		some_process.opp_aiming=function(){}
 
 		//снижаем уровень кия
-		if (my_data.cue_id>1){
+		/*if (my_data.cue_id>1){
 			my_data.cue_resource[my_data.cue_id]--;
 			if (my_data.cue_resource[my_data.cue_id]<=0){
 				common.set_cue_level(1);
@@ -3151,7 +3151,7 @@ online_game={
 
 			//сохраняем...
 			fbs.ref('players/' + my_data.uid+'/cue_data').set(my_data.cue_resource);
-		}
+		}*/
 
 	},
 
