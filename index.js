@@ -1980,9 +1980,25 @@ fin_dialog={
 
 	},
 
-	fb_down(){
+	async fb_down(){
 
-		this.close();
+		if (anim3.any_on()){
+			sound.play('locked')
+			return;			
+		}
+
+		sound.play('click')
+
+		objects.fin_dlg_cont.visible=false;
+		
+		//пишем отзыв и отправляем его		
+		const msg = await keyboard.read();		
+		if (msg) {
+			const fb_id = irnd(0,50);			
+			await fbs.ref('fb/'+opp_data.uid+'/'+fb_id).set([msg, firebase.database.ServerValue.TIMESTAMP, my_data.name]);
+		}
+		this.close()
+		//this.p_resolve('close');
 
 	},
 
