@@ -1252,12 +1252,6 @@ chat={
 		this.shift(-2000);
 	},
 
-	new_message(data){
-
-		console.log('new_data',data);
-
-	},
-
 	async init(){
 
 		this.last_record_end = 0;
@@ -2472,6 +2466,7 @@ timer={
 	move_time_start:0,
 	prv_time:0,
 	cur_bar:0,
+	clock_warn:0,
 
 	start(turn_on){
 		//return
@@ -2480,12 +2475,14 @@ timer={
 		if (!this.on) return
 
 		//сам таймер
-		some_process.time=function(){timer.tick()};
+		some_process.time=function(){timer.tick()}
 
 		//время когда пошел отсчет хода
-		this.prv_time=this.move_time_start=Date.now();
+		this.prv_time=this.move_time_start=Date.now()
 
-		this.disconnect_time=0;
+		this.disconnect_time=0
+		
+		this.clock_warn=0
 
 		//положение таймера
 		if (my_turn){
@@ -2536,6 +2533,12 @@ timer={
 
 		//определяем сколько времени прошло
 		const move_time_left=this.time_for_move-(cur_time-this.move_time_start)*0.001;
+
+		if (!this.clock_warn&&move_time_left<6){
+			sound.play('clock')			
+			this.clock_warn=1
+		}
+
 
 		if (move_time_left < 0 && my_turn)	{
 			online_game.finish_event('my_timeout');
@@ -5772,7 +5775,7 @@ common={
 				}
 				
 				if (!coll_on){
-					console.log('Resolved on iter ',i)
+					//console.log('Resolved on iter ',i)
 					break;
 				}
 			}
@@ -7562,6 +7565,7 @@ main_loader={
 		loader.add('win2',git_src+'sounds/win2.mp3');
 		loader.add('keypress',git_src+'sounds/keypress.mp3');
 		loader.add('tune',git_src+'sounds/tune.mp3');
+		loader.add('clock',git_src+'sounds/clock.mp3');
 
 		loader.add('board1',git_src+'res/boards/board1.png');
 		loader.add('board2',git_src+'res/boards/board2.png');
