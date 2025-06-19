@@ -1882,8 +1882,8 @@ fin_dialog={
 		const res_data={
 			me_black_potted:{type:LOSE,t2:['Вы забили черный шар! Этого нельзя сейчас делать!','You potted black ball in wrong time!'][LANG]},
 			opp_black_potted:{type:WIN,t2:['Соперник забил черный шар! Этого нельзя делать сейчас!','Opponent potted black ball in wrong time!'][LANG]},
-			me_black_potted_wrong:{type:LOSE,t2:['Вы забили черный шар, но начали с чужого!',"You lost! You potted the black ball but started with an opponent's ball!"][LANG]},
-			opp_black_potted_wrong:{type:WIN,t2:['Соперник забил черный шар, но начал с чужого!','You win! Opponent potted black ball but started with wrong ball'][LANG]},
+			me_black_potted_wrong:{type:LOSE,t2:['Вы забили черный шар с нарушением правил!',"You lost! You potted the black ball but started with an opponent's ball!"][LANG]},
+			opp_black_potted_wrong:{type:WIN,t2:['Соперник забил черный шар с нарушением правил!','You win! Opponent potted black ball but started with wrong ball'][LANG]},
 			me_win:{type:WIN,t2:['Вы забили все шары своей группы и черный шар по всем правилам!',"You potted all your group’s balls and the black ball by the rules!"][LANG]},
 			opp_win:{type:LOSE,t2:['Соперник забил все шары своей группы и черный шар по всем правилам!',"Your opponent potted all their group’s balls and the black ball by the rules!"][LANG]},
 			my_no_connection:{type:LOSE,t2:['Пропала интернет связь!','Connection is lost!'][LANG]},
@@ -3027,6 +3027,8 @@ online_game={
 
 						return;
 					}
+					
+					
 
 					if(white_potted||opp_potted.length){
 
@@ -3300,6 +3302,11 @@ online_game={
 		const orb=objects.anim_orbs.find(o=>o.visible===false);
 		if (orb)
 			orb.activate(hole_data[0],hole_data[1]);
+		
+		
+		if (ball.balls_hits_before_potted>2){
+			
+		}
 
 		//добавляем шар с список попавших в лузу
 		common.potted_balls.push(ball);
