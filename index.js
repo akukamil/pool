@@ -2617,6 +2617,7 @@ online_game={
 		//если открыты другие окна то закрываем их
 		if (objects.chat_cont.visible) chat.close();
 		if(objects.levels_cont.visible) levels.close();
+		if(objects.lb_cards_cont.visible) lb.close();
 
 		//устанавливаем локальный и удаленный статус
 		set_state({state:'p'});
