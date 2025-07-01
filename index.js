@@ -7306,7 +7306,7 @@ lb={
 
 		sound.play('close_it');
 		this.close();
-		lobby.activate();
+		main_menu.activate();
 
 	},
 
