@@ -2097,7 +2097,7 @@ confirm_dialog = {
 			return
 		};
 
-		sound.play('click')
+		sound.play('close_it')
 
 		this.close();
 		this.p_resolve(res);
@@ -3457,6 +3457,13 @@ online_game={
 			message.add(['Нельзя сдаваться в начале игры','can nott give up at the beginning of the game'][LANG])
 			return;
 		}*/
+
+		if (anim3.any_on()||!online_game.on){
+			sound.play('locked');
+			return
+		};
+		
+		sound.play('click');
 
 		const res = await confirm_dialog.show(['Сдаетесь?','Giveup?'][LANG])
 		if (res==='ok'&&this.on){
