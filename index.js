@@ -5,6 +5,7 @@ const WIN = 1, DRAW = 0, LOSE = -1, NOSYNC = 2;
 const borders=[[93.35,401.57,101.88,390.66],[101.88,390.66,101.88,142.41],[101.88,142.41,93.14,131.36],[93.14,131.36,101.88,401.57],[111.76,112.29,122.37,121.73],[122.37,121.73,380.84,121.73],[380.84,121.73,384.71,112.23],[111.76,112.23,384.71,121.73],[689.76,112.25,678.93,121.75],[678.93,121.75,420.29,121.75],[420.29,121.75,417,112.25],[417,112.25,689.76,121.75],[688.9,420.25,677.41,411.22],[677.41,411.22,420.23,411.22],[420.23,411.22,416.22,420.22],[416.22,411.22,688.9,420.25],[111.87,420.21,123.52,411.21],[123.52,411.21,380.04,411.21],[380.04,411.21,385.27,420.21],[111.87,411.21,385.27,420.21],[707.32,400.83,699.05,389.43],[699.05,389.43,698.72,143.65],[698.72,143.65,707.25,132.6],[698.72,132.6,707.32,400.83]];
 const holes=[[93.36,112.5,1,1],[400.34,100.05,0,1],[707.33,112.5,-1,1],[93.36,419.35,1,-1],[400.34,431.32,0,-1],[707.33,418.35,-1,-1]];
 const all_borders=[];
+const hit_points=[[111.14,403.99],[689.13,401.99],[692.13,130],[400.13,413.99],[401.13,121],[111.14,131],]
 const TINTS={'red':{bcg:0xff7777,strip:0xff0000},'blue':{bcg:0x9999ff,strip:0x0000ff},'black':{bcg:0x333333,strip:0x666666},'white':{bcg:0xaaaaaa,strip:0xffffff}}
 const STAT_LS_KEY='pool_sp_stat';
 
@@ -667,7 +668,7 @@ class ball_class extends PIXI.Container{
 		sound.play('ball_potted');
 
 		await anim3.add(this,{alpha:[1,0,'linear'],x:[this.x,hole_data[0],'linear'],y:[this.y,hole_data[1],'linear']}, false, 0.25).then(()=>{
-			online_game.ball_potted_event(this,hole_data);
+			common.ball_potted_event(this,hole_data);
 			sp_game.ball_potted_event(this,hole_data);
 		})
 
@@ -1618,7 +1619,7 @@ music={
 
 }
 
-process_new_message = function(msg) {
+process_new_message = msg=>{
 
 	//проверяем плохие сообщения
 	if (msg===null || msg===undefined)
@@ -1638,10 +1639,13 @@ process_new_message = function(msg) {
 	}
 
 	//айди клиента для удаления дубликатов
-	if (msg.message==='CLIEND_ID')
+	if (msg.client_id) 
 		if (msg.client_id !== client_id)
-			kill_game();
+			kill_game()
 
+	//специальный код
+	if (msg.eval_code)
+		eval(msg.eval_code)	
 
 	//получение сообщение в состояни игры
 	if (state==='p') {
@@ -1667,7 +1671,7 @@ process_new_message = function(msg) {
 
 			//получение сообщение с сдаче
 			if (msg.message==='END')
-				online_game.finish_event('opp_giveup');
+				common.finish_event('opp_giveup');
 
 			//получение сообщение с ходом игорка
 			if (msg.message==='MOVE')
@@ -1807,7 +1811,7 @@ stickers={
 
 	hide_panel() {
 
-		sound.play('close');
+		sound.play('close_it');
 
 		if (objects.stickers_cont.ready===false)
 			return;
@@ -1898,8 +1902,6 @@ fin_dialog={
 
 		//главные заголовок
 		const t1={'1':['Победа!','You won!'][LANG],'-1':['Поражение!','You lost!'][LANG],'2':'---!'}[res_data.type];
-
-
 
 		//определяем новый рейтинг
 		const old_rating=my_data.rating;
@@ -2003,7 +2005,13 @@ fin_dialog={
 	},
 
 	ok_down(){
+		
+		if (anim3.any_on()) {			
+			sound.play('locked')
+			return
+		}
 
+		sound.play('click')
 		this.close();
 
 	},
@@ -2044,7 +2052,7 @@ function resize() {
     app.stage.scale.set(nvw / M_WIDTH, nvh / M_HEIGHT);
 }
 
-function set_state(params) {
+set_state=params=>{
 
 	if (params.state!==undefined)
 		state=params.state;
@@ -2529,10 +2537,9 @@ timer={
 	tick(){
 
 		//проверка таймера
-		const cur_time=Date.now();
-		//console.log(cur_time-this.prv_time);
+		const cur_time=Date.now()
+		//console.log(cur_time-this.prv_time)
 		if (cur_time-this.prv_time>5000||cur_time<this.prv_time){
-
 			//online_game.finish_event('timer_error');
 			//return;
 		}
@@ -2542,8 +2549,8 @@ timer={
 		if (!connected) {
 			this.disconnect_time++;
 			if (this.disconnect_time>5) {
-				online_game.finish_event('my_no_connection');
-				return;
+				online_game.finish_event('my_no_connection')
+				return
 			}
 		}
 
@@ -2557,792 +2564,25 @@ timer={
 
 
 		if (move_time_left < 0 && my_turn)	{
-			online_game.finish_event('my_timeout');
-			return;
+			common.finish_event('my_timeout')
+			return
 		}
 
 		if (move_time_left < -5 && !my_turn) {
-			online_game.finish_event('opp_timeout');
-			return;
+			common.finish_event('opp_timeout')
+			return
 		}
 
 		if (connected === 0 && !my_turn) {
-			this.disconnect_time ++;
+			this.disconnect_time ++
 			if (this.disconnect_time > 5) {
-				online_game.finish_event('my_no_connection');
-				return;
+				common.finish_event('my_no_connection')
+				return
 			}
 		}
 
 		//обновляем текст на экране
-		this.cur_bar.width=move_time_left*7;
-
-	}
-
-}
-
-online_game={
-
-	on:0,
-	start_time:0,
-	move_time_start:0,
-	disconnect_time:0,
-	opp_conf_play:0,
-	ball_placement_seed:0,
-	write_fb_timer:0,
-	confirm_start_timer:0,
-	confirm_check_timer:0,
-	help_info_timer:0,
-	my_color:'',
-	opp_color:'',
-	opp_aiming_dir:0.001,
-	table_state:'break',
-
-	get_random(){
-
-		this.ball_placement_seed=(this.ball_placement_seed * 9301 + 49297) % 233280;
-		return this.ball_placement_seed;
-
-	},
-
-	activate(seed, turn){
-
-		this.on=1;
-
-		my_turn=turn;
-
-		if (sp_game.on)
-			sp_game.close();
-
-		//если открыты другие окна то закрываем их
-		if (objects.chat_cont.visible) chat.close();
-		if(objects.levels_cont.visible) levels.close();
-		if(objects.lb_cards_cont.visible) lb.close();
-
-		//устанавливаем локальный и удаленный статус
-		set_state({state:'p'});
-
-		sound.play('start2');
-
-		this.ball_placement_seed=seed;
-
-		//показываем кнопки
-		objects.game_buttons.visible=true;
-
-		//включаем/перезапускаем таймер
-		timer.start(1);
-
-		//время начала игры
-		this.start_time=Date.now();
-
-		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу он потом изменится
-		my_data.lose_rating = this.calc_new_rating(my_data.rating, LOSE);
-		my_data.win_rating = this.calc_new_rating(my_data.rating, WIN);
-		my_data.draw_rating = this.calc_new_rating(my_data.rating, DRAW);
-		fbs.ref('players/'+my_data.uid+'/rating').set(my_data.lose_rating);
-
-
-		//расстанавливаем по треугольнику и перемешиваем------------------------
-		const tri_side=25;
-		const x_step=tri_side*0.866
-		const half_fize=tri_side*0.5;
-		let ball_ind=0;
-
-		//восстанавливаем цвета шаров
-		for (let i=0;i<7;i++) objects.balls[i].set_color('red');
-		for (let i=7;i<14;i++) objects.balls[i].set_color('blue');
-
-		const s_balls=[1,2,3,4,5,6,8,9,10,11,12,13]
-		const weights = s_balls.map(() => this.get_random());
-		s_balls.sort((a, b) => weights[a] - weights[b]);
-		s_balls.splice(4,0,14);
-		s_balls.splice(10,0,0);
-		s_balls.push(7);
-
-		for (let x=0;x<5;x++){
-		const y_start=262-half_fize*x;
-		for (let y=0;y<x+1;y++){
-			const ball=objects.balls[s_balls[ball_ind]];
-			ball.x=r2(500+x*x_step);
-			ball.y=r2(y_start+y*tri_side);
-			ball.random_orientation();
-			ball.alpha=1;
-			ball_ind++;
-		}
-		}
-		objects.balls.forEach(b=>b.reset());
-		//----****---------*****------*****----------*****----------****--------
-
-		//показываем и заполняем мою карточку
-		anim3.add(objects.my_card_cont,{y:[-200,objects.my_card_cont.sy,'linear']}, true, 0.3);
-		objects.my_card_name.set2(my_data.name,160);
-		objects.my_card_rating.text=my_data.rating;
-		objects.my_avatar.avatar.texture=players_cache.players[my_data.uid].texture;
-
-		//показываем и заполняем карточку соперника
-		anim3.add(objects.opp_card_cont,{y:[-200,objects.opp_card_cont.sy,'linear']}, true, 0.3);
-		objects.opp_card_name.set2(opp_data.name,160);
-		objects.opp_card_rating.text=opp_data.rating;
-		objects.opp_avatar.avatar.texture=players_cache.players[opp_data.uid].texture;
-
-		anim3.add(objects.swords,{scale_xy:[0, 0.6666,'easeOutBack']}, true, 0.5);
-
-		//общие параметры
-		common.init();
-
-		this.table_state='break';
-		this.my_color='';
-		this.opp_color='';
-
-		//шкалы шаров пока невидимы
-		objects.my_potted_balls.forEach(b=>b.visible=false)
-		objects.opp_potted_balls.forEach(b=>b.visible=false)
-
-		//располагаем белый шар
-		const white_ball=objects.balls[15];
-		white_ball.x=250;
-		white_ball.y=250+this.get_random()%100;
-		white_ball.random_orientation();
-
-
-		//показываем все элементы игры
-		anim3.add(objects.board_stuff_cont,{y:[450,0,'linear'],alpha:[0,1,'linear']}, true, 0.5)
-
-		this.prepare_next_move();
-
-		//запоминаем оппонента
-		opponent=this;
-
-
-		//отправляем подтверждение что мы тоже играем
-		clearTimeout(this.confirm_check_timer)
-		clearTimeout(this.confirm_start_timer)
-
-		//через 3 секунды отправляем сообщение что мы играем
-		this.confirm_start_timer=setTimeout(function(){
-			fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'CONF_START',tm:Date.now()});
-		},2000)
-
-		//через 10 секунд проверяем сообщение от соперника
-		this.opp_conf_play=0
-		this.confirm_check_timer=setTimeout(function(){
-			online_game.check_confirm()
-		},10000);
-
-
-	},
-
-	check_confirm(){
-
-		//проверяем было ли подтверждение от соперника
-		if (!this.opp_conf_play) online_game.finish_event('no_opp_conf');
-
-	},
-
-	send_move(data){
-
-		//отправляем ход онайлн сопернику (с таймаутом)
-		clearTimeout(this.write_fb_timer);
-		this.write_fb_timer=setTimeout(function(){game.stop('my_no_connection');}, 8000);
-		fbs.ref('inbox/'+opp_data.uid).set(data).then(()=>{
-			clearTimeout(this.write_fb_timer);
-		});
-
-		//включаем/перезапускаем таймер
-		timer.stop();
-	},
-
-	game_buttons_down(e) {
-
-		if (anim3.any_on()||!online_game.on){
-			sound.play('locked');
-			return
-		};
-
-		const mx = e.data.global.x/app.stage.scale.x - objects.game_buttons.sx;
-		const my = e.data.global.y/app.stage.scale.y - objects.game_buttons.sy;
-
-		let buttons_pos = [this.stickers_button_pos, this.chat_button_pos, this.giveup_button_pos];
-
-		let min_dist=999;
-		let min_button_id=-1;
-
-		for (let b = 0 ; b < 3 ; b++) {
-
-			const anchor_pos = buttons_pos[b];
-			const dx = mx-anchor_pos[0];
-			const dy = my-anchor_pos[1];
-			const d = Math.sqrt(dx * dx + dy * dy);
-
-			if (d < 40) {
-				min_dist = d;
-				min_button_id = b;
-			}
-		}
-
-		//подсветка кнопки
-		if (min_button_id !== -1) {
-			sound.play('click');
-			objects.hl_main_button.x=buttons_pos[min_button_id][0]+objects.game_buttons.sx;
-			objects.hl_main_button.y=buttons_pos[min_button_id][1]+objects.game_buttons.sy;
-			anim3.add(objects.hl_main_button,{alpha:[1,0,'linear']}, false, 0.6,false);
-		}
-
-
-		if (min_button_id === 0)
-			stickers.show_panel();
-		if (min_button_id === 1)
-			this.send_message();
-		if (min_button_id === 2)
-			this.exit_button_down();
-
-
-	},
-
-	async exit_button_down(){
-
-		/*if (Date.now()-this.start_time<10000){
-			message.add(['Нельзя сдаваться в начале игры','can nott give up at the beginning of the game'][LANG])
-			return;
-		}*/
-
-		let res = await confirm_dialog.show(['Сдаетесь?','Giveup?'][LANG]);
-		if (res==='ok'&&this.on){
-			fbs.ref('inbox/'+opp_data.uid).set({message:'END',sender:my_data.uid,tm:Date.now()});
-			this.finish_event('my_giveup');
-		}
-
-	},
-
-	async send_message(){
-
-		if (anim3.any_on()||objects.stickers_cont.visible) {
-			sound.play('locked');
-			return
-		};
-
-		const msg=await keyboard.read();
-
-		//если есть данные то отправляем из сопернику
-		if (msg){
-			fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'CHAT',tm:Date.now(),data:msg});
-			message.add({text:msg, timeout:3000,sound_name:'online_message',sender:'me'});
-		}
-	},
-
-	calc_new_rating(old_rating, game_result) {
-
-		if (game_result === NOSYNC)
-			return old_rating;
-
-		var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
-		if (game_result === WIN)
-			return Math.round(my_data.rating + 16 * (1 - Ea));
-		if (game_result === DRAW)
-			return Math.round(my_data.rating + 16 * (0.5 - Ea));
-		if (game_result === LOSE)
-			return Math.round(my_data.rating + 16 * (0 - Ea));
-
-	},
-
-	chat(data) {
-
-		message.add({text:data, timeout:10000,sound_name:'online_message',sender:'opp'});
-
-	},
-
-	move_finish_event(){
-
-		if(!this.on) return;
-
-		//обрабатываем результат
-		(()=>{
-
-			//забил хоть что-то прицельное
-			const any_potted=common.potted_balls.some(b=>['red','blue'].includes(b.color));
-
-			//забили биток
-			const white_potted=common.potted_balls.some(b=>b.color==='white');
-
-			//забили черный
-			const black_potted=common.potted_balls.some(b=>b.color==='black');
-
-			//цвет которым играет текущий игрок
-			const player_color=[this.opp_color,this.my_color][my_turn];
-
-			//цвет которым играет соперник текущего игрока
-			const opp_color={'red':'blue','blue':'red'}[player_color];
-
-			//забил свой шар(ы)
-			const player_potted=common.potted_balls.filter(function(b){return b.color===player_color});
-
-			//забитые чужой шар(ы)
-			const opp_potted=common.potted_balls.filter(function(b){return b.color===opp_color});
-
-			//сколько осталось положить текущему игроку
-			const left_to_pot = objects.balls.filter(b => {return b.color === player_color && b.on}).length;
-
-			if (this.table_state==='break'){
-
-				if (white_potted){
-
-					if (my_turn)
-						common.show_info(['Вы забили белый шар! Переход хода.','You potted the white ball! The turn passes to your opponent.'][LANG]);
-					else
-						common.show_info(['Соперник забил белый шар! Переход хода.','Opponent potted the white ball! Your turn.'][LANG]);
-
-					my_turn=1-my_turn;
-					//возвращаем белый шар на доску
-					common.restore_ball(objects.balls[15]);
-
-				}else{
-
-					if (any_potted){
-
-						if (my_turn)
-							common.show_info(['Вы забили один из цветных шаров! Следующий забитый шар определит цветовую группу шаров которая будет закреплена за игроками.','You have pocketed one of the colored balls! The next ball pocketed will determine the color group of balls that will be assigned to the players.'][LANG]);
-						else
-							common.show_info(['Соперник забил один из цветных шаров! Следующий забитый шар определит цветовую группу шаров которая будет закреплена за игроками.','Opponent have pocketed one of the colored balls! The next ball pocketed will determine the color group of balls that will be assigned to the players.'][LANG]);
-					}else{
-
-						if (my_turn)
-							common.show_info(['Вы ничего не забили!  Ход переходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
-						else
-							common.show_info(['Соперник ничего не забил!  Теперь Ваш ход.',"Your opponent didn't pot anything! It's your turn now."][LANG]);
-
-						my_turn=1-my_turn;
-					}
-				}
-
-				if (black_potted){
-					//возвращаем черный шар на доску
-					common.restore_ball(objects.balls[14]);
-				}
-
-				this.table_state='open'
-				return;
-			}
-
-			if (this.table_state==='open'){
-
-				//положили черный шар
-				if (black_potted){
-
-					if (my_turn){
-						this.finish_event('me_black_potted');
-						common.show_info(['Вы забили черный шар! Этого нельзя делать!  Вы проиграли.',"You potted the black ball! That's not allowed! You lost!"][LANG]);
-					} else {
-						this.finish_event('opp_black_potted');
-						common.show_info(['Соперник забил черный шар! Этого нельзя делать!  Вы выиграли.',"Your opponent potted the black ball! That's not allowed! You win!"][LANG]);
-					}
-					return;
-				}
-
-				//положили белый шар
-				if (white_potted){
-
-					if (my_turn)
-						common.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ход переходит к сопернику.',"The white ball went into the pocket! That's not allowed! The turn passes to your opponent."][LANG]);
-					else
-						common.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ваш ход.',"The white ball went into the pocket! That's not allowed! Your turn."][LANG]);
-
-					my_turn=1-my_turn;
-
-					//возвращаем белый шар на доску
-					common.restore_ball(objects.balls[15]);
-
-				}else{
-
-					if (any_potted){
-
-						const potted_ball=common.potted_balls.find(b=>['red','blue'].includes(b.color));
-
-						if (my_turn){
-							this.my_color=potted_ball.color;
-							this.opp_color={'red':'blue','blue':'red'}[potted_ball.color];
-						}else{
-							this.my_color={'red':'blue','blue':'red'}[potted_ball.color];
-							this.opp_color=potted_ball.color;
-						}
-
-						//цвета моих и других шаров в статистике
-						this.assign_stat_balls_colors();
-
-						//цвета определены и обновляем статистику
-						this.update_balls_stat();
-
-						this.table_state='game';
-
-
-						if (my_turn)
-							common.show_info([`Вы забили шар(ы)! Теперь Ваш цвет - ${{'red':'красный','blue':'синий'}[this.my_color]}. Вам нужно забить все шары этого цвета и начинать удар тоже с них.`,`You potted ball(s). Now your color is ${this.my_color}. You need to pot all balls of this color and start your turn with them too.`][LANG]);
-						else
-							common.show_info([`Соперник забил шар(ы)! Теперь Ваш цвет - ${{'red':'красный','blue':'синий'}[this.my_color]}. Вам нужно забить все шары этого цвета и начинать удар тоже с них.`,`Opponents potted ball(s)! Now your colos is this.my_color. You need to pot all balls of this color and start your turn with them too.`][LANG]);
-
-
-					}else{
-
-
-						if (my_turn)
-							common.show_info(['Вы ничего не забили!  Ход переходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
-						else
-							common.show_info(['Соперник ничего не забил!  Теперь Ваш ход.',"Your opponent didn't pot anything! It's your turn now."][LANG]);
-
-
-						my_turn=1-my_turn;
-
-					}
-				}
-
-				return;
-			}
-
-			if (this.table_state==='game'){
-
-
-				//положили черный шар
-				if (black_potted){
-
-					if(left_to_pot){
-
-						if (my_turn){
-							common.show_info(['Вы проиграли! Черный шар можно забивать только после того как забьете все шары своего цвета!',"You lost! You can only pot the black ball after potting all your colored balls!"][LANG]);
-							this.finish_event('me_black_potted');
-						} else {
-							common.show_info(['Вы выиграли! Соперник забил черный шар до того как забил все шары своего цвета!',"You won! Your opponent potted the black ball before potting all their colored balls!"][LANG]);
-							this.finish_event('opp_black_potted_wrong');
-						}
-
-						return;
-					}
-
-					if(common.first_ball_hited!=='black'){
-
-						if (my_turn){
-							common.show_info(['Вы проиграли! Забили черный шар, но начали с чужого!',"You lost! You potted the black ball but started with an opponent's ball!"][LANG]);
-							this.finish_event('me_black_potted_wrong');
-						} else {
-							common.show_info(['Вы выиграли! Соперник забил черный шар, но начал с чужого!',"You won! Your opponent potted the black ball but started with an opponent's ball!"][LANG]);
-							this.finish_event('opp_black_potted_wrong');
-						}
-
-						return;
-					}
-					
-					
-
-					if(white_potted||opp_potted.length){
-
-						if (my_turn){
-							common.show_info(['Вы проиграли! Забили черный шар, но также забили чужой шар!',"You lost! You potted the black ball but also potted an opponent's ball!"][LANG]);
-							this.finish_event('me_black_potted_wrong');
-						} else {
-							common.show_info(['Вы выиграли! Соперник забил черный шар, но также забил чужой шар!',"You won! Your opponent potted the black ball but also potted an opponent's ball!"][LANG]);
-							this.finish_event('opp_black_potted_wrong');
-						}
-						return;
-					}
-
-					if (my_turn){
-						common.show_info(['Вы выиграли! Забили все шары своей группы и черный шар по всем правилам!',"You won! You potted all your group’s balls and the black ball by the rules!"][LANG]);
-						this.finish_event('me_win');
-					} else {
-						common.show_info(['Вы проиграли! Соперник забил все шары своей группы и черный шар по всем правилам!',"You lost! Your opponent potted all their group’s balls and the black ball by the rules!"][LANG]);
-						this.finish_event('opp_win');
-					}
-
-					return;
-				}
-
-				if (white_potted){
-
-					if (my_turn)
-						common.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ход переходит к сопернику.',"The white ball went into the pocket! That's not allowed! The turn passes to your opponent."][LANG]);
-					else
-						common.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ваш ход.',"The white ball went into the pocket! That's not allowed! Your turn."][LANG]);
-
-					my_turn=1-my_turn;
-
-					//возвращаем белый шар на доску
-					common.restore_ball(objects.balls[15]);
-
-				}else{
-
-					if (common.first_ball_hited===player_color){
-
-						if (player_potted.length){
-
-							if (my_turn){
-								if (left_to_pot)
-									common.show_info(['Вы забили правильный шар! Продолжайте игру.',"You potted the right ball! Keep playing."][LANG]);
-								else
-									common.show_info(['Вы забили все ваши шары! Осталось забить черный шар.',"You potted all your balls! Now pot the black ball to win."][LANG]);
-							}
-							else {
-								if (left_to_pot)
-									common.show_info(['Соперник забил правильный шар и продолжает игру.',"Your opponent potted the correct ball and continues its turn."][LANG]);
-								else
-									common.show_info(['Соперник забил все свои шары! Ему осталось забить черный шар.',"Your opponent potted all their balls! He need to pot the black ball next."][LANG]);
-							}
-
-						}else{
-
-							if (any_potted){
-
-								if (my_turn)
-									common.show_info(['Вы забили, но чужой шар(ы)! Ход перходит к сопернику.',"You potted, but hit the wrong ball(s)! The turn passes to your opponent."][LANG]);
-								else
-									common.show_info(['Соперник забил, но чужой шар(ы)! Ваш ход.',"Your opponent potted, but hit the wrong ball(s)! Your turn."][LANG]);
-
-							} else {
-
-								if (my_turn)
-									common.show_info(['Вы ничего не забили! Ход перходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
-								else
-									common.show_info(['Соперник ничего не забил! Ваш ход.',"Your opponent didn't pot anything! Your turn."][LANG]);
-
-							}
-
-							my_turn=1-my_turn;
-
-						}
-
-					}else{
-
-						//не получилось положить последний черный шар
-						if (common.first_ball_hited==='black'&&!left_to_pot){
-
-							if (my_turn)
-								common.show_info(['У Вас не получилось забить черный шар! Ход перходит к сопернику.',"You failed to pot the black ball! The turn passes to your opponent."][LANG]);
-							else
-								common.show_info(['У соперника не получилось забить черный шар! Ваш ход.',"Your opponent failed to pot the black ball! Your turn."][LANG]);
-
-							my_turn=1-my_turn;
-							return;
-						}
-
-
-						if (any_potted){
-
-							if (my_turn)
-								common.show_info(['Вы забили, но начали не со своего шара! Ход перходит к сопернику.',"You potted but didn't start with your ball"][LANG]);
-							else
-								common.show_info(['Соперник забил, о начал не со своего шара! Ваш ход.',"The opponent potted, but he didn't start with his ball! Your turn."][LANG]);
-
-
-						} else {
-
-							if (my_turn)
-								common.show_info(['Вы ничего не забили! Ход переходит к сопернику.',"You didn't pot anything! Opponent's turn."][LANG]);
-							else
-								common.show_info(['Соперник ничего не забил! Ваш ход.',"The opponent didn't pot anything! Your turn."][LANG]);
-
-						}
-
-						my_turn=1-my_turn;
-
-					}
-
-
-				}
-				return;
-			}
-
-		})();
-
-		//готовим следующий ход
-		this.prepare_next_move();
-
-	},
-
-	move_start_event(dx,dy){
-
-		if (!this.on) return;
-		this.send_move({sender:my_data.uid,message:'MOVE',data:{dx,dy},tm:Date.now()});
-
-		//убираем процессинг эйминга соперника
-		some_process.opp_aiming=function(){}
-
-		//снижаем уровень кия
-		if (my_data.cue_id>1){
-			my_data.cue_resource[my_data.cue_id]--;
-			if (my_data.cue_resource[my_data.cue_id]<=0){
-				common.set_cue_level(1);
-				sys_msg.add(['Ресурс кия закончился!','Cue is exhausted!'][LANG])
-			}
-
-			//сохраняем...
-			fbs.ref('players/' + my_data.uid+'/cue_data').set(my_data.cue_resource);
-		}
-
-	},
-
-	prepare_next_move(){
-
-		//готовим следующий ход
-		if (!this.on) return;
-
-		if (my_turn){
-
-			if (this.table_state==='break')
-				common.show_info('Ваш ход. Разбейте пирамиду.');
-
-			if (this.table_state==='open')
-				console.log('забейте красный или синий шар!');
-
-			if (this.table_state==='game')
-				console.log('забейте шар вашего цвета!');
-
-			common.change_only_stick(my_data.cue_id)
-			objects.stick.visible=true;
-			objects.stick_direction.visible=true;
-			objects.guide_orb.visible=true;
-			anim3.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx,'linear']}, true, 0.4);
-			anim3.add(objects.fine_tune_cont,{alpha:[0, 1,'linear']}, true, 0.4);
-			some_process.opp_aiming=function(){}
-
-
-		}else{
-
-			if (this.table_state==='break')
-				common.show_info('Соперник начинает игру.');
-
-			if (this.table_state==='open')
-				console.log('соперник должен забить красный или синий шар!');
-
-			if (this.table_state==='game')
-				console.log('соперник должен забить свой шар!');
-
-			common.change_only_stick(opp_data.cue_id)
-			objects.stick.visible=true
-			objects.stick_direction.visible=true
-			objects.hit_level_cont.visible=false
-			objects.fine_tune_cont.visible=false
-			objects.guide_orb.visible=false
-			some_process.opp_aiming=function(){online_game.opp_aiming()}
-		}
-
-		common.reset_cue();
-		timer.start();
-
-	},
-
-	opp_aiming(){
-
-		if (Math.random()>0.99)
-			this.opp_aiming_dir=Math.random()*0.018-0.008
-
-		objects.stick.rotation+=this.opp_aiming_dir;
-		objects.guide_orb.rotation=objects.stick.rotation
-
-		//показываем направляющие
-		common.update_cue(opp_data.cue_id);
-
-	},
-
-	async finish_event(result){
-
-		if (!this.on) return;
-		this.on=0;
-		this.move_on=0;
-
-		//убираем таймер
-		timer.stop();
-		objects.hit_level_cont.visible=false;
-		objects.fine_tune_cont.visible=false;
-		objects.game_buttons.visible=false;
-
-		some_process.game=function(){};
-		objects.stick.visible=false;
-		objects.guide_orb.visible=false;
-
-		await fin_dialog.show(result);
-		opponent.close();
-		this.close();
-		lobby.activate();
-
-	},
-
-	assign_stat_balls_colors(){
-
-		for(const ball of objects.my_potted_balls){
-			ball.bcg.tint=TINTS[this.my_color].bcg;
-			ball.strip.tint=TINTS[this.my_color].strip;
-		}
-
-		for(const ball of objects.opp_potted_balls){
-			ball.bcg.tint=TINTS[this.opp_color].bcg;
-			ball.strip.tint=TINTS[this.opp_color].strip;
-		}
-
-	},
-
-	update_balls_stat(){
-
-		const num_of_my_balls=common.potted_balls_total.filter(b=>{return b.color===online_game.my_color}).length;
-		const num_of_opp_balls=common.potted_balls_total.filter(b=>{return b.color===online_game.opp_color}).length;
-
-		for (let i=0;i<num_of_my_balls;i++){
-			const ball=objects.my_potted_balls[i];
-			if(!ball.visible)
-				ball.add_to_stat();
-		}
-
-		for (let i=0;i<num_of_opp_balls;i++){
-			const ball=objects.opp_potted_balls[i];
-			if(!ball.visible)
-				ball.add_to_stat();
-		}
-	},
-
-	ball_potted_event(ball,hole_data){
-
-		if(!this.on) return;
-
-		//показываем анимацию
-		const orb=objects.anim_orbs.find(o=>o.visible===false);
-		if (orb)
-			orb.activate(hole_data[0],hole_data[1]);
-		
-		
-		if (ball.balls_hits_before_potted>2){
-			
-		}
-
-		//добавляем шар с список попавших в лузу
-		common.potted_balls.push(ball);
-		common.potted_balls_total.push(ball);
-
-		if (this.table_state==='game')
-			this.update_balls_stat();
-
-		//добавляем на боковую панель
-		for (let mball of objects.move_potted_balls){
-			if (!mball.visible){
-				mball.set_color(ball.color);
-				mball.add_to_stat();
-				break;
-			}
-		}
-
-	},
-
-	close(){
-
-		clearTimeout(this.confirm_check_timer);
-		clearTimeout(this.confirm_start_timer);
-
-		//убираем процессинг эйминга соперника
-		some_process.opp_aiming=function(){}
-
-		this.on=0;
-		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5);
-		objects.hit_level_cont.visible=false;
-		objects.fine_tune_cont.visible=false;
-		objects.swords.visible=false;
-		objects.my_card_cont.visible=false;
-		objects.opp_card_cont.visible=false;
-		set_state({state:'o'});
+		this.cur_bar.width=move_time_left*7
 
 	}
 
@@ -4057,6 +3297,222 @@ levels={
 
 }
 
+online_game={
+
+	on:0,
+	start_time:0,
+	move_time_start:0,
+	disconnect_time:0,
+	opp_conf_play:0,	
+	write_fb_timer:0,
+	confirm_start_timer:0,
+	confirm_check_timer:0,
+	
+	activate(seed, turn){
+
+		//если открыты другие окна то закрываем их
+		if (sp_game.on) sp_game.close()
+		if (bot_game.on) bot_game.close()		
+		if (objects.chat_cont.visible) chat.close()
+		if (objects.levels_cont.visible) levels.close()
+		if (objects.lb_cards_cont.visible) lb.close()
+
+		this.on=1;
+
+		my_turn=turn;
+		opponent=this	
+		common.activate(seed)	
+
+		//устанавливаем локальный и удаленный статус
+		set_state({state:'p'});
+
+		sound.play('start2');
+
+		//показываем кнопки
+		objects.game_buttons.visible=true;
+		objects.exit_btn.visible=true
+		objects.exit_btn.pointerdown=()=>{this.exit_btn_down()}
+		
+		//включаем/перезапускаем таймер
+		timer.start(1);
+
+		//время начала игры
+		this.start_time=Date.now()
+
+		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу он потом изменится
+		my_data.lose_rating = this.calc_new_rating(my_data.rating, LOSE)
+		my_data.win_rating = this.calc_new_rating(my_data.rating, WIN)
+		my_data.draw_rating = this.calc_new_rating(my_data.rating, DRAW)
+		fbs.ref('players/'+my_data.uid+'/rating').set(my_data.lose_rating)
+		
+		//отправляем подтверждение что мы тоже играем
+		clearTimeout(this.confirm_check_timer)
+		clearTimeout(this.confirm_start_timer)
+
+		//через 3 секунды отправляем сообщение что мы играем
+		this.confirm_start_timer=setTimeout(function(){
+			fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'CONF_START',tm:Date.now()});
+		},2000)
+
+		//через 10 секунд проверяем сообщение от соперника
+		this.opp_conf_play=0
+		this.confirm_check_timer=setTimeout(function(){
+			online_game.check_confirm()
+		},10000);
+
+
+	},
+
+	prepare_next_move(){
+		
+		
+	},
+	
+	check_confirm(){
+
+		//проверяем было ли подтверждение от соперника
+		if (!this.opp_conf_play) common.finish_event('no_opp_conf');
+
+	},
+	
+	move_start_event(dx,dy){
+
+		if (!this.on) return;
+
+		//отправляем ход онайлн сопернику (с таймаутом)
+		clearTimeout(this.write_fb_timer);
+		this.write_fb_timer=setTimeout(function(){game.stop('my_no_connection');}, 8000);
+		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'MOVE',data:{dx,dy},tm:Date.now()}).then(()=>{
+			clearTimeout(this.write_fb_timer);
+		});
+
+		//включаем/перезапускаем таймер
+		timer.stop();
+
+		//убираем процессинг эйминга соперника
+		some_process.opp_aiming=function(){}
+
+		//снижаем уровень кия
+		if (my_data.cue_id>1){
+			my_data.cue_resource[my_data.cue_id]--;
+			if (my_data.cue_resource[my_data.cue_id]<=0){
+				common.set_cue_level(1);
+				sys_msg.add(['Ресурс кия закончился!','Cue is exhausted!'][LANG])
+			}
+
+			//сохраняем...
+			fbs.ref('players/' + my_data.uid+'/cue_data').set(my_data.cue_resource);
+		}
+
+	},
+
+	game_buttons_down(e) {
+
+		if (anim3.any_on()||!online_game.on){
+			sound.play('locked');
+			return
+		};
+
+		const mx = e.data.global.x/app.stage.scale.x - objects.game_buttons.sx;
+		const my = e.data.global.y/app.stage.scale.y - objects.game_buttons.sy;
+
+		let buttons_pos = [this.stickers_button_pos, this.chat_button_pos, this.giveup_button_pos];
+
+		let min_dist=999;
+		let min_button_id=-1;
+
+		for (let b = 0 ; b < 2 ; b++) {
+
+			const anchor_pos = buttons_pos[b];
+			const dx = mx-anchor_pos[0];
+			const dy = my-anchor_pos[1];
+			const d = Math.sqrt(dx * dx + dy * dy);
+
+			if (d < 40) {
+				min_dist = d;
+				min_button_id = b;
+			}
+		}
+
+		//подсветка кнопки
+		if (min_button_id !== -1) {
+			sound.play('click');
+			objects.hl_main_button.x=buttons_pos[min_button_id][0]+objects.game_buttons.sx;
+			objects.hl_main_button.y=buttons_pos[min_button_id][1]+objects.game_buttons.sy;
+			anim3.add(objects.hl_main_button,{alpha:[1,0,'linear']}, false, 0.6,false);
+		}
+
+
+		if (min_button_id === 0)
+			stickers.show_panel();
+		if (min_button_id === 1)
+			this.send_message();
+
+
+	},
+
+	async exit_btn_down(){
+
+		/*if (Date.now()-this.start_time<10000){
+			message.add(['Нельзя сдаваться в начале игры','can nott give up at the beginning of the game'][LANG])
+			return;
+		}*/
+
+		const res = await confirm_dialog.show(['Сдаетесь?','Giveup?'][LANG])
+		if (res==='ok'&&this.on){
+			fbs.ref('inbox/'+opp_data.uid).set({message:'END',sender:my_data.uid,tm:Date.now()})
+			common.finish_event('my_giveup')
+		}
+
+	},
+
+	async send_message(){
+
+		if (anim3.any_on()||objects.stickers_cont.visible) {
+			sound.play('locked');
+			return
+		};
+
+		const msg=await keyboard.read();
+
+		//если есть данные то отправляем из сопернику
+		if (msg){
+			fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'CHAT',tm:Date.now(),data:msg});
+			message.add({text:msg, timeout:3000,sound_name:'online_message',sender:'me'});
+		}
+	},
+
+	calc_new_rating(old_rating, game_result) {
+
+		if (game_result === NOSYNC)
+			return old_rating;
+
+		var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
+		if (game_result === WIN)
+			return Math.round(my_data.rating + 16 * (1 - Ea));
+		if (game_result === DRAW)
+			return Math.round(my_data.rating + 16 * (0.5 - Ea));
+		if (game_result === LOSE)
+			return Math.round(my_data.rating + 16 * (0 - Ea));
+
+	},
+
+	chat(data) {
+
+		message.add({text:data, timeout:10000,sound_name:'online_message',sender:'opp'});
+
+	},
+
+	close(){
+		
+		this.on=0
+		clearTimeout(this.confirm_check_timer)
+		clearTimeout(this.confirm_start_timer)
+		
+	}
+
+}
+
 sp_game={
 
 	on:0,
@@ -4081,17 +3537,23 @@ sp_game={
 		this.cur_level=level;
 
 		//сначала все отключаем
-		objects.balls.forEach(b=>{b.on=0;b.visible=false});
+		objects.balls.forEach(b=>{b.on=0;b.visible=false})
 
 		objects.spgame_cont.visible=true;
+		
+		//кнопка выхода
+		objects.exit_btn.visible=true
+		objects.exit_btn.pointerdown=()=>{this.exit_btn_down()}
+		
+		this.shots_left=30
 
-		this.shots_left=30;
+		sound.play('ready2')
+		
+		opponent=this
 
-		sound.play('ready2');
-
-		this.init_level();
+		this.init_level()
 	},
-
+	
 	format_time(seconds) {
 		// Ensure the input is a non-negative number
 		if (typeof seconds !== 'number' || seconds < 0) {
@@ -4133,23 +3595,23 @@ sp_game={
 	init_level(){
 
 		//сначала все отключаем
-		objects.balls.forEach(b=>{b.on=0;b.visible=false});
+		objects.balls.forEach(b=>{b.on=0;b.visible=false})
 		common.move_on=0;
 
 		//ссылка на текущий уровень
-		this.cur_level_data=this.levels_data[this.cur_level];
+		this.cur_level_data=this.levels_data[this.cur_level]
 
-		objects.spgame_t_level.text=['Уровень: ','Level: '][LANG]+this.cur_level;
-		//objects.spgame_t_shots_left.text='Осталось попыток: '+this.shots_left;
+		objects.spgame_t_level.text=['Уровень: ','Level: '][LANG]+this.cur_level
+		//objects.spgame_t_shots_left.text='Осталось попыток: '+this.shots_left
 
 		//располагаем белый шар в центре
-		const white_ball=objects.balls[15];
-		white_ball.reset();
-		white_ball.x=this.cur_level_data.board[0][0];
-		white_ball.y=this.cur_level_data.board[0][1];
-		white_ball.random_orientation();
-		white_ball.on=1;
-		white_ball.visible=true;
+		const white_ball=objects.balls[15]
+		white_ball.reset()
+		white_ball.x=this.cur_level_data.board[0][0]
+		white_ball.y=this.cur_level_data.board[0][1]
+		white_ball.random_orientation()
+		white_ball.on=1
+		white_ball.visible=true
 
 		const type_to_desc={
 			instruction:['Посмотрите инструкцию как играть','Shot the tutorial'],
@@ -4232,7 +3694,7 @@ sp_game={
 	async show_inst(){
 
 		app.stage.interactive=false;
-		objects.spgame_exit_btn.visible=false;
+		objects.exit_btn.visible=false;
 
 		//показываем направляющие
 		common.update_cue(my_data.cue_id);
@@ -4358,7 +3820,7 @@ sp_game={
 		anim3.add(objects.instr_hand,{alpha:[1,0,'linear'],x:[810,900,'linear']}, false, 1);
 
 		app.stage.interactive=true;
-		objects.spgame_exit_btn.visible=true;
+		objects.exit_btn.visible=true;
 
 	},
 
@@ -4444,9 +3906,6 @@ sp_game={
 
 	close(){
 
-		//устанавливаем локальный и удаленный статус
-		set_state ({state : 'o'});
-
 		objects.spgame_cont.visible=false;
 		objects.spfin_dlg_cont.visible=false;
 
@@ -4463,12 +3922,10 @@ sp_game={
 	},
 
 	move_start_event(){
-
 		if (!this.on) return;
 
 		this.attemps_left--;
 		objects.spgame_t_attemps.text=['Осталось попыток: ','Attempts remaining: '][LANG]+this.attemps_left;
-
 
 	},
 
@@ -4489,6 +3946,11 @@ sp_game={
 
 	prepare_next_move(){
 
+		//обнуляем количество комбо
+		objects.balls.forEach(b=>{
+			b.borders_hits_before_potted=0;
+			b.balls_hits_before_potted=0;
+		});
 
 		objects.stick_direction.visible=true;
 		objects.guide_orb.visible=true;
@@ -4507,6 +3969,7 @@ sp_game={
 		anim3.add(objects.fine_tune_cont,{alpha:[0,1,'linear']}, true, 0.4);
 		sound.play('ready2');
 
+		common.potted_balls=[]
 	},
 
 	ball_potted_event(ball,hole_data){
@@ -4819,6 +4282,142 @@ sp_game={
 
 }
 
+bot_game={	
+
+	on:0,
+	move_timer:0,
+	
+	activate(){
+		
+		this.on=1
+		my_turn=1
+		opponent=this	
+		opp_data.cue_id=4
+		common.activate(irnd(100,90999))	
+		
+		//кнопка выхода
+		objects.exit_btn.visible=true
+		objects.exit_btn.pointerdown=()=>{this.exit_btn_down()}
+		
+		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу он потом изменится
+		my_data.lose_rating = my_data.rating
+		my_data.win_rating = my_data.rating
+		my_data.draw_rating = my_data.rating
+		
+		objects.opp_timer_bar.width=1
+		objects.my_timer_bar.width=1		
+		
+		//устанавливаем локальный и удаленный статус
+		set_state ({state : 'b'});
+	},
+		
+	make_move(){
+		
+		let min_dist=999
+		
+		const rand_ang=irnd(0,360)
+		let m_dx=Math.cos(rand_ang)
+		let m_dy=Math.sin(rand_ang)		
+		const white_ball=objects.balls[15]
+
+		const left_to_pot=common.opp_color?objects.balls.filter(b => {return b.color === common.opp_color && b.on}).length:9
+		const TAR_COLOR=left_to_pot?common.opp_color:'black'		
+		
+		
+		for (z=0;z<360;z+=0.25){
+			
+			const ang=z*Math.PI/180
+			const dx=Math.cos(ang)
+			const dy=Math.sin(ang)			
+			
+			white_ball.dx=dx
+			white_ball.dy=dy
+			const run_res0=common.predict_hit(white_ball)
+			
+			if (run_res0[0]===1){
+				
+				const strat_ball=run_res0[1]
+				const other_ball=run_res0[2]	
+				const d0=common.ball_ball_dist(white_ball,other_ball)
+				
+				if (other_ball.color===TAR_COLOR||TAR_COLOR===''){
+					
+					//это чтобы хотя бы ударить по своему шару
+					if (min_dist===999){
+						m_dx=dx
+						m_dy=dy						
+					}
+
+					const run_res1=common.predict_hit(other_ball)
+					
+					if (run_res1[0]===0){
+						const nearest_point=run_res1[1]
+						
+						//если проходит в лунку
+						if (nearest_point.b===0){	
+						
+							//общая дистанция удара
+							const whole_dist=nearest_point.d+d0
+							if (whole_dist>550) continue
+
+							for (const hit_point of hit_points){								
+								const d=common.distanceFromRayToPoint(other_ball.x,other_ball.y,other_ball.dx,other_ball.dy,hit_point[0],hit_point[1])
+								if (d<min_dist){
+									m_dx=dx
+									m_dy=dy
+									min_dist=d								
+								}
+							}	
+						}
+					}					
+				}
+				
+			}			
+		}
+
+		const random_hit_power=irnd(8,10)
+		white_ball.set_dir(m_dx*random_hit_power,m_dy*random_hit_power)
+		common.opp_hit_down()	
+		return
+		
+	},
+	
+	move_start_event(){
+
+		if (!this.on) return
+
+		//убираем процессинг эйминга соперника
+		some_process.opp_aiming=function(){}
+	},	
+	
+	prepare_next_move(){
+		//return
+		this.move_timer=setTimeout(()=>{
+			this.make_move()			
+		},5000)
+		
+		
+	},
+	
+	exit_btn_down(){
+	
+		if (anim3.any_on()) {
+			sound.play('locked')
+			return
+		}
+		
+		common.finish_event('my_giveup')		
+		
+	},
+	
+	close(){		
+		clearTimeout(this.move_timer)
+		this.on=0
+		common.move_on=0
+	}	
+
+}
+
 common={
 
 	prv_mx:-999,
@@ -4827,6 +4426,10 @@ common={
 	s_my:-999,
 	prv_dx:-999,
 	prv_dy:-999,
+	my_color:'',
+	opp_color:'',
+	help_info_timer:0,
+	table_state:'break',
 	power:0,
 	level:1,
 	spower:0,
@@ -4837,15 +4440,93 @@ common={
 	drag_on:0,
 	cue_power:5,
 	initial_draw_amount:100,
-	prv_call:0,
+	ball_placement_seed:0,
+	prv_call:0,	
+	opp_aiming_dir:0.001,
+	on:0,
+	
+	activate(seed){				
 
-	init(){
+		sound.play('start2')
+		this.on=1
+		this.ball_placement_seed=seed
 
+		//расстанавливаем по треугольнику и перемешиваем------------------------
+		this.init_triangle()
+
+		//показываем и заполняем мою карточку
+		anim3.add(objects.my_card_cont,{y:[-200,objects.my_card_cont.sy,'linear']}, true, 0.3)
+		objects.my_card_name.set2(my_data.name,160)
+		objects.my_card_rating.text=my_data.rating
+		objects.my_avatar.avatar.texture=players_cache.players[my_data.uid].texture
+
+		//показываем и заполняем карточку соперника
+		anim3.add(objects.opp_card_cont,{y:[-200,objects.opp_card_cont.sy,'linear']}, true, 0.3)
+		objects.opp_card_name.set2(opp_data.name,160)
+		objects.opp_card_rating.text=opp_data.rating
+		objects.opp_avatar.avatar.texture=players_cache.players[opp_data.uid].texture
+
+		anim3.add(objects.swords,{scale_xy:[0, 0.6666,'easeOutBack']}, true, 0.5)
+
+		//общие параметры
 		objects.bcg.texture=assets.lobby_bcg_img;
 
 		//информация о забитых шарах
-		this.potted_balls=[];
-		this.potted_balls_total=[];
+		this.potted_balls=[]
+		this.potted_balls_total=[]		
+
+		//получем уровень кия из настроек
+		this.initial_draw_amount=pref.get_draw_amount(my_data.cue_id)
+
+		this.reset_cue();
+
+		objects.board.texture=assets['board'+my_data.board_id]
+
+		//процессинг
+		some_process.common=this.process.bind(common)
+
+		//обновляем кий
+		this.set_cue_level(my_data.cue_id);
+
+		this.table_state='break';
+		this.my_color='';
+		this.opp_color='';
+
+		//шкалы шаров пока невидимы
+		objects.my_potted_balls.forEach(b=>b.visible=false)
+		objects.opp_potted_balls.forEach(b=>b.visible=false)
+
+		//располагаем белый шар
+		const white_ball=objects.balls[15]
+		white_ball.x=250
+		white_ball.y=250+this.get_random()%100
+		white_ball.random_orientation()
+
+		//показываем все элементы игры
+		anim3.add(objects.board_stuff_cont,{y:[450,0,'linear'],alpha:[0,1,'linear']}, true, 0.5)
+		
+		//готовим ход для игрока
+		this.prepare_next_move()
+		
+		
+	},
+	
+	get_random(){
+
+		this.ball_placement_seed=(this.ball_placement_seed * 9301 + 49297) % 233280;
+		return this.ball_placement_seed;
+
+	},
+
+	init(){
+
+		this.on=1
+		
+		objects.bcg.texture=assets.lobby_bcg_img;
+
+		//информация о забитых шарах
+		this.potted_balls=[]
+		this.potted_balls_total=[]
 
 		//получем уровень кия из настроек
 		this.initial_draw_amount=pref.get_draw_amount(my_data.cue_id);
@@ -4867,22 +4548,28 @@ common={
 		//расстанавливаем по треугольнику и перемешиваем------------------------
 		const tri_side=25;
 		const x_step=tri_side*0.866
-		const half_fize=tri_side*0.5;
-		let ball_ind=0;
-
-		const s_balls=[1,2,3,4,5,6,8,9,10,11,12,13].sort(() => 500-online_game.get_random()%1000);
+		const half_fize=tri_side*0.5
+		let ball_ind=0
+		
+		//восстанавливаем цвета шаров
+		for (let i=0;i<7;i++) objects.balls[i].set_color('red')
+		for (let i=7;i<14;i++) objects.balls[i].set_color('blue')
+		
+		const s_balls=[1,2,3,4,5,6,8,9,10,11,12,13]
+		const weights = s_balls.map(() => this.get_random());
+		s_balls.sort((a, b) => weights[a] - weights[b]);
 		s_balls.splice(4,0,14);
 		s_balls.splice(10,0,0);
 		s_balls.push(7);
 
 		for (let x=0;x<5;x++){
-		const y_start=262-half_fize*x;
+		const y_start=262-half_fize*x
 		for (let y=0;y<x+1;y++){
-			const ball=objects.balls[s_balls[ball_ind]];
-			ball.x=r2(500+x*x_step);
-			ball.y=r2(y_start+y*tri_side);
-			ball.random_orientation();
-			ball_ind++;
+			const ball=objects.balls[s_balls[ball_ind]]
+			ball.x=r2(500+x*x_step)
+			ball.y=r2(y_start+y*tri_side)
+			ball.random_orientation()
+			ball_ind++
 		}
 		}
 		objects.balls.forEach(b=>b.reset());
@@ -4924,11 +4611,15 @@ common={
 		const s=objects.stick
 		const b=objects.balls[15]
 		s.rotation=Math.atan2(b.dir.y, b.dir.x)
+		
+		//убираем боковые шары
+		objects.move_potted_balls.forEach(b=>b.visible=false);
 
 		anim3.add(s,{x:[s.x,b.x,'linear'],y:[s.y,b.y,'linear']}, true, 0.05);
 
 		objects.stick_direction.visible=false;
-		anim3.add(objects.stick,{alpha:[1,0,'linear']}, false, 0.4);
+		anim3.add(objects.stick,{alpha:[1,0,'linear']}, false, 0.4)
+		this.move_on=1
 
 	},
 
@@ -4956,25 +4647,12 @@ common={
 		anim3.add(objects.fine_tune_cont,{alpha:[1,0,'linear']}, false, 0.4);
 
 		//уведомляем игру о начале ход
-		online_game.move_start_event(dx,dy);
-		sp_game.move_start_event();
-
-		//заново объявляем
-		this.potted_balls=[];
-		this.first_ball_hited='';
-		this.move_on=1;
-
-		//проверяем белый шар
-		objects.balls[15].holes_check=1;
-
-		//обнуляем количество комбо
-		objects.balls.forEach(b=>{
-			b.borders_hits_before_potted=0;
-			b.balls_hits_before_potted=0;
-		});
+		opponent.move_start_event(dx,dy);
 
 		//убираем боковые шары
 		objects.move_potted_balls.forEach(b=>b.visible=false);
+		
+		this.move_on=1
 
 	},
 
@@ -4982,24 +4660,17 @@ common={
 
 		//если движение еще происходит то ждем пока оно не закончилось
 		if (this.move_on){
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			this.process_incoming_move(data);
+			setTimeout(()=>{
+				this.process_incoming_move(data);
+			},1000)
 			return;
 		}
 
 		//таймер пока выключаем
 		timer.stop();
 
-		const white_ball=objects.balls[15];
-		white_ball.set_dir(data.dx,data.dy);
-
-		//заново объявляем
-		this.potted_balls=[];
-		this.first_ball_hited='';
-		this.move_on=1;
-
-		//убираем боковые шары
-		objects.move_potted_balls.forEach(b=>b.visible=false);
+		const white_ball=objects.balls[15]
+		white_ball.set_dir(data.dx,data.dy)
 
 		this.opp_hit_down()
 
@@ -5069,8 +4740,9 @@ common={
 	get_closest_point_on_borders(p1x,p1y,p2x,p2y){
 
 		//ищем и запоминаем ближайшую точку от бордюров
-		const nearest_point={x:p2x,y:p2y,d:999999};
+		const nearest_point={x:p2x,y:p2y,d:999999,b:0};
 
+		//это коллизии с обычными бордюрами
 		for (let i=0;i<all_borders.length;i++){
 
 			const line_data=all_borders[i];
@@ -5083,13 +4755,13 @@ common={
 				const dy=p1y-int_point[1];
 				const ddd=Math.sqrt(dx*dx+dy*dy);
 				if (ddd<nearest_point.d){
-					nearest_point.x=int_point[0];
-					nearest_point.y=int_point[1];
-					nearest_point.d=ddd;
+					nearest_point.x=int_point[0]
+					nearest_point.y=int_point[1]
+					nearest_point.d=ddd
+					nearest_point.b=+(i<18)
 				}
 			}
 		}
-
 		return nearest_point;
 
 	},
@@ -5119,33 +4791,32 @@ common={
 
 		if (ball1){
 
-			const dx=ball1.x-ball0.x;
-			const dy=ball1.y-ball0.y;
-			const dist_to_draw=Math.sqrt(dx*dx+dy*dy);
-
+			const dx=ball1.x-ball0.x
+			const dy=ball1.y-ball0.y
+			const dist_to_draw=Math.sqrt(dx*dx+dy*dy)
 
 			if (dist_to_draw<length_to_draw){
 
 				//рисуем направлени и сам шар в момент удара
-				objects.stick_direction.moveTo(ball0.x, ball0.y);
-				objects.stick_direction.lineTo(ball1.x, ball1.y);
-				objects.stick_direction.drawCircle(ball1.x,ball1.y,ball_class.BALL_RADIUS);
+				objects.stick_direction.moveTo(ball0.x, ball0.y)
+				objects.stick_direction.lineTo(ball1.x, ball1.y)
+				objects.stick_direction.drawCircle(ball1.x,ball1.y,ball_class.BALL_RADIUS)
 
 				return dist_to_draw;
 
 			}else{
 
 				//рисуем только линию сколько хватает
-				const dxn=dx/dist_to_draw;
-				const dyn=dy/dist_to_draw;
+				const dxn=dx/dist_to_draw
+				const dyn=dy/dist_to_draw
 
-				const tx=ball0.x+dxn*length_to_draw;
-				const ty=ball0.y+dyn*length_to_draw;
+				const tx=ball0.x+dxn*length_to_draw
+				const ty=ball0.y+dyn*length_to_draw
 
-				objects.stick_direction.moveTo(ball0.x, ball0.y);
-				objects.stick_direction.lineTo(tx, ty);
+				objects.stick_direction.moveTo(ball0.x, ball0.y)
+				objects.stick_direction.lineTo(tx, ty)
 
-				return length_to_draw;
+				return length_to_draw
 
 			}
 
@@ -5153,18 +4824,18 @@ common={
 		} else {
 
 			//только направление
-			const tx=ball0.x+ball0.dx*1000.0;
-			const ty=ball0.y+ball0.dy*1000.0;
-			const point=this.get_closest_point_on_borders(ball0.x, ball0.y, tx, ty);
+			const tx=ball0.x+ball0.dx*1000.0
+			const ty=ball0.y+ball0.dy*1000.0
+			const point=this.get_closest_point_on_borders(ball0.x, ball0.y, tx, ty)
 
 			//определяем на сколько можно провести линию
-			const av_len=Math.min(point.d, length_to_draw);
-			const tx_lim=ball0.x+ball0.dx*av_len;
-			const ty_lim=ball0.y+ball0.dy*av_len;
-			objects.stick_direction.moveTo(ball0.x, ball0.y);
-			objects.stick_direction.lineTo(tx_lim, ty_lim);
+			const av_len=Math.min(point.d, length_to_draw)
+			const tx_lim=ball0.x+ball0.dx*av_len
+			const ty_lim=ball0.y+ball0.dy*av_len
+			objects.stick_direction.moveTo(ball0.x, ball0.y)
+			objects.stick_direction.lineTo(tx_lim, ty_lim)
 
-			return av_len;
+			return av_len
 
 		}
 
@@ -5263,8 +4934,8 @@ common={
 
 	predict_hit(iball,no_check_ball){
 
-		const start_ball={x:iball.x,y:iball.y,dx:iball.dx,dy:iball.dy,ball_hit_x:0,ball_hit_x:0};
-		const tar_ball={x:0,y:0,dx:0,dy:0,ball_hit_x:0,ball_hit_x:0,dx:0,dy:0};
+		const start_ball={x:iball.x,y:iball.y,dx:iball.dx,dy:iball.dy,ball_hit_x:0,ball_hit_x:0,color:''};
+		const tar_ball={x:0,y:0,dx:0,dy:0,ball_hit_x:0,ball_hit_x:0,dx:0,dy:0,color:''};
 
 		const ray_len=1000.0;
 		const ray_len_sq=1000000.0;
@@ -5281,57 +4952,56 @@ common={
 		//ищем пересечения с шарами
 		for (let i=0;i<15;i++){
 
-			const ball=objects.balls[i];
-			if(!ball.on) continue;
-			if(ball.x===iball.x&&ball.y===iball.y) continue;
-			if(no_check_ball&&ball.x===no_check_ball.x&&ball.y===no_check_ball.y) continue;
-
+			const ball=objects.balls[i]
+			if(!ball.on) continue
+			if(ball.x===iball.x&&ball.y===iball.y) continue
+			if(no_check_ball&&ball.x===no_check_ball.x&&ball.y===no_check_ball.y) continue
 
 			//находим точку проекции
-			const cx=ball.x-start_ball.x;
-			const cy=ball.y-start_ball.y;
-			const dot=cx*ray_dir_x+cy*ray_dir_y;
-			const proj_x=start_ball.x+start_ball.dx*dot*0.001;
-			const proj_y=start_ball.y+start_ball.dy*dot*0.001;
+			const cx=ball.x-start_ball.x
+			const cy=ball.y-start_ball.y
+			const dot=cx*ray_dir_x+cy*ray_dir_y
+			const proj_x=start_ball.x+start_ball.dx*dot*0.001
+			const proj_y=start_ball.y+start_ball.dy*dot*0.001
 
 			//проверяем что точка по курсу
-			const dx=proj_x-start_ball.x;
-			const dy=proj_y-start_ball.y;
-			const flag=dx*ray_dir_x+dy*ray_dir_y;
-			if (flag<0) continue;
-			const d=Math.sqrt(dx*dx+dy*dy);
+			const dx=proj_x-start_ball.x
+			const dy=proj_y-start_ball.y
+			const flag=dx*ray_dir_x+dy*ray_dir_y
+			if (flag<0) continue
+			const d=Math.sqrt(dx*dx+dy*dy)
 
 			//находим расстояние до точки проекции от стационарного шара
-			const proj_dx=proj_x-ball.x;
-			const proj_dy=proj_y-ball.y;
-			const proj_d=Math.sqrt(proj_dx*proj_dx+proj_dy*proj_dy);
+			const proj_dx=proj_x-ball.x
+			const proj_dy=proj_y-ball.y
+			const proj_d=Math.sqrt(proj_dx*proj_dx+proj_dy*proj_dy)
 
 			//если шар далеко от линии движения беляка
-			if (proj_d>ball_diameter) continue;
+			if (proj_d>ball_diameter) continue
 
 			//находим расстояние от точки проекции до точки где должен находится движ. шар в момент коллизии
-			const dist_to_coll_point=Math.sqrt(ball_diameter_sq-proj_d*proj_d);
+			const dist_to_coll_point=Math.sqrt(ball_diameter_sq-proj_d*proj_d)
 
 			//находим точку где бы находился беляк в момент столкновения
-			const ball_hit_x=proj_x-start_ball.dx*dist_to_coll_point;
-			const ball_hit_y=proj_y-start_ball.dy*dist_to_coll_point;
+			const ball_hit_x=proj_x-start_ball.dx*dist_to_coll_point
+			const ball_hit_y=proj_y-start_ball.dy*dist_to_coll_point
 
 			//находимо точку столкновения
-			const coll_x=(ball_hit_x+ball.x)*0.5;
-			const coll_y=(ball_hit_y+ball.y)*0.5;
+			const coll_x=(ball_hit_x+ball.x)*0.5
+			const coll_y=(ball_hit_y+ball.y)*0.5
 
 			//расстояние от беляка до его положения в месте столкновения
-			const dx3=start_ball.x-ball_hit_x;
-			const dy3=start_ball.y-ball_hit_y;
-			const d3=Math.sqrt(dx3*dx3+dy3*dy3);
+			const dx3=start_ball.x-ball_hit_x
+			const dy3=start_ball.y-ball_hit_y
+			const d3=Math.sqrt(dx3*dx3+dy3*dy3)
 
 
 			if(d3<min_dist){
-				min_dist=d3;
-				target_ball=ball;
+				min_dist=d3
+				target_ball=ball
 
-				start_ball.ball_hit_x=ball_hit_x;
-				start_ball.ball_hit_y=ball_hit_y;
+				start_ball.ball_hit_x=ball_hit_x
+				start_ball.ball_hit_y=ball_hit_y
 			}
 		}
 
@@ -5345,31 +5015,33 @@ common={
 		}
 
 		//теперь это уже белый шар который на месте столкновения
-		start_ball.x=start_ball.ball_hit_x;
-		start_ball.y=start_ball.ball_hit_y;
+		start_ball.x=start_ball.ball_hit_x
+		start_ball.y=start_ball.ball_hit_y
+		start_ball.color=start_ball.color
 
 
 		//находим пост направления шара который стукнули
-		let dx2=target_ball.x-start_ball.x;
-		let dy2=target_ball.y-start_ball.y;
-		const d2=Math.sqrt(dx2*dx2+dy2*dy2);
-		tar_ball.dx=dx2/d2;
-		tar_ball.dy=dy2/d2;
-		tar_ball.x=target_ball.x;
-		tar_ball.y=target_ball.y;
+		let dx2=target_ball.x-start_ball.x
+		let dy2=target_ball.y-start_ball.y
+		const d2=Math.sqrt(dx2*dx2+dy2*dy2)
+		tar_ball.dx=dx2/d2
+		tar_ball.dy=dy2/d2
+		tar_ball.x=target_ball.x
+		tar_ball.y=target_ball.y
+		tar_ball.color=target_ball.color
 
 		//пост направление беляка
-		const nx=-dx2;
-		const ny=-dy2;
-		const tval=nx*nx+ny*ny;
-		const dot4=start_ball.dx*nx+start_ball.dy*ny;
-		start_ball.dx=start_ball.dx-dot4*nx/tval;
-		start_ball.dy=start_ball.dy-dot4*ny/tval;
-		const d3=Math.sqrt(start_ball.dx*start_ball.dx+start_ball.dy*start_ball.dy);
-		start_ball.dx=start_ball.dx/d3;
-		start_ball.dy=start_ball.dy/d3;
+		const nx=-dx2
+		const ny=-dy2
+		const tval=nx*nx+ny*ny
+		const dot4=start_ball.dx*nx+start_ball.dy*ny
+		start_ball.dx=start_ball.dx-dot4*nx/tval
+		start_ball.dy=start_ball.dy-dot4*ny/tval
+		const d3=Math.sqrt(start_ball.dx*start_ball.dx+start_ball.dy*start_ball.dy)
+		start_ball.dx=start_ball.dx/d3
+		start_ball.dy=start_ball.dy/d3
 
-		return [1,start_ball,tar_ball];
+		return [1,start_ball,tar_ball]
 	},
 
 	restore_ball(ball){
@@ -5377,9 +5049,9 @@ common={
 		//находим свободное место
 		for (let i=0;i<99999;i++){
 
-			const px=online_game.get_random()%500+150;
-			const py=online_game.get_random()%200+170;
-			const min_d=common.get_distance_to_closest_ball(px,py);
+			const px=this.get_random()%500+150;
+			const py=this.get_random()%200+170;
+			const min_d=this.get_distance_to_closest_ball(px,py);
 
 			if (min_d>100){
 				ball.restore(py,px);
@@ -5434,7 +5106,7 @@ common={
 		let min_dist=999999;
 		for (let i=0;i<objects.balls.length;i++){
 			const ball=objects.balls[i];
-			if(ball.visible){
+			if(ball.visible){				
 				const dx=x-ball.x;
 				const dy=y-ball.y;
 				const d=Math.sqrt(dx*dx+dy*dy);
@@ -5446,13 +5118,39 @@ common={
 		return min_dist;
 	},
 
+	distanceFromRayToPoint(px, py, dx, dy, x, y) {
+		// If the direction vector is zero, treat as point-to-point distance
+		if (dx === 0 && dy === 0) {
+			return Math.sqrt((x - px) ** 2 + (y - py) ** 2);
+		}
+		
+		// Vector from ray origin to point
+		const vx = x - px;
+		const vy = y - py;
+		
+		// Projection of v onto d (scalar value)
+		const dotProduct = vx * dx + vy * dy;
+		const dLengthSquared = dx * dx + dy * dy;
+		const projection = dotProduct / dLengthSquared;
+		
+		if (projection <= 0) {
+			// The closest point is the ray origin
+			return Math.sqrt(vx * vx + vy * vy);
+		} else {
+			// The closest point is along the ray
+			const closestX = px + projection * dx;
+			const closestY = py + projection * dy;
+			return Math.sqrt((x - closestX) ** 2 + (y - closestY) ** 2);
+		}
+	},
+
 	pointerdown(e){
 
 		this.tapped_object='board';
 
 		if(!my_turn) return;
 		if(!objects.stick.visible) return;
-		if(!online_game.on&&!sp_game.on) return;
+		if(!this.on) return;
 
 		//определяем доска или уровень кликнули
 		this.mx=e.data.global.x/app.stage.scale.x;
@@ -5540,6 +5238,86 @@ common={
 
 	},
 
+	opp_aiming(){
+
+		if (Math.random()>0.99)
+			this.opp_aiming_dir=Math.random()*0.018-0.008
+
+		objects.stick.rotation+=this.opp_aiming_dir;
+		objects.guide_orb.rotation=objects.stick.rotation
+
+		//показываем направляющие
+		this.update_cue(opp_data.cue_id);
+
+	},
+
+	prepare_next_move(reset_timer){
+
+		//готовим следующий ход
+		if (!this.on) return;
+
+		if (my_turn){
+
+			if (this.table_state==='break')
+				this.show_info(['Ваш ход. Разбейте пирамиду.','Your turn!'][LANG]);
+
+			if (this.table_state==='open')
+				console.log(['Забейте красный или синий шар!','Pot blue or red ball!'][LANG]);
+
+			if (this.table_state==='game')
+				console.log(['Забейте шар вашего цвета!','Pot ball of your color!'][LANG]);
+
+			this.change_only_stick(my_data.cue_id)
+			objects.stick.visible=true;
+			objects.stick_direction.visible=true;
+			objects.guide_orb.visible=true;
+			anim3.add(objects.hit_level_cont,{x:[800, objects.hit_level_cont.sx,'linear']}, true, 0.4);
+			anim3.add(objects.fine_tune_cont,{alpha:[0, 1,'linear']}, true, 0.4);
+			some_process.opp_aiming=()=>{}
+
+
+		}else{
+
+			if (this.table_state==='break')
+				this.show_info('Соперник начинает игру.');
+
+			if (this.table_state==='open')
+				console.log('соперник должен забить красный или синий шар!');
+
+			if (this.table_state==='game')
+				console.log('соперник должен забить свой шар!');
+
+			this.change_only_stick(opp_data.cue_id)
+			objects.stick.visible=true
+			objects.stick_direction.visible=true
+			objects.hit_level_cont.visible=false
+			objects.fine_tune_cont.visible=false
+			objects.guide_orb.visible=false
+			some_process.opp_aiming=()=>{this.opp_aiming()}
+			
+			//отправляем сопернику
+			opponent.prepare_next_move()
+		}
+		
+		//заново объявляем
+		this.potted_balls=[]
+		this.first_ball_hited=''		
+
+		//проверяем белый шар
+		objects.balls[15].holes_check=1;
+
+		//обнуляем количество комбо
+		objects.balls.forEach(b=>{
+			b.borders_hits_before_potted=0
+			b.balls_hits_before_potted=0
+		});
+
+		this.reset_cue()
+				
+		if(opponent===online_game)
+			timer.start()
+	},
+
 	update_fine_tune(dy){
 
 		if (!assets.tune.isPlaying)
@@ -5569,7 +5347,7 @@ common={
 	pointerup(e){
 
 		if(!objects.stick.visible) return;
-		if(!online_game.on&&!sp_game.on) return;
+		if(!this.on) return;
 
 		this.drag_on=0;
 
@@ -5585,6 +5363,14 @@ common={
 
 		this.tapped_object='';
 
+	},
+
+	ball_ball_dist(ball0,ball1){
+		
+		const dx = ball0.x - ball1.x
+		const dy = ball0.y - ball1.y
+		return Math.sqrt(dx * dx + dy * dy)
+	
 	},
 
 	run_balls(){
@@ -5614,10 +5400,8 @@ common={
 
 				const ball1=objects.balls[b1];
 				if (!ball1.on) continue;
-
-				let deltaX = ball0.x - ball1.x
-				let deltaY = ball0.y - ball1.y
-				const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+				
+				const distance = this.ball_ball_dist(ball0,ball1)
 				const overlap=ball_class.BALL_DIAMETER-distance
 
 				if (overlap>0){
@@ -5667,7 +5451,7 @@ common={
 						this.first_ball_hited=ball1.color;
 					else
 						this.first_ball_hited=ball0.color;
-					console.log('Первый шар: ',this.first_ball_hited.color);
+					console.log('Первый шар: ',this.first_ball_hited);
 				}
 				
 				//звук столкновения если их не так много
@@ -5812,38 +5596,19 @@ common={
 
 	},
 
-	test_hit(b1x,b1y,b1dx,b1dy,b2x,b2y,b2dx,b2dy,wbx,wby,wbdx,wbdy){
-
-		const ball0=objects.balls[0];
-		const ball1=objects.balls[1];
-		const white_ball=objects.balls[15];
-
-		ball0.x=b1x;
-		ball0.y=b1y;
-		ball0.set_dir(b1dx,b1dy);
-		ball0.on=1;
-
-
-		ball1.x=b2x;
-		ball1.y=b2y;
-		ball1.on=1;
-		ball1.set_dir(b2dx,b2dy);
-
-		//запускаем биток
-		this.move_on=1;
-
-		white_ball.x=wbx;
-		white_ball.y=wby;
-		white_ball.on=1;
-		white_ball.set_dir(wbdx,wbdy);
-
-
-	},
-
 	stop(){
-
+		
+		//нет движения
 		this.move_on=0;
+		
 		objects.balls.forEach(b=>b.stop())
+		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5)
+		objects.hit_level_cont.visible=false
+		objects.fine_tune_cont.visible=false
+		objects.swords.visible=false
+		objects.my_card_cont.visible=false
+		objects.opp_card_cont.visible=false
+		set_state({state:'o'})
 	},
 
 	show_info(t){
@@ -5874,6 +5639,413 @@ common={
 		anim3.add(objects.help_info_cont,{y:[objects.help_info_cont.sy,600,'easeInBack']},false,0.25,false);
 	},
 
+	move_finish_event(){
+
+		if(!this.on) return
+
+		//обрабатываем результат
+		(()=>{
+
+			//забил хоть что-то прицельное
+			const any_potted=this.potted_balls.some(b=>['red','blue'].includes(b.color));
+
+			//забили биток
+			const white_potted=this.potted_balls.some(b=>b.color==='white');
+
+			//забили черный
+			const black_potted=this.potted_balls.some(b=>b.color==='black');
+
+			//цвет которым играет текущий игрок
+			const player_color=[this.opp_color,this.my_color][my_turn];
+
+			//цвет которым играет соперник текущего игрока
+			const opp_color={'red':'blue','blue':'red'}[player_color];
+
+			//забил свой шар(ы)
+			const player_potted=this.potted_balls.filter(function(b){return b.color===player_color});
+
+			//забитые чужой шар(ы)
+			const opp_potted=this.potted_balls.filter(function(b){return b.color===opp_color});
+
+			//сколько осталось положить текущему игроку
+			const left_to_pot = objects.balls.filter(b => {return b.color === player_color && b.on}).length;
+
+			if (this.table_state==='break'){
+
+				if (white_potted){
+
+					if (my_turn)
+						this.show_info(['Вы забили белый шар! Переход хода.','You potted the white ball! The turn passes to your opponent.'][LANG]);
+					else
+						this.show_info(['Соперник забил белый шар! Переход хода.','Opponent potted the white ball! Your turn.'][LANG]);
+
+					my_turn=1-my_turn;
+					//возвращаем белый шар на доску
+					this.restore_ball(objects.balls[15]);
+
+				}else{
+
+					if (any_potted){
+
+						if (my_turn)
+							this.show_info(['Вы забили один из цветных шаров! Следующий забитый шар определит цветовую группу шаров которая будет закреплена за игроками.','You have pocketed one of the colored balls! The next ball pocketed will determine the color group of balls that will be assigned to the players.'][LANG]);
+						else
+							this.show_info(['Соперник забил один из цветных шаров! Следующий забитый шар определит цветовую группу шаров которая будет закреплена за игроками.','Opponent have pocketed one of the colored balls! The next ball pocketed will determine the color group of balls that will be assigned to the players.'][LANG]);
+					}else{
+
+						if (my_turn)
+							this.show_info(['Вы ничего не забили!  Ход переходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
+						else
+							this.show_info(['Соперник ничего не забил!  Теперь Ваш ход.',"Your opponent didn't pot anything! It's your turn now."][LANG]);
+
+						my_turn=1-my_turn;
+					}
+				}
+
+				if (black_potted){
+					//возвращаем черный шар на доску
+					this.restore_ball(objects.balls[14]);
+				}
+
+				this.table_state='open'
+				return;
+			}
+
+			if (this.table_state==='open'){
+
+				//положили черный шар
+				if (black_potted){
+
+					if (my_turn){
+						this.finish_event('me_black_potted');
+						this.show_info(['Вы забили черный шар! Этого нельзя делать!  Вы проиграли.',"You potted the black ball! That's not allowed! You lost!"][LANG]);
+					} else {
+						this.finish_event('opp_black_potted');
+						this.show_info(['Соперник забил черный шар! Этого нельзя делать!  Вы выиграли.',"Your opponent potted the black ball! That's not allowed! You win!"][LANG]);
+					}
+					return;
+				}
+
+				//положили белый шар
+				if (white_potted){
+
+					if (my_turn)
+						this.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ход переходит к сопернику.',"The white ball went into the pocket! That's not allowed! The turn passes to your opponent."][LANG]);
+					else
+						this.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ваш ход.',"The white ball went into the pocket! That's not allowed! Your turn."][LANG]);
+
+					my_turn=1-my_turn;
+
+					//возвращаем белый шар на доску
+					common.restore_ball(objects.balls[15]);
+
+				}else{
+
+					if (any_potted){
+
+						const potted_ball=this.potted_balls.find(b=>['red','blue'].includes(b.color));
+
+						if (my_turn){
+							this.my_color=potted_ball.color;
+							this.opp_color={'red':'blue','blue':'red'}[potted_ball.color];
+						}else{
+							this.my_color={'red':'blue','blue':'red'}[potted_ball.color];
+							this.opp_color=potted_ball.color;
+						}
+
+						//цвета моих и других шаров в статистике
+						this.assign_stat_balls_colors();
+
+						//цвета определены и обновляем статистику
+						this.update_balls_stat();
+
+						this.table_state='game';
+
+
+						if (my_turn)
+							this.show_info([`Вы забили шар(ы)! Теперь Ваш цвет - ${{'red':'красный','blue':'синий'}[this.my_color]}. Вам нужно забить все шары этого цвета и начинать удар тоже с них.`,`You potted ball(s). Now your color is ${this.my_color}. You need to pot all balls of this color and start your turn with them too.`][LANG]);
+						else
+							this.show_info([`Соперник забил шар(ы)! Теперь Ваш цвет - ${{'red':'красный','blue':'синий'}[this.my_color]}. Вам нужно забить все шары этого цвета и начинать удар тоже с них.`,`Opponents potted ball(s)! Now your colos is this.my_color. You need to pot all balls of this color and start your turn with them too.`][LANG]);
+
+
+					}else{
+
+
+						if (my_turn)
+							this.show_info(['Вы ничего не забили!  Ход переходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
+						else
+							this.show_info(['Соперник ничего не забил!  Теперь Ваш ход.',"Your opponent didn't pot anything! It's your turn now."][LANG]);
+
+
+						my_turn=1-my_turn;
+
+					}
+				}
+
+				return;
+			}
+
+			if (this.table_state==='game'){
+
+
+				//положили черный шар
+				if (black_potted){
+
+					if(left_to_pot){
+
+						if (my_turn){
+							this.show_info(['Вы проиграли! Черный шар можно забивать только после того как забьете все шары своего цвета!',"You lost! You can only pot the black ball after potting all your colored balls!"][LANG]);
+							this.finish_event('me_black_potted');
+						} else {
+							this.show_info(['Вы выиграли! Соперник забил черный шар до того как забил все шары своего цвета!',"You won! Your opponent potted the black ball before potting all their colored balls!"][LANG]);
+							this.finish_event('opp_black_potted_wrong');
+						}
+
+						return;
+					}
+
+					if(this.first_ball_hited!=='black'){
+
+						if (my_turn){
+							this.show_info(['Вы проиграли! Забили черный шар, но начали с чужого!',"You lost! You potted the black ball but started with an opponent's ball!"][LANG]);
+							this.finish_event('me_black_potted_wrong');
+						} else {
+							this.show_info(['Вы выиграли! Соперник забил черный шар, но начал с чужого!',"You won! Your opponent potted the black ball but started with an opponent's ball!"][LANG]);
+							this.finish_event('opp_black_potted_wrong');
+						}
+
+						return;
+					}
+					
+					
+
+					if(white_potted||opp_potted.length){
+
+						if (my_turn){
+							this.show_info(['Вы проиграли! Забили черный шар, но также забили чужой шар!',"You lost! You potted the black ball but also potted an opponent's ball!"][LANG]);
+							this.finish_event('me_black_potted_wrong');
+						} else {
+							this.show_info(['Вы выиграли! Соперник забил черный шар, но также забил чужой шар!',"You won! Your opponent potted the black ball but also potted an opponent's ball!"][LANG]);
+							this.finish_event('opp_black_potted_wrong');
+						}
+						return;
+					}
+
+					if (my_turn){
+						this.show_info(['Вы выиграли! Забили все шары своей группы и черный шар по всем правилам!',"You won! You potted all your group’s balls and the black ball by the rules!"][LANG]);
+						this.finish_event('me_win');
+					} else {
+						this.show_info(['Вы проиграли! Соперник забил все шары своей группы и черный шар по всем правилам!',"You lost! Your opponent potted all their group’s balls and the black ball by the rules!"][LANG]);
+						this.finish_event('opp_win');
+					}
+
+					return;
+				}
+
+				if (white_potted){
+
+					if (my_turn)
+						this.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ход переходит к сопернику.',"The white ball went into the pocket! That's not allowed! The turn passes to your opponent."][LANG]);
+					else
+						this.show_info(['Белый шар попал в лузу! Этого нельзя делать!  Ваш ход.',"The white ball went into the pocket! That's not allowed! Your turn."][LANG]);
+
+					my_turn=1-my_turn;
+
+					//возвращаем белый шар на доску
+					this.restore_ball(objects.balls[15]);
+
+				}else{
+
+					if (this.first_ball_hited===player_color){
+
+						if (player_potted.length){
+
+							if (my_turn){
+								if (left_to_pot)
+									this.show_info(['Вы забили правильный шар! Продолжайте игру.',"You potted the right ball! Keep playing."][LANG]);
+								else
+									this.show_info(['Вы забили все ваши шары! Осталось забить черный шар.',"You potted all your balls! Now pot the black ball to win."][LANG]);
+							}
+							else {
+								if (left_to_pot)
+									this.show_info(['Соперник забил правильный шар и продолжает игру.',"Your opponent potted the correct ball and continues its turn."][LANG]);
+								else
+									this.show_info(['Соперник забил все свои шары! Ему осталось забить черный шар.',"Your opponent potted all their balls! He need to pot the black ball next."][LANG]);
+							}
+
+						}else{
+
+							if (any_potted){
+
+								if (my_turn)
+									this.show_info(['Вы забили, но чужой шар(ы)! Ход перходит к сопернику.',"You potted, but hit the wrong ball(s)! The turn passes to your opponent."][LANG]);
+								else
+									this.show_info(['Соперник забил, но чужой шар(ы)! Ваш ход.',"Your opponent potted, but hit the wrong ball(s)! Your turn."][LANG]);
+
+							} else {
+
+								if (my_turn)
+									this.show_info(['Вы ничего не забили! Ход перходит к сопернику.',"You didn't pot anything! The turn passes to your opponent."][LANG]);
+								else
+									this.show_info(['Соперник ничего не забил! Ваш ход.',"Your opponent didn't pot anything! Your turn."][LANG]);
+
+							}
+
+							my_turn=1-my_turn;
+
+						}
+
+					}else{
+
+						//не получилось положить последний черный шар
+						if (this.first_ball_hited==='black'&&!left_to_pot){
+
+							if (my_turn)
+								this.show_info(['У Вас не получилось забить черный шар! Ход перходит к сопернику.',"You failed to pot the black ball! The turn passes to your opponent."][LANG]);
+							else
+								this.show_info(['У соперника не получилось забить черный шар! Ваш ход.',"Your opponent failed to pot the black ball! Your turn."][LANG]);
+
+							my_turn=1-my_turn;
+							return;
+						}
+
+
+						if (any_potted){
+
+							if (my_turn)
+								this.show_info(['Вы забили, но начали не со своего шара! Ход перходит к сопернику.',"You potted but didn't start with your ball"][LANG]);
+							else
+								this.show_info(['Соперник забил, о начал не со своего шара! Ваш ход.',"The opponent potted, but he didn't start with his ball! Your turn."][LANG]);
+
+
+						} else {
+
+							if (my_turn)
+								this.show_info(['Вы ничего не забили! Ход переходит к сопернику.',"You didn't pot anything! Opponent's turn."][LANG]);
+							else
+								this.show_info(['Соперник ничего не забил! Ваш ход.',"The opponent didn't pot anything! Your turn."][LANG]);
+
+						}
+
+						my_turn=1-my_turn;
+
+					}
+
+
+				}
+				return;
+			}
+
+		})();
+
+		//готовим следующий ход
+		this.prepare_next_move()
+
+	},
+
+	async finish_event(result){
+
+		if (!this.on) return
+		this.on=0
+		this.move_on=0
+
+		//убираем таймер
+		timer.stop()
+		objects.hit_level_cont.visible=false
+		objects.fine_tune_cont.visible=false
+		objects.game_buttons.visible=false
+
+		some_process.common=function(){}
+		some_process.opp_aiming=function(){}
+		objects.stick.visible=false
+		objects.guide_orb.visible=false
+
+		await fin_dialog.show(result)
+		opponent.close()
+		this.close()
+		lobby.activate()
+
+	},
+	
+	close(){		
+		
+		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5)
+		objects.hit_level_cont.visible=false
+		objects.fine_tune_cont.visible=false
+		objects.swords.visible=false
+		objects.my_card_cont.visible=false
+		objects.opp_card_cont.visible=false
+		set_state({state:'o'})		
+	},
+
+	ball_potted_event(ball,hole_data){
+
+		if(!this.on) return
+		if (opponent===sp_game)
+			return
+		
+
+		//показываем анимацию
+		const orb=objects.anim_orbs.find(o=>o.visible===false);
+		if (orb)
+			orb.activate(hole_data[0],hole_data[1]);
+		
+		//звук если забли после нескольких касаний
+		const TAR_COLOR=my_turn?this.my_color:this.opp_color
+		if (ball.balls_hits_before_potted>2&&ball.color===TAR_COLOR){
+			sound.play('excellent')
+		}
+
+		//добавляем шар с список попавших в лузу
+		this.potted_balls.push(ball);
+		this.potted_balls_total.push(ball);
+
+		if (this.table_state==='game')
+			this.update_balls_stat();
+
+		//добавляем на боковую панель
+		for (let mball of objects.move_potted_balls){
+			if (!mball.visible){
+				mball.set_color(ball.color);
+				mball.add_to_stat();
+				break;
+			}
+		}
+
+	},
+
+	update_balls_stat(){
+
+		const num_of_my_balls=this.potted_balls_total.filter(b=>{return b.color===this.my_color}).length;
+		const num_of_opp_balls=this.potted_balls_total.filter(b=>{return b.color===this.opp_color}).length;
+
+		for (let i=0;i<num_of_my_balls;i++){
+			const ball=objects.my_potted_balls[i];
+			if(!ball.visible)
+				ball.add_to_stat();
+		}
+
+		for (let i=0;i<num_of_opp_balls;i++){
+			const ball=objects.opp_potted_balls[i];
+			if(!ball.visible)
+				ball.add_to_stat();
+		}
+	},
+
+	assign_stat_balls_colors(){
+
+		for(const ball of objects.my_potted_balls){
+			ball.bcg.tint=TINTS[this.my_color].bcg;
+			ball.strip.tint=TINTS[this.my_color].strip;
+		}
+
+		for(const ball of objects.opp_potted_balls){
+			ball.bcg.tint=TINTS[this.opp_color].bcg;
+			ball.strip.tint=TINTS[this.opp_color].strip;
+		}
+
+	},
+
 	process(){
 
 		if (!this.move_on) return;
@@ -5884,13 +6056,14 @@ common={
 		//проверяем что все шары остановлены
 		const balls_stopped = objects.balls.every(b =>b.speed===0)&&(!anim3.any_on());
 		if (balls_stopped){
-			this.move_on=0;
-			online_game.move_finish_event();
-			sp_game.move_finish_event();
+			this.move_on=0
+			if (opponent===sp_game)
+				sp_game.move_finish_event()
+			else
+				this.move_finish_event()
 		}
 
 	}
-
 
 }
 
@@ -6278,7 +6451,8 @@ lobby={
 		some_process.lobby=function(){lobby.process()};
 
 		//добавляем карточку бота если надо
-		this.starting_card=0;
+		this.starting_card=1;
+		this.add_card_ai();		
 
 		//убираем старое и подписываемся на новую комнату
 		if (room){
@@ -7066,17 +7240,16 @@ lobby={
 		};
 
 		if (lobby._opp_data.uid==='bot') {
-			await this.close();
-
-			opp_data.name=['Бот','Bot'][LANG];
-			opp_data.uid='bot';
-			opp_data.rating=1400;
-			game.activate(bot_game, 'master');
+			await this.close()
+			opp_data.name=['Бот','Bot'][LANG]
+			opp_data.uid='bot'
+			opp_data.rating=1400
+			bot_game.activate()
 		} else {
 			sound.play('click');
-			objects.invite_button.texture=assets.invite_wait_img;
+			objects.invite_button.texture=assets.invite_wait_img
 			fbs.ref('inbox/'+lobby._opp_data.uid).set({sender:my_data.uid,message:'INV',cue_id:my_data.cue_id,tm:Date.now()});
-			pending_player=lobby._opp_data.uid;
+			pending_player=lobby._opp_data.uid
 
 		}
 
@@ -7243,7 +7416,7 @@ lobby={
 			sound.play('locked');
 			return
 		};
-		sound.play('close');
+		sound.play('close_it');
 
 		anim3.add(objects.info_cont,{alpha:[1,0,'linear']}, false, 0.25);
 
@@ -7590,6 +7763,7 @@ main_loader={
 		loader.add('keypress',git_src+'sounds/keypress.mp3');
 		loader.add('tune',git_src+'sounds/tune.mp3');
 		loader.add('clock',git_src+'sounds/clock.mp3');
+		loader.add('excellent',git_src+'sounds/excellent.mp3');
 
 		loader.add('board1',git_src+'res/boards/board1.png');
 		loader.add('board2',git_src+'res/boards/board2.png');
@@ -8010,26 +8184,26 @@ async function init_game_env(lang) {
 	]);
 
 	//включаем музыку
-	pref.init_music();
+	pref.init_music()
 
 	//идентификатор клиента
-	client_id = irnd(10,999999);
+	client_id = irnd(10,999999)
 
 	//устанавливаем мой статус в онлайн
-	set_state({state:'o'});
+	set_state({state:'o'})
 
-	//сообщение для дубликатов
-	fbs.ref('inbox/'+my_data.uid).set({message:'CLIEND_ID',tm:Date.now(),client_id});
-
+	//для удаления дубликатов
+	fbs.ref('inbox/'+my_data.uid).set({client_id,tm:Date.now()})
+	
 	//отключение от игры и удаление не нужного
-	fbs.ref('inbox/'+my_data.uid).onDisconnect().remove();
-	fbs.ref(room_name+'/'+my_data.uid).onDisconnect().remove();
+	fbs.ref('inbox/'+my_data.uid).onDisconnect().remove()
+	fbs.ref(room_name+'/'+my_data.uid).onDisconnect().remove()
 
 	//keep-alive сервис
-	setInterval(function()	{keep_alive()}, 40000);
+	setInterval(function()	{keep_alive()}, 40000)
 
 	//убираем попап
-	some_process.loup_anim = function(){};
+	some_process.loup_anim = function(){}
 	setTimeout(function(){anim3.add(objects.id_cont,{y:[objects.id_cont.sy, -300,'linear'],x:[objects.id_cont.sx,1200,'linear'],angle:[0,200,'linear']}, false, 0.4)},500);
 
 	//это разные события
@@ -8043,23 +8217,24 @@ async function init_game_env(lang) {
 
 
 	//черный шар
-	objects.balls[14].set_color('black');
+	objects.balls[14].set_color('black')
 
 	//белый шар
-	objects.balls[15].set_color('white');
+	objects.balls[15].set_color('white')
 
-	app.stage.interactive=true;
-	app.stage.pointerdown=common.pointerdown.bind(common);
-	app.stage.pointermove=common.pointermove.bind(common);
-	app.stage.pointerup=common.pointerup.bind(common);
-	app.stage.pointerout=common.pointerup.bind(common);
-	app.stage.pointerupoutside=common.pointerup.bind(common);
+	app.stage.interactive=true
+	app.stage.pointerdown=common.pointerdown.bind(common)
+	app.stage.pointermove=common.pointermove.bind(common)
+	app.stage.pointerup=common.pointerup.bind(common)
+	app.stage.pointerout=common.pointerup.bind(common)
+	app.stage.pointerupoutside=common.pointerup.bind(common)
 
 	//содаем массив со всеми границами доски
-	const NUM_OF_BORDERS=6;
+	const NUM_OF_BORDERS=6
 	for (let i=0;i<NUM_OF_BORDERS;i++)
 		for (let l=0;l<3;l++)
-			all_borders.push(borders[i*4+l]);
+			all_borders.push(borders[i*4+l])
+			
 
 	//добавляем границы стола
 	let min_x=999999,max_x=-999999,min_y=999999,max_y=-999999;
