@@ -5261,11 +5261,11 @@ common={
 			if (this.table_state==='break')
 				this.show_info(['Ваш ход. Разбейте пирамиду.','Your turn!'][LANG]);
 
-			if (this.table_state==='open')
-				console.log(['Забейте красный или синий шар!','Pot blue or red ball!'][LANG]);
+			//if (this.table_state==='open')
+			//	console.log(['Забейте красный или синий шар!','Pot blue or red ball!'][LANG]);
 
-			if (this.table_state==='game')
-				console.log(['Забейте шар вашего цвета!','Pot ball of your color!'][LANG]);
+			//if (this.table_state==='game')
+			//	console.log(['Забейте шар вашего цвета!','Pot ball of your color!'][LANG]);
 
 			this.change_only_stick(my_data.cue_id)
 			objects.stick.visible=true;
@@ -5281,11 +5281,11 @@ common={
 			if (this.table_state==='break')
 				this.show_info('Соперник начинает игру.');
 
-			if (this.table_state==='open')
-				console.log('соперник должен забить красный или синий шар!');
+			//if (this.table_state==='open')
+			//	console.log('соперник должен забить красный или синий шар!');
 
-			if (this.table_state==='game')
-				console.log('соперник должен забить свой шар!');
+			//if (this.table_state==='game')
+			//	console.log('соперник должен забить свой шар!');
 
 			this.change_only_stick(opp_data.cue_id)
 			objects.stick.visible=true
@@ -5992,6 +5992,7 @@ common={
 		
 		//звук если забли после нескольких касаний
 		const TAR_COLOR=my_turn?this.my_color:this.opp_color
+		//console.log({TAR_COLOR,hits:ball.balls_hits_before_potted,ball_col:ball.color})
 		if (ball.balls_hits_before_potted>2&&ball.color===TAR_COLOR){
 			sound.play('excellent')
 		}
@@ -6949,9 +6950,7 @@ lobby={
 		//копируем предварительные данные
 		lobby._opp_data = {uid:card.uid,name:card.name,rating:card.rating};
 
-
 		this.show_feedbacks(lobby._opp_data.uid);
-
 
 		let invite_available=lobby._opp_data.uid !== my_data.uid;
 		invite_available=invite_available && (card.state==="o" || card.state==="b");
