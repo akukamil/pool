@@ -663,7 +663,6 @@ class ball_class extends PIXI.Container{
 		this.on=0;
 		this.speed=0;
 		this.process=function(){};
-		//common.ball_potted_event(this,hole_data);
 
 		sound.play('ball_potted');
 
@@ -5391,7 +5390,7 @@ common={
 
 		//двигаем шары в соответствии с вектором движения
 		for (let ball of objects.balls)
-			ball.process();
+			ball.process()
 
 		//ищем БАЗОВЫЙ оверлап
 		let coll_ball=null
@@ -5999,8 +5998,9 @@ common={
 		
 		//звук если забли после нескольких касаний
 		const TAR_COLOR=my_turn?this.my_color:this.opp_color
-		//console.log({TAR_COLOR,hits:ball.balls_hits_before_potted,ball_col:ball.color})
-		if (ball.balls_hits_before_potted>2&&ball.color===TAR_COLOR){
+		//console.log({TAR_COLOR,balls_hits:ball.balls_hits_before_potted,borders_hits:ball.borders_hits_before_potted,ball_col:ball.color})
+		if ((ball.balls_hits_before_potted>2||ball.borders_hits_before_potted>2)&&ball.color===TAR_COLOR){
+			
 			sound.play('excellent')
 		}
 
