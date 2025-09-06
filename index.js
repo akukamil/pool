@@ -7932,6 +7932,9 @@ tabvis={
 				this.sleep=0;
 			}
 			clearTimeout(this.inactive_timer);
+			
+			if (app.renderer.gl.isContextLost())
+				window.location.reload() 
 		}
 
 		set_state({hidden : document.hidden});
