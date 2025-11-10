@@ -7691,8 +7691,8 @@ main_loader={
 		//добавляем текстуры из листа загрузки
 		loader.add('load_bar_bcg', git_src+'res/'+'common/load_bar_bcg.png');
 		loader.add('load_bar_progress', git_src+'res/'+'common/load_bar_progress.png');
-		loader.add('mfont2',git_src+'/fonts/core_sans_ds/font.fnt');
-		loader.add('main_load_list',git_src+'/load_list.txt');
+		loader.add('mfont2',git_src+'fonts/core_sans_ds/font.fnt');
+		loader.add('main_load_list',git_src+'load_list.txt');
 
 		//переносим все в ассеты
 		await new Promise(res=>loader.load(res))
