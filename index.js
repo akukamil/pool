@@ -8141,7 +8141,7 @@ async function init_game_env(lang) {
 
 
 	//загрузка сокета
-	await auth.load_script(TW_PATH+'/my_ws.js');
+	await auth2.load_script(TW_PATH+'/my_ws.js');
 
 	//из локального хранилища
 	my_data.board_id = safe_ls('pool_board_id')||1;
