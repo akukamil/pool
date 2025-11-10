@@ -1,0 +1,30 @@
+         
+name: Deploy to Cloud
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS CLI
+      run: |
+        aws configure set aws_access_key_id ${{ secrets.SERVICE_ACCOUNT_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.SERVICE_ACCOUNT_SECRET }}
+        aws configure set default.region ru-1
+        aws configure set output json
+
+    - name: Sync files to Storage
+      run: |
+        aws --endpoint-url=https://s3.twcstorage.ru/ s3 sync ./ s3://f2771470-pool/ \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude ".gitignore" \
+            --exclude ".gitattributes"
+            

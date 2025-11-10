@@ -8,6 +8,8 @@ const all_borders=[];
 const hit_points=[[111.14,403.99],[689.13,401.99],[692.13,130],[400.13,413.99],[401.13,121],[111.14,131],]
 const TINTS={'red':{bcg:0xff7777,strip:0xff0000},'blue':{bcg:0x9999ff,strip:0x0000ff},'black':{bcg:0x333333,strip:0x666666},'white':{bcg:0xaaaaaa,strip:0xffffff}}
 const STAT_LS_KEY='pool_sp_stat';
+const TW_PATH='https://f2771470-common.website.twcstorage.ru'
+
 
 r2 = (v)=>{
 	return (v >= 0 || -1) * Math.round(Math.abs(v)*10000)/10000;
@@ -895,7 +897,8 @@ class chat_record_class extends PIXI.Container {
 		if (msg_data.msg.startsWith('GIF')){
 
 			const mp4BaseT=await new Promise((resolve, reject)=>{
-				const baseTexture = PIXI.BaseTexture.from('https://akukamil.github.io/common/gifs/'+msg_data.msg+'.mp4');
+				const url=`${TW_PATH}/gifs/${msg_data.msg}.mp4`		
+				const baseTexture = PIXI.BaseTexture.from(url);
 				if (baseTexture.width>1) resolve(baseTexture);
 				baseTexture.on('loaded', () => resolve(baseTexture));
 				baseTexture.on('error', (error) => resolve(null));
@@ -2427,7 +2430,7 @@ auth2={
 		if (game_platform === 'VK') {
 
 			try {
-				await this.load_script('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')||await this.load_script('https://akukamil.github.io/common/vkbridge.js');
+				await this.load_script('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')||await this.load_script(TW_PATH+'/vkbridge.js');
 			} catch (e) {alert(e)};
 
 			let _player;
@@ -7795,7 +7798,7 @@ main_loader={
 		//loader.add('main_bcg',git_src+'res/common/main_bcg_img.jpg');
 
 		//добавляем библиотеку аватаров
-		loader.add('multiavatar', 'https://akukamil.github.io/common/multiavatar.min.txt');
+		loader.add('multiavatar', TW_PATH+'/multiavatar.min.txt');
 
 		//уровни для одиночной игры
 		loader.add('levels_data', 'levels_data.txt');
@@ -8138,7 +8141,7 @@ async function init_game_env(lang) {
 
 
 	//загрузка сокета
-	await auth2.load_script('https://akukamil.github.io/common/my_ws.js');
+	await auth.load_script(TW_PATH+'/my_ws.js');
 
 	//из локального хранилища
 	my_data.board_id = safe_ls('pool_board_id')||1;
