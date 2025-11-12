@@ -8,7 +8,7 @@ const all_borders=[];
 const hit_points=[[111.14,403.99],[689.13,401.99],[692.13,130],[400.13,413.99],[401.13,121],[111.14,131],]
 const TINTS={'red':{bcg:0xff7777,strip:0xff0000},'blue':{bcg:0x9999ff,strip:0x0000ff},'black':{bcg:0x333333,strip:0x666666},'white':{bcg:0xaaaaaa,strip:0xffffff}}
 const STAT_LS_KEY='pool_sp_stat';
-const TW_PATH='https://f2771470-common.website.twcstorage.ru'
+const COM_URL='https://mtcom.website.yandexcloud.net'
 
 
 r2 = (v)=>{
@@ -897,7 +897,7 @@ class chat_record_class extends PIXI.Container {
 		if (msg_data.msg.startsWith('GIF')){
 
 			const mp4BaseT=await new Promise((resolve, reject)=>{
-				const url=`${TW_PATH}/gifs/${msg_data.msg}.mp4`		
+				const url=`${COM_URL}/gifs/${msg_data.msg}.mp4`		
 				const baseTexture = PIXI.BaseTexture.from(url);
 				if (baseTexture.width>1) resolve(baseTexture);
 				baseTexture.on('loaded', () => resolve(baseTexture));
@@ -1273,7 +1273,7 @@ chat={
 
 		this.init_yandex_payments();
 
-		await my_ws.init();
+		
 
 		//загружаем чат
 		const chat_data=await my_ws.get('chat',25);
@@ -2430,7 +2430,7 @@ auth2={
 		if (game_platform === 'VK') {
 
 			try {
-				await this.load_script('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')||await this.load_script(TW_PATH+'/vkbridge.js');
+				await this.load_script('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')||await this.load_script(COM_URL+'/vkbridge.js');
 			} catch (e) {alert(e)};
 
 			let _player;
@@ -7797,9 +7797,6 @@ main_loader={
 		//loader.add('lobby_bcg',git_src+'res/common/lobby_bcg_img.jpg');
 		//loader.add('main_bcg',git_src+'res/common/main_bcg_img.jpg');
 
-		//добавляем библиотеку аватаров
-		loader.add('multiavatar', TW_PATH+'/multiavatar.min.txt');
-
 		//уровни для одиночной игры
 		loader.add('levels_data', 'levels_data.txt');
 
@@ -7823,12 +7820,6 @@ main_loader={
 			const res=loader.resources[res_name];
 			assets[res_name]=res.texture||res.sound||res.data;
 		}
-
-
-		//добавялем библиотеку аватаров
-		const script = document.createElement('script');
-		script.textContent = assets.multiavatar;
-		document.head.appendChild(script);
 
 		await anim3.add(objects.load_cont,{alpha:[1,0,'linear'],scale_xy:[1,3,'linear'],angle:[0,-30,'linear']}, false, 0.25);
 
@@ -8118,8 +8109,8 @@ async function init_game_env(lang) {
 
 	anim3.add(objects.id_cont,{alpha:[0,1,'linear'],y:[-200,objects.id_cont.sy,'easeOutBack']}, true,0.5);
 	some_process.loup_anim=()=>{objects.id_gear.rotation+=0.02}
-
-
+	
+	await my_ws.init();
 
 	//загружаем остальные данные из файербейса
 	const other_data = await fbs_once('players/' + my_data.uid)
@@ -8138,10 +8129,6 @@ async function init_game_env(lang) {
 	my_data.nick_tm = other_data?.nick_tm || 0;
 	my_data.avatar_tm = other_data?.avatar_tm || 0;
 	levels.stat=other_data?.lev_stat || []
-
-
-	//загрузка сокета
-	await auth2.load_script(TW_PATH+'/my_ws.js');
 
 	//из локального хранилища
 	my_data.board_id = safe_ls('pool_board_id')||1;
@@ -8201,7 +8188,6 @@ async function init_game_env(lang) {
 
 	//номер комнаты
 	room_name= 'states1';
-
 
 
 	//ждем загрузки чата
