@@ -7977,7 +7977,7 @@ async function define_platform_and_language() {
 
 	const s = window.location.href;
 
-	if (s.includes('yandex')) {
+	if (s.includes('app-id=420438')) {
 		game_platform = 'YANDEX';
 		if (s.match(/yandex\.ru|yandex\.by|yandex\.kg|yandex\.kz|yandex\.tj|yandex\.ua|yandex\.uz/))
 			LANG = 0;
