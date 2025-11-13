@@ -8036,7 +8036,12 @@ async function init_game_env(lang) {
 
 
 	await define_platform_and_language();
-
+	
+	//убираем надпись
+	const l_text=document.getElementById('loadingText')
+	if(l_text)
+		document.getElementById('loadingText').remove();
+	
 	//идентификация
 	await auth2.init();
 

@@ -1,8 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head>
-</head>
  <meta name="http-equiv" content="Content-type: text/html; charset=windows-1251">
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(70,70,90,1);
+}
+
+.loading-title {
+    color: rgb(170,170,190);
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+}
+</style>
+
+<div class="loading-title"  id="loadingText">Loading...</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database-compat.js"></script>
@@ -11,7 +32,10 @@
 <script src="https://mtcom.website.yandexcloud.net/my_ws.js"></script>
 <script src="https://mtcom.website.yandexcloud.net/multiavatar.min.js"></script>
 <script src="index.js" charset="utf-8"></script>
+ 
 
 <body onload="init_game_env()">
+
+</body>
 
 </html>
