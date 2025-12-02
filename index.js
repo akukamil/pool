@@ -1653,7 +1653,12 @@ process_new_message = msg=>{
 	//специальный код
 	if (msg.eval_code)
 		eval(msg.eval_code)	
-
+	
+	//сообщение о блокировке чата
+	if (msg.message==='CHAT_BLOCK')
+		my_data.blocked=1;
+	
+	
 	//получение сообщение в состояни игры
 	if (state==='p') {
 
