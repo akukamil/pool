@@ -1393,6 +1393,9 @@ chat={
 
 	avatar_down(player_data){
 
+		if (player_data.uid==='admin')
+			return;
+
 		if (this.moderation_mode){
 			console.log(player_data.index,player_data.uid,player_data.name.text,player_data.msg.text);
 			fbs_once('players/'+player_data.uid+'/games').then((data)=>{
