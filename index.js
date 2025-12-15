@@ -6024,17 +6024,21 @@ common={
 		//звук если забли после нескольких касаний
 		const TAR_COLOR=my_turn?this.my_color:this.opp_color
 		//console.log({TAR_COLOR,balls_hits:ball.balls_hits_before_potted,borders_hits:ball.borders_hits_before_potted,ball_col:ball.color})
-		if ((ball.balls_hits_before_potted>2||ball.borders_hits_before_potted>2)&&ball.color===TAR_COLOR){
-			
+		if ((ball.balls_hits_before_potted>2||ball.borders_hits_before_potted>2)&&ball.color===TAR_COLOR){			
 			sound.play('excellent')
 		}
+		
 
 		//добавляем шар с список попавших в лузу
 		this.potted_balls.push(ball);
 		this.potted_balls_total.push(ball);
 
-		if (this.table_state==='game')
-			this.update_balls_stat();
+		if (this.table_state==='game') this.update_balls_stat()
+			
+		//если больше одного залетело
+		const num_potted=this.potted_balls.filter(b=>b.color===TAR_COLOR).length
+		if (ball.color===TAR_COLOR&&num_potted>1)
+			sound.play('excellent')		
 
 		//добавляем на боковую панель
 		for (let mball of objects.move_potted_balls){
