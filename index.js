@@ -8157,7 +8157,7 @@ async function init_game_env(lang) {
 	levels.stat=other_data?.lev_stat || []
 
 	//из локального хранилища
-	my_data.board_id = safe_ls('pool_board_id')||1;
+	my_data.board_id = (other_data?.board_id)||1;
 	my_data.cue_id = other_data?.cue_id ||4;
 	my_data.cue_resource = other_data?.cue_data||[9,100,50,50,500,0,0,0];
 
