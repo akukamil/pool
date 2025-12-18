@@ -6028,6 +6028,10 @@ common={
 			sound.play('excellent')
 		}
 		
+		
+		objects.table_hl.tint=0xffffff*Math.random()
+		anim3.add(objects.table_hl,{alpha:[0,1,'ease2back']}, false, 2,false)			
+
 
 		//добавляем шар с список попавших в лузу
 		this.potted_balls.push(ball);
