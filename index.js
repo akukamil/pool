@@ -6029,7 +6029,7 @@ common={
 		}
 		
 		
-		objects.table_hl.tint=0xffffff*Math.random()
+		objects.table_hl.tint=(Math.floor(100 + Math.random() * 155) << 16) | (Math.floor(100 + Math.random() * 155) << 8) | Math.floor(100 + Math.random() * 155);
 		anim3.add(objects.table_hl,{alpha:[0,1,'ease2back']}, false, 2,false)			
 
 
