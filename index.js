@@ -8198,6 +8198,7 @@ async function init_game_env(lang) {
 		games:my_data.games,
 		cue_data:my_data.cue_resource,
 		cue_id:my_data.cue_id,
+		board_id:my_data.board_id,
 		lev_stat:levels.stat,
 		country:my_data.country||'',
 		tm:firebase.database.ServerValue.TIMESTAMP,
