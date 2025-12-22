@@ -8075,7 +8075,8 @@ async function define_platform_and_language(p) {
 
 async function init_game_env(p) {
 
-
+	git_src="https://akukamil.github.io/pool/"
+	//git_src=""
 	await define_platform_and_language(p);
 	
 	//убираем надпись
