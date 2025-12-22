@@ -2462,6 +2462,18 @@ auth2={
 
 		}
 
+		if (game_platform === 'PG') {			
+								
+			try {
+				await bridge.initialize()			
+			} catch (e) { alert(e)};
+			
+			my_data.uid = this.search_in_local_storage() || this.get_random_uid_for_local('PG_');
+			my_data.name = bridge.player.name||this.get_random_name(my_data.uid);
+			my_data.orig_pic_url = 'mavatar'+my_data.uid;				
+			
+		}
+
 		if (game_platform === 'GOOGLE_PLAY') {
 
 			my_data.uid = this.search_in_local_storage() || this.get_random_uid_for_local('GP_');
@@ -7994,10 +8006,18 @@ tabvis={
 	}
 }
 
-async function define_platform_and_language() {
+async function define_platform_and_language(p) {
 
 	const s = window.location.href;
 
+
+	if (p==='playgama'){
+		
+		game_platform = 'PG';
+		LANG = 1;
+		return
+	}
+	
 	if (s.includes('app-id=420438')) {
 		game_platform = 'YANDEX';
 		if (s.match(/yandex\.ru|yandex\.by|yandex\.kg|yandex\.kz|yandex\.tj|yandex\.ua|yandex\.uz/))
@@ -8053,10 +8073,10 @@ async function define_platform_and_language() {
 
 }
 
-async function init_game_env(lang) {
+async function init_game_env(p) {
 
 
-	await define_platform_and_language();
+	await define_platform_and_language(p);
 	
 	//убираем надпись
 	const l_text=document.getElementById('loadingText')
