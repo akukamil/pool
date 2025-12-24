@@ -4670,7 +4670,7 @@ common={
 		objects.stick.texture=stick_texture;
 
 		//готовим текстуру для бокового кия
-		const region = new PIXI.Rectangle(400, 0, 270, 60);
+		const region = new PIXI.Rectangle(400, stick_texture.frame.y, 270, stick_texture.frame.height);
 		const hit_level_texture=new PIXI.Texture(stick_texture.baseTexture, region, null, null, 2);
 		objects.hit_level.texture=hit_level_texture;
 
