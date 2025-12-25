@@ -1997,10 +1997,10 @@ fin_dialog={
 		objects.fin_dlg_title1.text=t1;
 		objects.fin_dlg_title2.text=res_data.t2;
 
-		objects.fin_dlg_rating1.text=old_rating+' >>> '+my_data.rating;
+		objects.fin_dlg_rating1.text=old_rating+' > '+my_data.rating;
 
 		const opp_new_rating=opp_data.rating+(old_rating-my_data.rating)
-		objects.fin_dlg_rating2.text=opp_data.rating+' >>> '+opp_new_rating;
+		objects.fin_dlg_rating2.text=opp_data.rating+' > '+opp_new_rating;
 
 		some_process.fin_dlg_anim=function(){fin_dialog.winner_anim()};
 
