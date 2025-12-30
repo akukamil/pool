@@ -8177,7 +8177,10 @@ async function init_game_env(p) {
 	await main_loader.load2()
 
 	anim3.add(objects.id_cont,{y:[-500,objects.id_cont.sy,'linear']}, true,0.5);
-	some_process.loup_anim=()=>{objects.id_gear.rotation+=0.02}
+	some_process.loup_anim=()=>{
+		objects.id_gear.rotation+=0.02
+		objects.t_progress.alpha=Math.abs(Math.sin(game_tick*2))*0.5+0.5
+	}
 	
 	await my_ws.init();
 
