@@ -7875,7 +7875,7 @@ main_loader={
 			assets[res_name]=res.texture||res.sound||res.data;
 		}
 
-		//await anim3.add(objects.load_cont,{alpha:[1,0,'linear'],scale_xy:[1,3,'linear'],angle:[0,-30,'linear']}, false, 0.25);
+		objects.t_progress.text=['Авторизация...','Log in...'][LANG]
 
 		//информация об уровнях онлайн игры
 		sp_game.levels_data=eval(assets.levels_data)		
