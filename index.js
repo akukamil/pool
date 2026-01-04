@@ -2481,6 +2481,14 @@ auth2={
 
 		}
 
+		if (game_platform === 'RS') {
+
+			my_data.uid = this.search_in_local_storage() || this.get_random_uid_for_local('RS_');
+			my_data.name = this.get_random_name(my_data.uid);
+			my_data.orig_pic_url = 'mavatar'+my_data.uid;
+			return;
+		}
+
 		if (game_platform === 'PG') {			
 								
 			try {
@@ -8047,7 +8055,13 @@ async function define_platform_and_language(p) {
 			LANG = 1;
 		return;
 	}
-
+	
+	if (s.includes('rustore')) {
+		game_platform = 'RS';
+		LANG = 0;
+		return;
+	}
+	
 	if (s.includes('vk.com')||s.includes('vk_app_id')) {
 		game_platform = 'VK';
 		LANG = 0;
