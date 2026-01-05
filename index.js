@@ -2993,7 +2993,11 @@ pref={
 			return
 		};
 
-
+		if (game_platform==='RS'){
+			this.send_info(['Только для Яндекса и ВК!','Only for Yandex and VK'][LANG])
+			return
+		}
+		
 		//нельзя восстановить первый кий или максимальный кий
 		if (objects.pref_cue_buy_btn.alpha!==1){
 			this.send_info(['Невозможно восстановить!','Can not resore!'][LANG])
@@ -3031,6 +3035,8 @@ pref={
 	},
 
 	restore_cue(cue_id){
+		
+
 
 		//восстанавливаем максимальный ресурс
 		my_data.cue_resource[cue_id||this.cur_cue_id]=this.max_cue_resource[cue_id||this.cur_cue_id]
@@ -3045,8 +3051,11 @@ pref={
 
 	},
 
-	cue_select_down(){
+	cue_select_down(){	
+		
+		
 
+		
 		if (anim3.any_on()) {
 			sound.play('locked');
 			return
