@@ -2446,6 +2446,10 @@ auth2={
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
 
+			//убираем ё
+			my_data.name=my_data.name.replace(/ё/g, 'е');
+			my_data.name=my_data.name.replace(/Ё/g, 'Е');
+
 			//выбор языка по яндексу
 			LANG=window.ysdk.environment.i18n.lang==='ru'?0:1;
 
@@ -2476,6 +2480,10 @@ auth2={
 			my_data.name 	= _player.first_name + ' ' + _player.last_name;
 			my_data.uid 	= 'vk'+_player.id;
 			my_data.orig_pic_url = _player.photo_100;
+
+			//убираем ё
+			my_data.name=my_data.name.replace(/ё/g, 'е');
+			my_data.name=my_data.name.replace(/Ё/g, 'Е');
 
 			return;
 
