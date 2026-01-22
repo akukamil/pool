@@ -1648,7 +1648,7 @@ music={
 	
 }
 
-process_new_message = msg=>{
+process_new_message=msg=>{
 
 	//проверяем плохие сообщения
 	if (msg===null || msg===undefined)
@@ -2644,14 +2644,6 @@ timer={
 			return
 		}
 
-		if (connected === 0 && !my_turn) {
-			this.disconnect_time ++
-			if (this.disconnect_time > 5) {
-				common.finish_event('my_no_connection')
-				return
-			}
-		}
-
 		//обновляем текст на экране
 		this.cur_bar.width=move_time_left*7
 
@@ -3407,6 +3399,8 @@ online_game={
 	write_fb_timer:0,
 	confirm_start_timer:0,
 	confirm_check_timer:0,
+	connected:1,
+	disconnect_timer:0,
 	
 	activate(seed, turn){
 
@@ -3481,7 +3475,7 @@ online_game={
 
 		//отправляем ход онайлн сопернику (с таймаутом)
 		clearTimeout(this.write_fb_timer);
-		this.write_fb_timer=setTimeout(function(){game.stop('my_no_connection');}, 8000);
+		this.write_fb_timer=setTimeout(function(){common.finish_event('my_no_connection')}, 5000);
 		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'MOVE',data:{dx,dy},tm:Date.now()}).then(()=>{
 			clearTimeout(this.write_fb_timer);
 		});
@@ -3504,6 +3498,27 @@ online_game={
 			fbs.ref('players/' + my_data.uid+'/cue_data').set(my_data.cue_resource);
 		}
 
+	},
+
+	connection_change(con){
+		
+		if (this.connected){
+			if(!con){
+				if (this.on)
+					sys_msg.add(['Связь с сервером потеряна!','Connection to server is lost!'][LANG])		
+				this.disconnect_timer=setTimeout(()=>{					
+					common.finish_event('my_no_connection')
+				},5000)
+			}			
+		}else{
+			if(con){
+				if (this.on)
+					sys_msg.add(['Связь с сервером восстановлена!','Connection to server is restored!'][LANG])		
+				clearTimeout(this.disconnect_timer)
+			}
+		}		
+		this.connected=+con
+		
 	},
 
 	game_buttons_down(e) {
@@ -6066,6 +6081,9 @@ common={
 		some_process.opp_aiming=function(){}
 		objects.stick.visible=false
 		objects.guide_orb.visible=false
+		
+		clearTimeout(online_game.write_fb_timer)
+		clearTimeout(online_game.disconnect_timer)
 
 		await fin_dialog.show(result)
 		opponent.close()
@@ -8322,6 +8340,12 @@ async function init_game_env(p) {
 	//убираем попап
 	some_process.loup_anim = function(){}
 	setTimeout(function(){anim3.add(objects.id_cont,{y:[objects.id_cont.sy, -500,'linear']}, false, 0.4)},500);
+
+	//контроль за присутсвием
+	fbs.ref('.info/connected').on('value', s=>{
+	  online_game.connection_change(s.val())
+	});
+
 
 	//убираем элементы загрузки
 	objects.load_bar_mask.visible=false
