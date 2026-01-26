@@ -2864,7 +2864,6 @@ pref={
 		anim3.add(objects.pref_cont,{alpha:[1,0,'linear']}, false, 0.3);
 	},
 
-
 	music_switch_down(){
 
 		music.set(1-music.on)		
@@ -2916,7 +2915,6 @@ pref={
 			this.music_switch_down()
 		
 	},
-
 	
 	back_btn_down(){
 
@@ -4567,7 +4565,7 @@ common={
 	opp_aiming_dir:0.001,
 	on:0,
 	
-	activate(seed){				
+	activate(seed){
 
 		sound.play('start2')
 		this.on=1
@@ -4744,6 +4742,37 @@ common={
 		this.move_on=1
 
 	},
+
+	boost_energy(){
+		
+		my_data.energy++
+		my_ws.safe_send({cmd:'top3',path:'_day_top3',val:{uid:my_data.uid,val:my_data.energy}})
+	
+	},
+	
+	async check_energy(){
+		
+		SERVER_TM=await my_ws.get_tms()
+		
+		//нужно удалит первую версию		
+		if(!SERVER_TM) return
+		const prv_tm=safe_ls('pool_energy_prv_tm')
+		
+		const cur_msk_day=+new Date(SERVER_TM).toLocaleString('en-US', {timeZone: 'Europe/Moscow',day:'numeric'})
+		const prv_msk_day=+new Date(prv_tm).toLocaleString('en-US', {timeZone: 'Europe/Moscow',day:'numeric'})
+		
+		if (cur_msk_day!==prv_msk_day){
+			
+			//день поменялся начинаем заново
+			my_data.energy=0
+			safe_ls('pool_energy',my_data.energy)
+			
+		}	
+
+		safe_ls('pool_energy_prv_tm',SERVER_TM)
+	
+	},
+	
 
 	async hit_down(){
 
@@ -6118,8 +6147,9 @@ common={
 		//звук если забли после нескольких касаний
 		const TAR_COLOR=my_turn?this.my_color:this.opp_color
 		//console.log({TAR_COLOR,balls_hits:ball.balls_hits_before_potted,borders_hits:ball.borders_hits_before_potted,ball_col:ball.color})
-		if ((ball.balls_hits_before_potted>2||ball.borders_hits_before_potted>2)&&ball.color===TAR_COLOR){			
+		if ((ball.balls_hits_before_potted>2||ball.borders_hits_before_potted>2)&&ball.color===TAR_COLOR){
 			sound.play('excellent')
+			this.boost_energy()
 		}
 		
 		
@@ -8257,6 +8287,7 @@ async function init_game_env(p) {
 	my_data.board_id = (other_data?.board_id)||1;
 	my_data.cue_id = other_data?.cue_id ||4;
 	my_data.cue_resource = other_data?.cue_data||[9,100,50,50,500,0,0,0];
+	my_data.energy=safe_ls('pool_energy')||0
 
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
@@ -8318,7 +8349,9 @@ async function init_game_env(p) {
 		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 2000))
 	]);
 
-	SERVER_TM=await my_ws.get_tms() 
+	//обновляем енергию и время
+	await common.check_energy()
+	setInterval(()=>{common.check_energy()},50000)
 
 	//включаем музыку
 	pref.init()
