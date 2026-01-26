@@ -590,7 +590,7 @@ class ball_class extends PIXI.Container{
 		}
 
 		this.strip.rotation=ang_rad+shift_Z_rot;
-		this.strip.texture=assets['ball_anim'+frame_id];
+		this.strip.texture=assets.ball_anim[frame_id];
 
 
 	}
@@ -724,7 +724,7 @@ class ball_class extends PIXI.Container{
 		}
 
 		this.strip.rotation=ang_rad+shift_Z_rot;
-		this.strip.texture=assets['ball_anim'+frame_id];
+		this.strip.texture=assets.ball_anim[frame_id];
 
 		//проверка столкновений с границами доски
 		//this.process_collision_to_board();
@@ -7899,8 +7899,8 @@ main_loader={
 
 		loader.add('music',git_src+'sounds/music.mp3');
 
-		for (let i=0;i<ball_class.BALL_ANIM_FRAMES;i++)
-			 loader.add('ball_anim'+i, git_src+'ball_anim/'+ String(i).padStart(4, '0')+'.png');
+		loader.add('balls_anim_pack', git_src+'balls_anim_pack.png');
+		
 		//прогресс
 		loader.onProgress.add((l,res)=>{
 			objects.load_bar_mask.width =410*l.progress*0.01;
@@ -7923,6 +7923,8 @@ main_loader={
 		//информация об уровнях онлайн игры
 		sp_game.levels_data=eval(assets.levels_data)		
 		
+		
+		this.divide_texture(assets.balls_anim_pack,70,70,'ball_anim')		
 		this.divide_texture(assets.cue_pack,670,60,['cue1','cue2','cue3','cue4','cue5','cue6','cue7'])
 		this.divide_texture(assets.cards_pack,300,135,['table_rating_hl','mini_player_card_table','mini_player_card_ai','mini_player_card','mini_player_card_bot'])
 
