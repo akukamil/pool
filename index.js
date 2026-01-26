@@ -6165,8 +6165,11 @@ common={
 			
 		//если больше одного залетело
 		const num_potted=this.potted_balls.filter(b=>b.color===TAR_COLOR).length
-		if (ball.color===TAR_COLOR&&num_potted>1)
-			sound.play('excellent')		
+		if (ball.color===TAR_COLOR&&num_potted>1){
+			sound.play('excellent')
+			this.boost_energy()
+		}
+
 
 		//добавляем на боковую панель
 		for (let mball of objects.move_potted_balls){
