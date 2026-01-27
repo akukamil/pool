@@ -6144,11 +6144,7 @@ common={
 		
 		//звук если забли после нескольких касаний
 		const TAR_COLOR=my_turn?this.my_color:this.opp_color
-		//console.log({TAR_COLOR,balls_hits:ball.balls_hits_before_potted,borders_hits:ball.borders_hits_before_potted,ball_col:ball.color})
-		if ((ball.balls_hits_before_potted>2||ball.borders_hits_before_potted>2)&&ball.color===TAR_COLOR){
-			sound.play('excellent')
-			this.boost_bonuses(hole_data)
-		}
+
 		
 		
 		objects.table_hl.tint=(Math.floor(100 + Math.random() * 155) << 16) | (Math.floor(100 + Math.random() * 155) << 8) | Math.floor(100 + Math.random() * 155);
@@ -6161,9 +6157,10 @@ common={
 
 		if (this.table_state==='game') this.update_balls_stat()
 			
+		
 		//если больше одного залетело
 		const num_potted=this.potted_balls.filter(b=>b.color===TAR_COLOR).length
-		if (ball.color===TAR_COLOR&&num_potted>1){
+		if (ball.color===TAR_COLOR&&(num_potted>1||ball.balls_hits_before_potted>2||ball.borders_hits_before_potted>2)){
 			sound.play('excellent')
 			this.boost_bonuses(hole_data)
 		}
