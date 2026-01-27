@@ -2682,10 +2682,12 @@ pref={
 
 		anim3.add(objects.pref_cont,{x:[-800,objects.pref_cont.sx,'linear']}, true, 0.2);
 		//this.set_stick_perc_level(this.stick_perc);
-		//objects.pref_t_bonuses.text=this.bonuses+'%';
+		objects.pref_bonuses.text=my_data.bonuses;
 
 		objects.bcg.texture=assets.main_bcg_img;
 		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);
+
+	
 
 		//заполняем имя и аватар
 		objects.pref_name.set2(my_data.name,260);
@@ -2893,25 +2895,16 @@ pref={
 		}
 
 	},
-
-	music_icon_update(){
-		
-		if (music.on)
-			objects.pref_msc_bcg.texture=assets.pref_snd_on_img
-		else
-			objects.pref_msc_bcg.texture=assets.pref_snd_off_img
-		
-	},
 	
 	main_bcg_down(e){
 		
 		const mx = e.data.global.x/app.stage.scale.x
 		const my = e.data.global.y/app.stage.scale.y
 		
-		if (mx>448&&my>289&&mx<578&&my<329)
+		if (mx>410&&my>280&&mx<520&&my<320)
 			this.sound_switch_down()
 
-		if (mx>610&&my>289&&mx<740&&my<329)
+		if (mx>539&&my>280&&mx<650&&my<320)
 			this.music_switch_down()
 		
 	},
@@ -4743,20 +4736,26 @@ common={
 
 	},
 
-	boost_energy(){
+	boost_bonuses(hole_data){
 		
-		my_data.energy++
-		my_ws.safe_send({cmd:'top3',path:'_day_top3',val:{uid:my_data.uid,val:my_data.energy}})
+		my_data.bonuses++
+		safe_ls('pool_bonuses',my_data.bonuses)
+		my_ws.safe_send({cmd:'top3',path:'_day_top3',val:{uid:my_data.uid,val:my_data.bonuses}})
+		
+		const anim_ball=objects.stars_bonuses.find(b=>{return !b.visible})
+		anim_ball.x=hole_data[0]
+		anim_ball.y=hole_data[1]
+		anim3.add(anim_ball,{scale_xy:[0.666, 2,'linear'],angle:[0,10,'linear'],alpha:[1,0,'linear']}, false, 2);
 	
 	},
 	
-	async check_energy(){
+	async check_bonuses(){
 		
 		SERVER_TM=await my_ws.get_tms()
 		
 		//нужно удалит первую версию		
 		if(!SERVER_TM) return
-		const prv_tm=safe_ls('pool_energy_prv_tm')
+		const prv_tm=safe_ls('pool_bonuses_prv_tm')
 		
 		const cur_msk_day=+new Date(SERVER_TM).toLocaleString('en-US', {timeZone: 'Europe/Moscow',day:'numeric'})
 		const prv_msk_day=+new Date(prv_tm).toLocaleString('en-US', {timeZone: 'Europe/Moscow',day:'numeric'})
@@ -4764,15 +4763,14 @@ common={
 		if (cur_msk_day!==prv_msk_day){
 			
 			//день поменялся начинаем заново
-			my_data.energy=0
-			safe_ls('pool_energy',my_data.energy)
+			my_data.bonuses=0
+			safe_ls('pool_bonuses',my_data.bonuses)
 			
 		}	
 
-		safe_ls('pool_energy_prv_tm',SERVER_TM)
+		safe_ls('pool_bonuses_prv_tm',SERVER_TM)
 	
 	},
-	
 
 	async hit_down(){
 
@@ -5602,7 +5600,7 @@ common={
 						this.first_ball_hited=ball1.color;
 					else
 						this.first_ball_hited=ball0.color;
-					console.log('Первый шар: ',this.first_ball_hited);
+					//console.log('Первый шар: ',this.first_ball_hited);
 				}
 				
 				//звук столкновения если их не так много
@@ -6149,17 +6147,17 @@ common={
 		//console.log({TAR_COLOR,balls_hits:ball.balls_hits_before_potted,borders_hits:ball.borders_hits_before_potted,ball_col:ball.color})
 		if ((ball.balls_hits_before_potted>2||ball.borders_hits_before_potted>2)&&ball.color===TAR_COLOR){
 			sound.play('excellent')
-			this.boost_energy()
+			this.boost_bonuses(hole_data)
 		}
 		
 		
 		objects.table_hl.tint=(Math.floor(100 + Math.random() * 155) << 16) | (Math.floor(100 + Math.random() * 155) << 8) | Math.floor(100 + Math.random() * 155);
-		anim3.add(objects.table_hl,{alpha:[0,1,'ease2back']}, false, 2,false)			
+		anim3.add(objects.table_hl,{alpha:[0,1,'ease2back']}, false, 2,false)
 
 
 		//добавляем шар с список попавших в лузу
-		this.potted_balls.push(ball);
-		this.potted_balls_total.push(ball);
+		this.potted_balls.push(ball)
+		this.potted_balls_total.push(ball)
 
 		if (this.table_state==='game') this.update_balls_stat()
 			
@@ -6167,7 +6165,7 @@ common={
 		const num_potted=this.potted_balls.filter(b=>b.color===TAR_COLOR).length
 		if (ball.color===TAR_COLOR&&num_potted>1){
 			sound.play('excellent')
-			this.boost_energy()
+			this.boost_bonuses(hole_data)
 		}
 
 
@@ -7592,6 +7590,68 @@ lobby={
 
 }
 
+top3={
+	
+	async activate(path){
+		
+		const top3=await my_ws.get(path||'day_top3')
+		if(!top3) return
+		const uids=Object.keys(top3)
+		if (uids.length!==3) return
+		
+		const sorted_top3 = Object.entries(top3).sort((a, b) => b[1] - a[1])
+		const ordered_uids = [sorted_top3[1][0], sorted_top3[0][0], sorted_top3[2][0]]
+		
+		await players_cache.update(ordered_uids[0])		
+		objects.day_top3_name1.set2(players_cache.players[ordered_uids[0]].name,145)
+		
+		await players_cache.update(ordered_uids[1])		
+		objects.day_top3_name2.set2(players_cache.players[ordered_uids[1]].name,145)
+		
+		await players_cache.update(ordered_uids[2])
+		objects.day_top3_name3.set2(players_cache.players[ordered_uids[2]].name,145)
+			
+				
+		await players_cache.update_avatar(ordered_uids[0])		
+		objects.day_top3_avatar1.set_texture(players_cache.players[ordered_uids[0]].texture)
+		
+		await players_cache.update_avatar(ordered_uids[1])		
+		objects.day_top3_avatar2.set_texture(players_cache.players[ordered_uids[1]].texture)
+		
+		await players_cache.update_avatar(ordered_uids[2])
+		objects.day_top3_avatar3.set_texture(players_cache.players[ordered_uids[2]].texture)
+		
+		objects.day_top3_lights1.text=top3[ordered_uids[0]]
+		objects.day_top3_lights2.text=top3[ordered_uids[1]]
+		objects.day_top3_lights3.text=top3[ordered_uids[2]]
+		
+		some_process.top3_anim=()=>{this.process()}
+		sound.play('top3')
+		anim3.add(objects.day_top3_cont,{alpha:[0, 1,'linear']}, true, 0.5);
+		
+						
+	},
+	
+	process(){
+		
+		objects.day_top3_sunrays.rotation+=0.01
+		
+	},
+	
+	close(){
+		
+		if (anim3.any_on()) {
+			sound.play('locked')
+			return
+		}
+		
+		anim3.add(objects.day_top3_cont,{alpha:[1, 0,'linear']}, false, 0.5);
+		
+		
+	}	
+	
+}
+
 lb={
 
 	cards_pos: [[370,10],[380,70],[390,130],[380,190],[360,250],[330,310],[290,370]],
@@ -7914,6 +7974,7 @@ main_loader={
 		loader.add('tune',git_src+'sounds/tune.mp3');
 		loader.add('clock',git_src+'sounds/clock.mp3');
 		loader.add('excellent',git_src+'sounds/excellent.mp3');
+		loader.add('top3',git_src+'sounds/top3.mp3');
 
 		loader.add('board1',git_src+'res/boards/board1.png');
 		loader.add('board2',git_src+'res/boards/board2.png');
@@ -8290,7 +8351,7 @@ async function init_game_env(p) {
 	my_data.board_id = (other_data?.board_id)||1;
 	my_data.cue_id = other_data?.cue_id ||4;
 	my_data.cue_resource = other_data?.cue_data||[9,100,50,50,500,0,0,0];
-	my_data.energy=safe_ls('pool_energy')||0
+	my_data.bonuses=safe_ls('pool_bonuses')||0
 
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
@@ -8353,8 +8414,8 @@ async function init_game_env(p) {
 	]);
 
 	//обновляем енергию и время
-	await common.check_energy()
-	setInterval(()=>{common.check_energy()},50000)
+	await common.check_bonuses()
+	setInterval(()=>{common.check_bonuses()},50000)
 
 	//включаем музыку
 	pref.init()
@@ -8441,7 +8502,9 @@ async function init_game_env(p) {
 	main_menu.activate();
 
 	//покупки яндекса
-	pref.counume_yndx_purchases();
+	pref.counume_yndx_purchases()
+	
+	top3.activate()
 }
 
 function main_loop() {
