@@ -2836,7 +2836,7 @@ pref={
 
 		//провряем можно ли менять фото
 		if(this.hours_to_nick_change>0){
-			this.send_info(`Имя можно поменять через ${this.hours_to_nick_change} ${this.getHoursEnding(this.hours_to_nick_change)}.`);
+			this.send_info([`Имя можно поменять через ${this.hours_to_nick_change} ${this.getHoursEnding(this.hours_to_nick_change)}.`,`Wait ${this.hours_to_nick_change} ${this.getHoursEnding(this.hours_to_nick_change)}.`][LANG]);
 			sound.play('locked');
 			return;
 		}
@@ -3089,7 +3089,7 @@ pref={
 
 		//провряем можно ли менять фото
 		if(this.hours_to_photo_change>0){
-			this.send_info(`Фото можно поменять через ${this.hours_to_photo_change} ${this.getHoursEnding(this.hours_to_photo_change)}.`);
+			this.send_info([`Фото можно поменять через ${this.hours_to_photo_change} ${this.getHoursEnding(this.hours_to_photo_change)}.`,`Wait ${this.hours_to_photo_change} ${this.getHoursEnding(this.hours_to_photo_change)}.`][LANG]);
 			sound.play('locked');
 			return;
 		}
