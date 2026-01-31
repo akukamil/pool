@@ -2158,7 +2158,7 @@ keyboard={
 	read(max_symb){
 
 		this.MAX_SYMBOLS=max_symb||60;
-		if (!this.layout)this.switch_layout();
+		this.set_layout(LANG?this.en_keys:this.ru_keys)
 
 		//если какой-то ресолвер открыт
 		if(this.resolver) {
@@ -2244,12 +2244,21 @@ keyboard={
 
 	switch_layout(){
 
+		if (this.layout===this.ru_keys)
+			this.set_layout(this.en_keys)
+		else
+			this.set_layout(this.ru_keys)
+
+	},
+	
+	set_layout(layout){
+
 		if (this.layout===this.ru_keys){
-			this.layout=this.en_keys;
-			objects.chat_keyboard.texture=assets.eng_layout;
+			this.layout=this.ru_keys
+			objects.chat_keyboard.texture=assets.rus_layout
 		}else{
-			this.layout=this.ru_keys;
-			objects.chat_keyboard.texture=assets.rus_layout;
+			this.layout=this.en_keys
+			objects.chat_keyboard.texture=assets.eng_layout
 		}
 
 	},
