@@ -1573,7 +1573,7 @@ chat={
 		this.recent_msg = this.recent_msg.filter(d =>cur_dt-d<60000);
 
 		if (this.recent_msg.length>3){
-			sys_msg.add('Подождите 1 минуту')
+			sys_msg.add(['Подождите 1 минуту','Wait 1 minute...'][LANG])
 			return;
 		}
 
@@ -8509,9 +8509,15 @@ async function init_game_env(p) {
 
 	//покупки яндекса
 	pref.counume_yndx_purchases()
-	
+		
+	//гейм реди для бриджа
+	if(game_platform==='PG') bridge.platform.sendMessage("game_ready")
+		
 	top3.activate()
+
+
 }
+
 
 function main_loop() {
 
