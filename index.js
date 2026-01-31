@@ -2012,7 +2012,9 @@ fin_dialog={
 
 		some_process.fin_dlg_anim=function(){};
 		objects.fin_dlg_cont.visible=false;
-		this.resolver();
+		this.resolver()
+		
+		ad.show()
 
 	},
 
@@ -4387,19 +4389,22 @@ sp_game={
 
 		sound.play('close_it');
 
-		this.close();
-		main_menu.activate();
+		this.close()
+		main_menu.activate()
+		ad.show()
 
 	},
 
 	next_btn_down(){
+		//ad.show()
 		this.activate(this.cur_level+1);
-		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25);
+		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25)
 	},
 
 	replay_btn_down(){
+		//ad.show()
 		this.activate(this.cur_level);
-		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25);
+		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25)
 	},
 
 }
@@ -6568,6 +6573,86 @@ main_menu={
 	},
 
 
+}
+
+ad={
+
+	prv_show : -9999,
+
+	show(){
+
+		if ((Date.now() - this.prv_show) < 150000 )
+			return;
+		this.prv_show = Date.now();
+
+		if (game_platform==="YANDEX") {
+
+			window.ysdk.adv.showFullscreenAdv({
+			  callbacks: {
+				onClose: function() {PIXI.sound.volumeAll=1;},
+				onError: function() {PIXI.sound.volumeAll=1;}
+						}
+			})
+		}
+
+		if (game_platform==="VK") {
+
+			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
+			.then(data => console.log(data.result))
+			.catch(error => console.log(error));
+		}
+
+		if (game_platform==="PG") {
+
+			bridge.advertisement.showInterstitial()
+		}
+
+		if (game_platform==='GOOGLE_PLAY') {
+			if (typeof Android !== 'undefined') {
+				Android.showAdFromJs();
+			}
+		}
+
+
+	},
+
+	async show2() {
+
+
+		if (game_platform ==="YANDEX") {
+
+			let res = await new Promise(function(resolve, reject){
+				window.ysdk.adv.showRewardedVideo({
+						callbacks: {
+						  onOpen: () => {},
+						  onRewarded: () => {resolve('ok')},
+						  onClose: () => {resolve('err')},
+						  onError: (e) => {resolve('err')}
+					}
+				})
+
+			})
+			return res;
+		}
+
+		if (game_platform === "VK") {
+
+			let data = '';
+			try {
+				data = await vkBridge.send("VKWebAppShowNativeAds", { ad_format: "reward" })
+			}
+			catch(error) {
+				data ='err';
+			}
+
+			if (data.result) return 'ok'
+
+
+		}
+
+		return 'err';
+
+	}
 }
 
 lobby={
