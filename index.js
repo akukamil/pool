@@ -7995,7 +7995,7 @@ main_loader={
 				
 
 		//уровни для одиночной игры
-		loader.add('levels_data', 'levels_data.txt');
+		loader.add('levels_data', git_src+'levels_data.txt');
 
 		loader.add('music',git_src+'sounds/music.mp3');
 
