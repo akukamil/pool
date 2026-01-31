@@ -2253,7 +2253,7 @@ keyboard={
 	
 	set_layout(layout){
 
-		if (this.layout===this.ru_keys){
+		if (layout===this.ru_keys){
 			this.layout=this.ru_keys
 			objects.chat_keyboard.texture=assets.rus_layout
 		}else{
