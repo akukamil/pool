@@ -2012,11 +2012,9 @@ fin_dialog={
 
 	close(){
 
-		some_process.fin_dlg_anim=function(){};
-		objects.fin_dlg_cont.visible=false;
+		some_process.fin_dlg_anim=function(){}
+		objects.fin_dlg_cont.visible=false
 		this.resolver()
-		
-		ad.show()
 
 	},
 
@@ -4376,31 +4374,33 @@ sp_game={
 			return;
 		}
 
-
-
-
 	},
 
-	exit_btn_down(){
+	async exit_btn_down(){
 
 		if (anim3.any_on()){
 			sound.play('locked');
 			return
 		};
-		//anim3.add(objects.spfin_cont,{alpha:[1,0]}, false, 0.25,'linear');
 
-		sound.play('close_it');
-
+		sound.play('close_it')
 		this.close()
+		await ad.show()
 		main_menu.activate()
-		ad.show()
 
 	},
 
-	next_btn_down(){
-		//ad.show()
-		this.activate(this.cur_level+1);
+	async next_btn_down(){
+			
+		if (anim3.any_on()){
+			sound.play('locked');
+			return
+		};
+		
 		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25)
+		await ad.show()
+		this.activate(this.cur_level+1);		
+		
 	},
 
 	replay_btn_down(){
@@ -6128,9 +6128,10 @@ common={
 		clearTimeout(online_game.write_fb_timer)
 		clearTimeout(online_game.disconnect_timer)
 
-		await fin_dialog.show(result)
+		await fin_dialog.show(result)		
 		opponent.close()
 		this.close()
+		await ad.show()
 		lobby.activate()
 
 	},
@@ -6581,80 +6582,46 @@ ad={
 
 	prv_show : -9999,
 
-	show(){
+	async show(){
 
 		if ((Date.now() - this.prv_show) < 150000 )
 			return;
 		this.prv_show = Date.now();
-
-		if (game_platform==="YANDEX") {
-
-			window.ysdk.adv.showFullscreenAdv({
-			  callbacks: {
-				onClose: function() {PIXI.sound.volumeAll=1;},
-				onError: function() {PIXI.sound.volumeAll=1;}
-						}
+		
+		PIXI.sound.volumeAll=0
+		
+		if (game_platform==='YANDEX') {
+			
+			await new Promise(res=>{
+				const timeout=setTimeout(()>{res()},5000)
+				window.ysdk.adv.showFullscreenAdv({
+				callbacks: {
+					onClose: function() {res();clearTimeout(timeout)},
+					onError: function() {res();clearTimeout(timeout)}
+					}
+				})
 			})
+			
 		}
 
-		if (game_platform==="VK") {
+		if (game_platform==='VK') {
+			
+			try {
+				await vkBridge.send("VKWebAppShowNativeAds", { ad_format: "interstitial"})
+			} catch(e) {}
 
-			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
-			.then(data => console.log(data.result))
-			.catch(error => console.log(error));
 		}
 
-		if (game_platform==="PG") {
+		if (game_platform==='PG') {
 
-			bridge.advertisement.showInterstitial()
+			await bridge.advertisement.showInterstitial()
 		}
-
-		if (game_platform==='GOOGLE_PLAY') {
-			if (typeof Android !== 'undefined') {
-				Android.showAdFromJs();
-			}
-		}
-
+		
+		PIXI.sound.volumeAll=1
 
 	},
 
-	async show2() {
 
-
-		if (game_platform ==="YANDEX") {
-
-			let res = await new Promise(function(resolve, reject){
-				window.ysdk.adv.showRewardedVideo({
-						callbacks: {
-						  onOpen: () => {},
-						  onRewarded: () => {resolve('ok')},
-						  onClose: () => {resolve('err')},
-						  onError: (e) => {resolve('err')}
-					}
-				})
-
-			})
-			return res;
-		}
-
-		if (game_platform === "VK") {
-
-			let data = '';
-			try {
-				data = await vkBridge.send("VKWebAppShowNativeAds", { ad_format: "reward" })
-			}
-			catch(error) {
-				data ='err';
-			}
-
-			if (data.result) return 'ok'
-
-
-		}
-
-		return 'err';
-
-	}
 }
 
 lobby={
