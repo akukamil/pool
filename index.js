@@ -4397,16 +4397,23 @@ sp_game={
 			return
 		};
 		
-		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25)
+		await anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25)
 		await ad.show()
 		this.activate(this.cur_level+1);		
 		
 	},
 
-	replay_btn_down(){
-		//ad.show()
+	async replay_btn_down(){
+		
+		if (anim3.any_on()){
+			sound.play('locked');
+			return
+		};
+		
+		await anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25)
+		await ad.show()
 		this.activate(this.cur_level);
-		anim3.add(objects.spfin_dlg_cont,{alpha:[1,0,'linear']}, false, 0.25)
+
 	},
 
 }
@@ -7898,21 +7905,6 @@ players_cache={
 
 }
 
-function sss (){
-
-	objects.balls[0].x=660
-	objects.balls[0].y=135
-
-	objects.balls[1].x=685
-	objects.balls[1].y=360
-
-	objects.balls[2].x=635
-	objects.balls[2].y=135
-
-	objects.balls[15].x=600
-	objects.balls[15].y=215
-}
-
 keep_alive = function() {
 
 	fbs.ref('players/'+my_data.uid+'/tm').set(firebase.database.ServerValue.TIMESTAMP);
@@ -8571,7 +8563,6 @@ async function init_game_env(p) {
 
 
 }
-
 
 function main_loop() {
 
