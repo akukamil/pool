@@ -6593,7 +6593,7 @@ ad={
 		if (game_platform==='YANDEX') {
 			
 			await new Promise(res=>{
-				const timeout=setTimeout(()>{res()},5000)
+				const timeout=setTimeout(()=>{res()},5000)
 				window.ysdk.adv.showFullscreenAdv({
 				callbacks: {
 					onClose: function() {res();clearTimeout(timeout)},
