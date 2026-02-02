@@ -6615,7 +6615,9 @@ ad={
 			
 			try {
 				await vkBridge.send("VKWebAppShowNativeAds", { ad_format: "interstitial"})
-			} catch(e) {}
+			} catch(e) {
+				console.log(e)
+			}
 
 		}
 
