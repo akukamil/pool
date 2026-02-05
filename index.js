@@ -6595,7 +6595,7 @@ ad={
 			return;
 		this.prv_show = Date.now();
 		
-		PIXI.sound.pauseAll()
+		PIXI.sound.muteAll()
 		
 		if (game_platform==='YANDEX') {
 			
@@ -6626,7 +6626,7 @@ ad={
 			await bridge.advertisement.showInterstitial()
 		}
 		
-		PIXI.sound.resumeAll()
+		PIXI.sound.unmuteAll()
 
 	},
 
@@ -8167,7 +8167,7 @@ tabvis={
 
 		if (document.hidden){
 
-			PIXI.sound.pauseAll()
+			PIXI.sound.muteAll()
 			this.inactive_timer=setTimeout(()=>{this.send_to_sleep()},120000);
 			this.invis_timer=setInterval(()=>{
 				tabvis.process();
@@ -8175,7 +8175,7 @@ tabvis={
 
 		}else{
 			clearInterval(this.invis_timer);
-			PIXI.sound.resumeAll()
+			PIXI.sound.unmuteAll()
 			if(this.sleep){
 				console.log('Проснулись');
 				my_ws.reconnect('wakeup');;
