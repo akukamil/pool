@@ -6637,7 +6637,7 @@ ad={
 		bridge.advertisement.on(
 		bridge.EVENT_NAME.INTERSTITIAL_STATE_CHANGED, 
 			state => {
-				if(state==='closed') this.pg_ad_resolver(1)
+				if(state==='closed'||state==='failed') this.pg_ad_resolver(1)
 			}
 		)		
 	}
