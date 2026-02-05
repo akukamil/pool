@@ -1630,7 +1630,7 @@ sound={
 
 music={
 	
-	on:0,	
+	on:0,
 	
 	start(){
 		this.on=1
@@ -6595,7 +6595,7 @@ ad={
 			return;
 		this.prv_show = Date.now();
 		
-		PIXI.sound.volumeAll=0
+		PIXI.sound.pauseAll()
 		
 		if (game_platform==='YANDEX') {
 			
@@ -6626,7 +6626,7 @@ ad={
 			await bridge.advertisement.showInterstitial()
 		}
 		
-		PIXI.sound.volumeAll=1
+		PIXI.sound.resumeAll()
 
 	},
 
@@ -8167,7 +8167,7 @@ tabvis={
 
 		if (document.hidden){
 
-			PIXI.sound.volumeAll=0;
+			PIXI.sound.pauseAll()
 			this.inactive_timer=setTimeout(()=>{this.send_to_sleep()},120000);
 			this.invis_timer=setInterval(()=>{
 				tabvis.process();
@@ -8175,7 +8175,7 @@ tabvis={
 
 		}else{
 			clearInterval(this.invis_timer);
-			PIXI.sound.volumeAll=1;
+			PIXI.sound.resumeAll()
 			if(this.sleep){
 				console.log('Проснулись');
 				my_ws.reconnect('wakeup');;
