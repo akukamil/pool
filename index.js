@@ -2517,7 +2517,7 @@ auth2={
 			my_data.uid = this.search_in_local_storage() || this.get_random_uid_for_local('PG_');
 			my_data.name = bridge.player.name||this.get_random_name(my_data.uid);
 			my_data.orig_pic_url = 'mavatar'+my_data.uid;				
-			
+			ad.reg_pg_ad()
 		}
 
 		if (game_platform === 'GOOGLE_PLAY') {
@@ -6588,7 +6588,7 @@ main_menu={
 ad={
 
 	prv_show : -9999,
-
+	pg_ad_resolver:0,
 	async show(){
 
 		if ((Date.now() - this.prv_show) < 150000 )
@@ -6622,14 +6622,25 @@ ad={
 		}
 
 		if (game_platform==='PG') {
-
-			await bridge.advertisement.showInterstitial()
+			await new Promise(res=>{
+				this.pg_ad_resolver=res
+				bridge.advertisement.showInterstitial()
+			})	
 		}
 		
 		PIXI.sound.unmuteAll()
 
 	},
-
+	
+	reg_pg_ad(){
+		
+		bridge.advertisement.on(
+		bridge.EVENT_NAME.INTERSTITIAL_STATE_CHANGED, 
+			state => {
+				if(state==='closed') this.pg_ad_resolver(1)
+			}
+		)		
+	}
 
 }
 
