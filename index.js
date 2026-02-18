@@ -1584,7 +1584,7 @@ chat={
 		const msg = await keyboard.read(70);
 		if (msg) {
 			const index=irnd(1,999);
-			my_ws.safe_send({cmd:'push',path:'chat',val:{uid:my_data.uid,name:my_data.name,msg,tm:'TMS'}})
+			my_ws.safe_send({cmd:'push',path:chat_path,val:{uid:my_data.uid,name:my_data.name,msg,tm:'TMS'}})
 			//fbs.ref(chat_path+'/'+index).set({uid:my_data.uid,name:my_data.name,msg, tm:firebase.database.ServerValue.TIMESTAMP,index});
 		}
 
