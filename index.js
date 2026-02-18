@@ -1,5 +1,5 @@
-var M_WIDTH=800, M_HEIGHT=450;
-var app, assets={},fbs,SERVER_TM, game_name='pool', yndx_payments, game, client_id, objects={}, state='',my_role="", game_tick=0, made_moves=0, game_id=0, my_turn=0, opponent=0,connected = 1, LANG = 0, hidden=0, h_state=0, game_platform="",git_src='./', room_name = '',game_name='pool',pending_player='',tm={}, some_process = {}, my_data={opp_id : ''},opp_data={};
+let M_WIDTH=800, M_HEIGHT=450;
+let app, assets={},fbs,SERVER_TM, chat_path='chat', yndx_payments, game, client_id, objects={}, state='',my_role="", game_tick=0, made_moves=0, game_id=0, my_turn=0, opponent=0,connected = 1, LANG = 0, hidden=0, h_state=0, game_platform="",git_src='./', room_name = '',game_name='pool',pending_player='',tm={}, some_process = {}, my_data={opp_id : ''},opp_data={};
 
 const WIN = 1, DRAW = 0, LOSE = -1, NOSYNC = 2;
 const borders=[[93.35,401.57,101.88,390.66],[101.88,390.66,101.88,142.41],[101.88,142.41,93.14,131.36],[93.14,131.36,101.88,401.57],[111.76,112.29,122.37,121.73],[122.37,121.73,380.84,121.73],[380.84,121.73,384.71,112.23],[111.76,112.23,384.71,121.73],[689.76,112.25,678.93,121.75],[678.93,121.75,420.29,121.75],[420.29,121.75,417,112.25],[417,112.25,689.76,121.75],[688.9,420.25,677.41,411.22],[677.41,411.22,420.23,411.22],[420.23,411.22,416.22,420.22],[416.22,411.22,688.9,420.25],[111.87,420.21,123.52,411.21],[123.52,411.21,380.04,411.21],[380.04,411.21,385.27,420.21],[111.87,411.21,385.27,420.21],[707.32,400.83,699.05,389.43],[699.05,389.43,698.72,143.65],[698.72,143.65,707.25,132.6],[698.72,132.6,707.32,400.83]];
@@ -1281,17 +1281,15 @@ chat={
 			rec.tm=0;
 		}
 
-		this.init_yandex_payments();
-
-		
+		this.init_yandex_payments()		
 
 		//загружаем чат
-		const chat_data=await my_ws.get('chat',25);
+		const chat_data=await my_ws.get(chat_path,25);
 
 		await this.chat_load(chat_data);
 
 		//подписываемся на новые сообщения
-		my_ws.ss_child_added('chat',chat.chat_updated.bind(chat))
+		my_ws.ss_child_added(chat_path,chat.chat_updated.bind(chat))
 
 		console.log('Чат загружен!')
 	},
@@ -2514,6 +2512,7 @@ auth2={
 				await bridge.initialize()			
 			} catch (e) { alert(e)};
 			
+			chat_path='chat2'
 			my_data.uid = this.search_in_local_storage() || this.get_random_uid_for_local('PG_');
 			my_data.name = bridge.player.name||this.get_random_name(my_data.uid);
 			my_data.orig_pic_url = 'mavatar'+my_data.uid;				
@@ -3260,9 +3259,6 @@ levels={
 			icon.t.text=level;
 			return;
 		}
-
-
-
 	},
 
 	async load_stat(){
