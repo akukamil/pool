@@ -2512,7 +2512,6 @@ auth2={
 				await bridge.initialize()			
 			} catch (e) { alert(e)};
 			
-			chat_path='chat2'
 			my_data.uid = this.search_in_local_storage() || this.get_random_uid_for_local('PG_');
 			my_data.name = bridge.player.name||this.get_random_name(my_data.uid);
 			my_data.orig_pic_url = 'mavatar'+my_data.uid;				
@@ -6473,17 +6472,16 @@ main_menu={
 
 		//anim3.add(objects.bcg,{alpha:[1,0]}, false, 0.5,'linear');
 
-		anim3.add(objects.main_btn_cont,{x:[objects.main_btn_cont.x,-800,'linear']}, false, 0.5);
+		anim3.add(objects.main_btn_cont,{x:[objects.main_btn_cont.x,-800,'linear']}, false, 0.5)
 
 		//кнопки
 		//anim3.add(objects.title_cont,{alpha:[1,0,'linear']}, false, 0.5);
-
-		objects.main_menu_cont.visible=false;
-		some_process.main_menu=function(){};
+		objects.main_menu_cont.visible=false
+		some_process.main_menu=function(){}
 
 		//vk
 		if(objects.vk_buttons_cont.visible)
-			anim3.add(objects.vk_buttons_cont,{alpha:[1,0,'linear']}, false, 0.25);
+			anim3.add(objects.vk_buttons_cont,{alpha:[1,0,'linear']}, false, 0.25)
 
 	},
 
@@ -6686,6 +6684,10 @@ lobby={
 		anim3.add(objects.lobby_header_cont,{y:[-50, objects.lobby_header_cont.sy,'linear']}, true, 0.1);
 		objects.cards_cont.x=0;
 		this.on=1;
+		
+		
+		if (game_platform==='PG')
+			objects.lobby_chat_btn.visible=false
 
 		//отключаем все карточки
 		for(let i=0;i<objects.mini_cards.length;i++)
