@@ -8468,7 +8468,7 @@ async function init_game_env(p) {
 	}
 
 	//номер комнаты (для плейгамы отдельно)
-	room_name=game_platform==='PG'?'states2':'states1'
+	room_name='states1'
 
 	//ждем загрузки чата
 	await Promise.race([
