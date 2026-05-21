@@ -5505,7 +5505,7 @@ common={
 		objects.hit_level.y=objects.hit_level.sy+cue_shift;
 
 		//определяем мощность удара (от 1 до 10)
-		this.cue_power=12*cue_shift/200+1;
+		this.cue_power=11*cue_shift/200+1;
 
 		//обновляем положение кия
 		this.update_cue(my_data.cue_id);
@@ -6138,7 +6138,7 @@ common={
 
 	},
 	
-	close(){		
+	close(){
 		
 		anim3.add(objects.board_stuff_cont,{y:[0,450,'linear']}, false, 0.5)
 		objects.hit_level_cont.visible=false
