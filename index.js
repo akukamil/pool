@@ -1242,7 +1242,7 @@ chat={
 	block_next_click:0,
 	kill_next_click:0,
 	delete_message_mode:0,
-	games_to_chat:200,
+	games_to_chat:0,
 	games_to_gif:1000,
 	payments:0,
 	processing:0,
