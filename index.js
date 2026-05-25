@@ -7106,7 +7106,7 @@ lobby={
 			if (a_tex)
 				card.avatar.set_texture(a_tex)
 			else
-				players_cache.update(card.uid)
+				players_cache.update(card.uid,{source:'lobby'})
 
 			//console.log(`новая карточка ${i} ${params.uid}`)
 			return;
@@ -7172,7 +7172,7 @@ lobby={
 			if (a_tex2)
 				card.avatar2.set_texture(a_tex2)
 			else
-				players_cache.update(card.uid2)
+				players_cache.update(card.uid2,{source:'lobby'})
 
 
 			card.visible=true;
@@ -7451,7 +7451,7 @@ lobby={
 		//когда ничего не видно не принимаем сообщения
 		if(!objects.cards_cont.visible) return
 
-		await players_cache.update(data.uid)
+		await players_cache.update(data.uid,{source:'inst_msg'})
 
 		sound.play('inst_msg')
 		anim3.add(objects.inst_msg_cont, {alpha: [0, 1, 'linear']}, true, 0.4, false)
@@ -7849,7 +7849,7 @@ lb={
 			leaders_array.push(leader_params);
 
 			//добавляем в кэш
-			players_cache.update(uid,leader_params);
+			players_cache.update_params(uid,leader_params);
 		});
 
 		//сортируем....
@@ -7867,7 +7867,7 @@ lb={
 		for (let place in top){
 			const target=top[place];
 			const leader=leaders_array[place];
-			await players_cache.update(leader.uid);
+			await players_cache.update(leader.uid,{source:'lb'});
 			target.avatar.set_texture(players_cache[leader.uid].texture)
 		}
 
