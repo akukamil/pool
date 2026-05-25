@@ -7673,7 +7673,6 @@ lobby={
 
 	},
 
-
 	info_btn_down(){
 
 		if (anim3.any_on()) {
@@ -7846,7 +7845,7 @@ lb={
 		Object.keys(leaders).forEach(uid => {
 
 			const leader_data=leaders[uid];
-			const leader_params={uid,name:leader_data.name, rating:leader_data.rating, pic_url:leader_data.pic_url};
+			const leader_params={uid,name:leader_data.name||'-', rating:leader_data.rating, pic_url:leader_data.pic_url};
 			leaders_array.push(leader_params);
 
 			//добавляем в кэш
@@ -7868,7 +7867,7 @@ lb={
 		for (let place in top){
 			const target=top[place];
 			const leader=leaders_array[place];
-			await players_cache.update_avatar(leader.uid);
+			await players_cache.update(leader.uid);
 			target.avatar.set_texture(players_cache[leader.uid].texture)
 		}
 
