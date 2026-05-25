@@ -8272,6 +8272,7 @@ tabvis={
 		if (document.hidden){
 
 			PIXI.sound.muteAll()
+			my_ws.ref(ROOM_NAME+'/'+my_data.uid).remove()
 			this.inactive_timer=setTimeout(()=>{this.send_to_sleep()},120000);
 			this.invis_timer=setInterval(()=>{
 				tabvis.process();
@@ -8289,9 +8290,11 @@ tabvis={
 			
 			if (app.renderer.gl.isContextLost())
 				window.location.reload() 
+			
+			set_state({hidden : document.hidden});
 		}
 
-		set_state({hidden : document.hidden});
+		
 
 	},
 
