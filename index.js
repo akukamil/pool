@@ -1171,7 +1171,7 @@ req_dialog={
 		sound.play('receive_sticker');
 
 		//Отображаем  имя и фамилию в окне приглашения
-		objects.req_name.text=pdata.name
+		objects.req_name.set2(pdata.name,190)
 		objects.req_rating.text=pdata.rating
 		objects.req_avatar.set_texture(pdata.texture)
 		
