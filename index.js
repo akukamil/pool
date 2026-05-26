@@ -8482,9 +8482,14 @@ async function init_game_env(p) {
 		objects.t_progress.alpha=Math.abs(Math.sin(game_tick*2))*0.5+0.5
 	}
 	
+	objects.id_log.text='подключение к серверу my_ws... '
 	await my_ws.init();
+	
+	my_ws.close_callback=()=>{sys_msg.add(['Связь с сервером потеряна!','Connection to server is lost!'][LANG])}
+	my_ws.connect_callback=()=>{sys_msg.add(['Связь с сервером восстановлена!','Connection to server is restored!'][LANG])}
 
 	//загружаем остальные данные из файербейса
+	objects.id_log.text=['загрузка данных игрока... ','Loading players data...'][LANG]
 	const other_data = await my_ws.ref('players/' + my_data.uid).get()
 	if(!other_data) lobby.first_run=1;
 
@@ -8563,7 +8568,7 @@ async function init_game_env(p) {
 	ROOM_NAME='states1'
 
 	//ждем загрузки чата
-	objects.id_log.text='Загрузка общего чата... '
+	objects.id_log.text=['загрузка общего чата... ','Loading chat...'][LANG]
 	await chat.init()
 
 	//обновляем енергию и время
