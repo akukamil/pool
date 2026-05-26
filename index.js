@@ -8267,8 +8267,8 @@ tabvis={
 		if (document.hidden){
 
 			PIXI.sound.muteAll()
-			my_ws.ref(ROOM_NAME+'/'+my_data.uid).remove()
-			this.inactive_timer=setTimeout(()=>{this.send_to_sleep()},120000);
+			
+			this.inactive_timer=setTimeout(()=>{this.send_to_sleep()},60000);
 			this.invis_timer=setInterval(()=>{
 				tabvis.process();
 			},16);
@@ -8296,6 +8296,7 @@ tabvis={
 	send_to_sleep(){
 
 		console.log('погрузились в сон')
+		my_ws.ref(ROOM_NAME+'/'+my_data.uid).remove()
 		this.sleep=1;
 		if (lobby.on){
 			lobby.close()
@@ -8566,6 +8567,12 @@ async function init_game_env(p) {
 
 	//номер комнаты (для плейгамы отдельно)
 	ROOM_NAME='states1'
+
+	//удаляем из лобби перед закрытием
+	window.addEventListener("beforeunload", () => {
+		my_ws.ref(ROOM_NAME+'/'+my_data.uid).remove()
+	});
+
 
 	//ждем загрузки чата
 	objects.id_log.text=['загрузка общего чата... ','Loading chat...'][LANG]
