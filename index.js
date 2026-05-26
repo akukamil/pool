@@ -1164,7 +1164,7 @@ req_dialog={
 		this.uid=uid
 		
 		//обновляем данные
-		await players_cache.update(uid,{rating:1})
+		await players_cache.update(uid,{rating:1,source:'req_dlg'})
 		const pdata=players_cache[uid]
 		if (uid!==this.uid) return
 
@@ -1184,7 +1184,7 @@ req_dialog={
 		if (objects.req_cont.ready===false || objects.req_cont.visible===false)
 			return;
 
-		sound.play('close_it');
+		sound.play('close');
 
 		anim3.add(objects.req_cont,{y:[objects.req_cont.sy, -260,'easeInBack']}, false, 0.5);
 
@@ -1882,7 +1882,7 @@ stickers={
 
 	hide_panel() {
 
-		sound.play('close_it');
+		sound.play('close');
 
 		if (objects.stickers_cont.ready===false)
 			return;
@@ -2136,8 +2136,7 @@ set_state=params=>{
 	if (opp_data.uid!==undefined)
 		small_opp_id=opp_data.uid.substring(0,10);
 
-	my_ws.ref(ROOM_NAME+'/'+my_data.uid).set({state:state, name:my_data.name, rating : my_data.rating, hidden, opp_id : small_opp_id, game_id})
-	//fbs.ref(room_name+'/'+my_data.uid).set({state:state, name:my_data.name, rating : my_data.rating, hidden, opp_id : small_opp_id, game_id});
+	my_ws.ref(ROOM_NAME+'/'+my_data.uid).set({s:state, n:my_data.name, r : my_data.rating, opp_id : small_opp_id, g:game_id,tm:'TMS'})
 
 }
 
@@ -2170,7 +2169,7 @@ confirm_dialog = {
 			return
 		};
 
-		sound.play('close_it')
+		sound.play('close')
 
 		this.close();
 		this.p_resolve(res);
@@ -4419,7 +4418,7 @@ sp_game={
 			return
 		};
 
-		sound.play('close_it')
+		sound.play('close')
 		this.close()
 		await ad.show()
 		main_menu.activate()
@@ -5844,7 +5843,7 @@ common={
 		};
 
 
-		sound.play('close_it');
+		sound.play('close');
 		clearTimeout(this.help_info_timer);
 		sp_game.info_window_close_event();
 		anim3.add(objects.help_info_cont,{y:[objects.help_info_cont.sy,600,'easeInBack']},false,0.25,false);
@@ -6614,7 +6613,7 @@ main_menu={
 			return
 		};
 
-		sound.play('close_it');
+		sound.play('close');
 
 		anim3.add(objects.rules,{y:[objects.rules.sy, -450,'easeInBack']}, false, 0.5);
 
@@ -6812,8 +6811,8 @@ lobby={
 			//обновляем кэш с первыми данными
 			players_cache.update_params(uid,pdata)
 
-			if (pdata.state!=='p'&&!pdata.hidden)
-				single[uid] = pdata.name;
+			if (pdata.state!=='p')
+				single[uid] = pdata.name
 		}
 
 		//оставляем только тех кто за столом
@@ -7165,7 +7164,7 @@ lobby={
 			if (a_tex1)
 				card.avatar1.set_texture(a_tex1)
 			else
-				players_cache.update(card.uid1)
+				players_cache.update(card.uid1,{source:'lobby'})
 
 
 			const a_tex2=players_cache[card.uid2].texture
@@ -7666,7 +7665,7 @@ lobby={
 			return
 		};
 
-		sound.play('click');
+		sound.play('close');
 
 		await this.close();
 		main_menu.activate();
@@ -7707,65 +7706,61 @@ lobby={
 }
 
 top3={
-	
+
 	async activate(path){
-		
-		const top3=await my_ws.ref(path||'day_top3').get()
+
+		const top3=await my_ws.get(path||'day_top3')
 		if(!top3) return
 		const uids=Object.keys(top3)
 		if (uids.length!==3) return
-		
+
 		const sorted_top3 = Object.entries(top3).sort((a, b) => b[1] - a[1])
 		const ordered_uids = [sorted_top3[1][0], sorted_top3[0][0], sorted_top3[2][0]]
-		
-		await players_cache.update(ordered_uids[0])		
+
+		await players_cache.update(ordered_uids[0])
 		objects.day_top3_name1.set2(players_cache[ordered_uids[0]].name,145)
-		
-		await players_cache.update(ordered_uids[1])		
+
+		await players_cache.update(ordered_uids[1])
 		objects.day_top3_name2.set2(players_cache[ordered_uids[1]].name,145)
-		
+
 		await players_cache.update(ordered_uids[2])
 		objects.day_top3_name3.set2(players_cache[ordered_uids[2]].name,145)
-			
-				
-		await players_cache.update_avatar(ordered_uids[0])		
+
+
 		objects.day_top3_avatar1.set_texture(players_cache[ordered_uids[0]].texture)
-		
-		await players_cache.update_avatar(ordered_uids[1])		
 		objects.day_top3_avatar2.set_texture(players_cache[ordered_uids[1]].texture)
-		
-		await players_cache.update_avatar(ordered_uids[2])
 		objects.day_top3_avatar3.set_texture(players_cache[ordered_uids[2]].texture)
-		
+
 		objects.day_top3_lights1.text=top3[ordered_uids[0]]
 		objects.day_top3_lights2.text=top3[ordered_uids[1]]
 		objects.day_top3_lights3.text=top3[ordered_uids[2]]
-		
+
 		some_process.top3_anim=()=>{this.process()}
 		sound.play('top3')
-		anim3.add(objects.day_top3_cont,{alpha:[0, 1,'linear']}, true, 0.5);
-		
-						
+		anim3.add(objects.day_top3_cont, {alpha: [0, 1, 'linear']}, true, 0.5);
+
+
 	},
-	
+
 	process(){
-		
+
 		objects.day_top3_sunrays.rotation+=0.01
-		
+
 	},
-	
+
 	close(){
-		
+
 		if (anim3.any_on()) {
 			sound.play('locked')
 			return
 		}
 		
-		anim3.add(objects.day_top3_cont,{alpha:[1, 0,'linear']}, false, 0.5);
-		
-		
-	}	
-	
+		sound.play('close');
+		anim3.add(objects.day_top3_cont, {alpha: [1, 0, 'linear']}, false, 0.25);
+
+
+	}
+
 }
 
 lb={
@@ -7817,7 +7812,7 @@ lb={
 		};
 
 
-		sound.play('click');
+		sound.play('close');
 		this.close();
 		main_menu.activate();
 
@@ -8112,7 +8107,7 @@ main_loader={
 				loader.add(load_list[i].name, git_src+'res/'+lang_pack + '/' + load_list[i].name + "." +  load_list[i].image_format);
 
 		loader.add('click',git_src+'sounds/click.mp3');
-		loader.add('close_it',git_src+'sounds/close_it.mp3');
+		loader.add('close',git_src+'sounds/close.mp3');
 		loader.add('cue',git_src+'sounds/cue.mp3');
 		loader.add('balls_hit',git_src+'sounds/balls_hit.mp3');
 		loader.add('border_hit',git_src+'sounds/border_hit.mp3');
@@ -8525,7 +8520,7 @@ async function init_game_env(p) {
 
 	//загружаем мои данные в кэш
 	players_cache.update_params(my_data.uid,{pic_url:my_data.pic_url,rating:my_data.rating,name:my_data.name});
-	await players_cache.update(my_data.uid);
+	await players_cache.update(my_data.uid,{source:'init'});
 
 	//устанавливаем данные в попап
 	objects.id_avatar.set_texture(players_cache[my_data.uid].texture);
