@@ -8654,7 +8654,7 @@ async function init_game_env(p) {
 	//гейм реди для бриджа
 	if(game_platform==='PG') bridge.platform.sendMessage("game_ready")
 		
-	//top3.activate()
+	top3.activate()
 
 
 }
