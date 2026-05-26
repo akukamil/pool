@@ -7995,8 +7995,9 @@ players_cache={
 }
 
 keep_alive = function() {
-
-	my_ws.ref('players/'+my_data.uid+'/tm').set('TMS')
+		
+	if (document.hidden) return
+	//my_ws.ref('players/'+my_data.uid+'/tm').set('TMS')
 	set_state({});
 }
 
