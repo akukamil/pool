@@ -8268,13 +8268,10 @@ tabvis={
 			}
 			clearTimeout(this.inactive_timer);
 			
-			if (app.renderer.gl.isContextLost())
-				window.location.reload() 
+			if (app.renderer.gl.isContextLost()) window.location.reload() 
 			
 			set_state({hidden : document.hidden});
 		}
-
-		
 
 	},
 
@@ -8506,8 +8503,8 @@ async function init_game_env(p) {
 		my_data.pic_url=my_data.orig_pic_url
 
 	//добавляем страну к имени если ее нет
-	if (!auth2.get_country_from_name(my_data.name)&&my_data.country)
-		my_data.name=`${my_data.name} (${my_data.country})`
+	//if (!auth2.get_country_from_name(my_data.name)&&my_data.country)
+	//	my_data.name=`${my_data.name} (${my_data.country})`
 
 	//загружаем мои данные в кэш
 	players_cache.update_params(my_data.uid,{pic_url:my_data.pic_url,rating:my_data.rating,name:my_data.name});
