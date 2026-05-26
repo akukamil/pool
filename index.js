@@ -7407,7 +7407,11 @@ lobby={
 	disconnect(){
 		console.log('lobby disconnected')
 		this.global_players={}
-		//if(ROOM_NAME) fbs.ref(ROOM_NAME).off()
+		if(ROOM_NAME){
+			my_ws.ref(ROOM_NAME).child_added_off()
+			my_ws.ref(ROOM_NAME).child_changed_off()
+			my_ws.ref(ROOM_NAME).child_removed_off()
+		}
 		this.state_listener_on=0
 	},
 
@@ -7820,7 +7824,7 @@ lb={
 
 	async update() {
 
-		let leaders=await my_ws.ref('players').get()
+		let leaders=await my_ws.make_req('top_by_key',{path:'players',key:'rating',limit:12})
 
 		const top={
 			0:{t_name:objects.lb_1_name,t_rating:objects.lb_1_rating,avatar:objects.lb_1_avatar},
@@ -7835,35 +7839,16 @@ lb={
 			top[i+3].avatar=objects.lb_cards[i].avatar;
 		}
 
-		//создаем сортированный массив лидеров
-		const leaders_array=[];
-		Object.keys(leaders).forEach(uid => {
-
-			const leader_data=leaders[uid];
-			const leader_params={uid,name:leader_data.name||'-', rating:leader_data.rating, pic_url:leader_data.pic_url};
-			leaders_array.push(leader_params);
-
-			//добавляем в кэш
-			players_cache.update_params(uid,leader_params);
-		});
-
-		//сортируем....
-		leaders_array.sort(function(a,b) {return b.rating - a.rating});
-
-		//заполняем имя и рейтинг
-		for (let place in top){
-			const target=top[place];
-			const leader=leaders_array[place];
-			target.t_name.set2(leader.name,place>2?180:130);
-			target.t_rating.text=leader.rating;
-		}
-
 		//заполняем аватар
 		for (let place in top){
 			const target=top[place];
-			const leader=leaders_array[place];
-			await players_cache.update(leader.uid,{source:'lb'});
-			target.avatar.set_texture(players_cache[leader.uid].texture)
+			const leader=leaders[place];
+			const uid=leader.key
+			await players_cache.update(uid,{source:'lb'});
+			const pdata=players_cache[uid]			
+			target.t_name.set2(pdata.name,place>2?180:130);
+			target.t_rating.text=pdata.rating;
+			target.avatar.set_texture(pdata.texture)
 		}
 
 	}
