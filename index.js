@@ -8511,6 +8511,8 @@ async function init_game_env(p) {
 	//if (!auth2.get_country_from_name(my_data.name)&&my_data.country)
 	//	my_data.name=`${my_data.name} (${my_data.country})`
 
+	my_data.name=my_data.name.replace(/\s\([A-Z]{2}\)$/, '');
+
 	//загружаем мои данные в кэш
 	players_cache.update_params(my_data.uid,{pic_url:my_data.pic_url,rating:my_data.rating,name:my_data.name});
 	await players_cache.update(my_data.uid,{source:'init'});
