@@ -2124,20 +2124,24 @@ function resize() {
     app.stage.scale.set(nvw / M_WIDTH, nvh / M_HEIGHT);
 }
 
-set_state=params=>{
+function set_state(params={}){
 
-	if (params.state!==undefined)
+	if (params.state)
 		state=params.state;
 
-	if (params.hidden!==undefined)
+	if (params.hidden)
 		hidden=+params.hidden;
 
 	let small_opp_id="";
 	if (opp_data.uid!==undefined)
 		small_opp_id=opp_data.uid.substring(0,10);
 
-	my_ws.ref(ROOM_NAME+'/'+my_data.uid).set({s:state, n:my_data.name, r : my_data.rating, opp_id : small_opp_id, g:game_id,tm:'TMS'})
-
+	
+	if(params.keep_alive)
+		my_ws.ref(ROOM_NAME+'/'+my_data.uid).set_no_event({s:state, n:my_data.name, r : my_data.rating, opp_id : small_opp_id, g:game_id,tm:'TMS'})
+	else
+		my_ws.ref(ROOM_NAME+'/'+my_data.uid).set({s:state, n:my_data.name, r : my_data.rating, opp_id : small_opp_id, g:game_id,tm:'TMS'})
+	
 }
 
 confirm_dialog = {
@@ -7998,7 +8002,7 @@ keep_alive = function() {
 		
 	if (document.hidden) return
 	//my_ws.ref('players/'+my_data.uid+'/tm').set('TMS')
-	set_state({});
+	set_state({keep_alive:1});
 }
 
 function kill_game () {
