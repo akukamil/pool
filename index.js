@@ -1207,7 +1207,7 @@ req_dialog={
 		//отправляем информацию о согласии играть с идентификатором игры и сидом
 		game_id=hf.randIntInc(1,9999)
 		const seed = hf.randIntInc(1,9999)
-		my_ws.ref(`players/${opp_data.uid}/inbox`).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),cue_id:my_data.cue_id,game_id,seed})
+		my_ws.ref(`players/${opp_data.uid}/inbox`).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed})
 
 		main_menu.close();
 		lobby.close();
@@ -4620,7 +4620,7 @@ common={
 	opp_aiming_dir:0.001,
 	on:0,
 	
-	activate(seed){
+	async activate(seed){
 
 		sound.play('start2')
 		this.on=1
@@ -4628,6 +4628,10 @@ common={
 
 		//расстанавливаем по треугольнику и перемешиваем------------------------
 		this.init_triangle()
+		
+		//
+		if (opponent===online_game)
+			opp_data.cue_id=await my_ws.ref('players/'+opp_data.uid+'/cue_id').get()||1
 
 		//показываем и заполняем мою карточку
 		anim3.add(objects.my_card_cont,{y:[-200,objects.my_card_cont.sy,'linear']}, true, 0.3)
@@ -7588,7 +7592,6 @@ lobby={
 
 		//устанаваем окончательные данные оппонента
 		opp_data.uid=lobby.opp_uid
-		opp_data.cue_id=data.cue_id
 
 		//закрываем меню и начинаем игру
 		await lobby.close();
