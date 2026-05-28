@@ -7105,6 +7105,7 @@ lobby={
 			card.avatar.visible = true
 			card.avatar_frame.visible = true
 			card.name_text.visible = true
+			card.t_country.visible = true
 
 			card.name=params.name
 			card.name_text.set2(params.name,105)
@@ -7156,6 +7157,7 @@ lobby={
 			card.avatar1_frame.visible = false;
 			card.avatar2_frame.visible = false;
 			card.name_text.visible = false;
+			card.t_country.visible = false;
 
 			//Включаем элементы стола
 			card.table_rating_hl.visible=true;
