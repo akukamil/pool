@@ -3441,7 +3441,7 @@ online_game={
 	connected:1,
 	disconnect_timer:0,
 	
-	activate(seed, turn){
+	async activate(seed, turn){
 
 		//если открыты другие окна то закрываем их
 		if (sp_game.on) sp_game.close()
@@ -3454,7 +3454,7 @@ online_game={
 
 		my_turn=turn;
 		opponent=this	
-		common.activate(seed)	
+		await common.activate(seed)	
 
 		//устанавливаем локальный и удаленный статус
 		set_state({state:'p'});
@@ -4630,8 +4630,11 @@ common={
 		this.init_triangle()
 		
 		//
-		if (opponent===online_game)
-			opp_data.cue_id=await my_ws.ref('players/'+opp_data.uid+'/cue_id').get()||1
+		if (opponent===online_game){
+			opp_data.cue_id=await my_ws.ref('players/'+opp_data.uid+'/cue_id').get()
+			opp_data.cue_id??=1			
+			
+		}
 
 		//показываем и заполняем мою карточку
 		anim3.add(objects.my_card_cont,{y:[-200,objects.my_card_cont.sy,'linear']}, true, 0.3)
