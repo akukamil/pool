@@ -1370,8 +1370,8 @@ chat={
 
 		
 		
-		//fbs.ref('blocked/'+uid).set(Date.now());
-		//fbs.ref('inbox/'+uid).set({message:'CHAT_BLOCK',tm:Date.now()});
+		my_ws.ref('blocked/'+uid).set(Date.now());
+		my_ws.ref(`players/${uid}/inbox`).set({message:'CHAT_BLOCK',tm:Date.now()});
 		const name=await my_ws.ref(`players/${uid}/name`).get();
 		const msg=`Игрок ${name} занесен в черный список.`;
 		my_ws.ref('chat').push({uid:'admin',name:'Админ',msg,tm:'TMS'})
@@ -7261,11 +7261,6 @@ lobby={
 
 	close_table_dialog() {
 		
-		if (anim3.any_on()) {
-			sound.play('locked');
-			return
-		};
-		
 		sound.play('close');
 		anim3.add(objects.td_cont, {x: [objects.td_cont.x, 800, 'linear']}, false, 0.1);
 	},
@@ -7521,11 +7516,6 @@ lobby={
 	},
 
 	close_invite_dialog() {
-
-		if (anim3.any_on()) {
-			sound.play('locked');
-			return
-		};
 
 		if (!objects.invite_cont.visible) return;
 		
@@ -8518,6 +8508,9 @@ async function init_game_env(p) {
 	//	my_data.name=`${my_data.name} (${my_data.country})`
 
 	my_data.name=my_data.name.replace(/\s\([A-Z]{2}\)$/, '');
+	
+	objects.id_log.text=['Проверяем блокировку... ','Black list check...'][LANG]
+	my_data.blocked=await my_ws.ref('blocked/'+my_data.uid).get()||0
 
 	//загружаем мои данные в кэш
 	players_cache.update_params(my_data.uid,{pic_url:my_data.pic_url,rating:my_data.rating,name:my_data.name});
