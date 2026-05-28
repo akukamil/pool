@@ -1571,13 +1571,14 @@ chat={
 
 		if (my_data.games<this.games_to_chat){
 			const left_to_play=this.games_to_chat-my_data.games
-			//pmsg.add({t:`Только для игроков сыгравших более ${this.games_to_chat} игр.\nОсталось сыграть: ${left_to_play}`,snd:'locked'})
+			sys_msg.add(`Только для игроков сыгравших более ${this.games_to_chat} игр. Осталось сыграть: ${left_to_play}`)
 			return
 		}
 
 		//оплата разблокировки чата
 		if (my_data.blocked){
-
+			sys_msg.add('Вы в черном списке!')
+			return
 			let block_num=await my_ws.ref('players/'+my_data.uid+'/block_num').get();
 			block_num=block_num||1;
 			block_num=Math.min(9,block_num);
