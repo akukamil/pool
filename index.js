@@ -1009,11 +1009,11 @@ class player_mini_card_class extends PIXI.Container {
 		this.rating_text2.x=150.1;
 		this.rating_text2.y=56;
 
-		this.t_country=new PIXI.BitmapText('', {fontName: 'core_sans_ds',fontSize: 25,align: 'center'});
+		this.t_country=new PIXI.BitmapText('', {fontName: 'core_sans_ds',fontSize: 20,align: 'center'});
 		this.t_country.tint=0xffff00;
 		this.t_country.anchor.set(1,0.5);
-		this.t_country.x=100;
-		this.t_country.y=60;
+		this.t_country.x=95;
+		this.t_country.y=65;
 		this.t_country.tint=0xaaaa99;
 
 		this.name1="";
@@ -7110,6 +7110,8 @@ lobby={
 			card.name_text.set2(params.name,105)
 			card.rating=params.rating
 			card.rating_text.text=params.rating
+			
+			card.t_country.text=players_cache[card.uid].country||''
 
 			card.visible=true
 
@@ -7199,9 +7201,12 @@ lobby={
 		for (const card of objects.mini_cards){
 			if (!card.visible) continue
 
-			if (card.type==='single')
-				if (card.uid===uid)
-					card.avatar.set_texture(pdata.texture)
+			if (card.type==='single'){
+				if (card.uid===uid){
+					card.avatar.set_texture(pdata.texture)					
+					card.t_country.text=pdata.country||''
+				}				
+			}
 
 			if (card.type==='table'){
 				if (card.uid1===uid)
@@ -7903,6 +7908,12 @@ players_cache={
 			player.texture=await this.my_texture_from(player.pic_url)
 		}
 
+		//загружаем аватар если нет данных
+		if (!player.country) {
+			console.log(`загружаем country для ${uid} ${player.name}, заявитель ${params.source}`)
+			player.country=await my_ws.ref('players/'+uid+'/country').get()
+		}
+
 		//переносим в req_dialog
 		//req_dialog.cache_updated(uid,player)
 
@@ -8456,9 +8467,8 @@ async function init_game_env(p) {
 	window.addEventListener('resize', resize);
 
 	//запускаем главный цикл
-	main_loop();
-
-
+	main_loop()
+	
 	await main_loader.load2()
 
 	anim3.add(objects.id_cont,{y:[-500,objects.id_cont.sy,'linear']}, true,0.5);
@@ -8472,6 +8482,14 @@ async function init_game_env(p) {
 	
 	my_ws.close_callback=()=>{sys_msg.add(['Связь с сервером потеряна!','Connection to server is lost!'][LANG])}
 	my_ws.connect_callback=()=>{sys_msg.add(['Связь с сервером восстановлена!','Connection to server is restored!'][LANG])}
+
+	window.addEventListener('offline', () => {
+		sys_msg.add(['Связь с сервером потеряна!','Connection to server is lost!'][LANG])
+	});
+	
+	window.addEventListener('online', () => {
+		sys_msg.add(['Связь с сервером восстановлена!','Connection to server is restored!'][LANG])
+	});
 
 	//загружаем остальные данные из файербейса
 	objects.id_log.text=['загрузка данных игрока... ','Loading players data...'][LANG]
