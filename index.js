@@ -8576,6 +8576,8 @@ async function init_game_env(p) {
 
 	//номер комнаты (для плейгамы отдельно)
 	ROOM_NAME='states1'
+	
+	my_ws.safe_send({cmd:'on_close',path:ROOM_NAME+'/'+my_data.uid,action:1})
 
 	//удаляем из лобби перед закрытием
 	window.addEventListener("beforeunload", () => {
