@@ -7433,7 +7433,7 @@ lobby={
 
 		console.log('lobby connected');
 		
-		this.global_players=await my_ws.ref(ROOM_NAME).get()
+		this.global_players=await my_ws.ref(ROOM_NAME).get()||{}
 		this.players_list_updated(this.global_players)
 		
 		my_ws.ref(ROOM_NAME).ss_child_changed(s=>{
