@@ -3460,7 +3460,7 @@ online_game={
 		//устанавливаем локальный и удаленный статус
 		set_state({state:'p'});
 
-		sound.play('start2');
+		//sound.play('start2');
 
 		//показываем кнопки
 		objects.game_buttons.visible=true;
@@ -4619,6 +4619,7 @@ common={
 	ball_placement_seed:0,
 	prv_call:0,	
 	opp_aiming_dir:0.001,
+	help_info_on:1,
 	on:0,
 	
 	async activate(seed){
@@ -4656,6 +4657,10 @@ common={
 
 		//общие параметры
 		objects.bcg.texture=assets.main_bcg_img;
+		
+		//
+		this.help_info_on=1
+		objects.help_info_disable.texture=assets.help_info_dis1
 
 		//информация о забитых шарах
 		this.potted_balls=[]
@@ -5833,7 +5838,17 @@ common={
 		set_state({state:'o'})
 	},
 
+	disable_info(){
+		
+		this.help_info_on=0
+		objects.help_info_disable.texture=assets.help_info_dis2
+		
+	},
+
 	show_info(t){
+		
+		if (!this.help_info_on) return
+		
 		objects.t_help_info.text=t;
 		anim3.add(objects.help_info_cont,{y:[600,objects.help_info_cont.sy,'easeOutBack']},true,0.25,false);
 		objects.info.text=t;
@@ -6467,8 +6482,7 @@ main_menu={
 
 		if (game_platform==='VK')
 			anim3.add(objects.vk_buttons_cont,{alpha:[0,1,'linear']}, true, 0.5);
-
-		levels.load_stat();
+	
 
 		some_process.main_menu=this.process;
 		//кнопки
@@ -8511,6 +8525,7 @@ async function init_game_env(p) {
 	my_data.nick_tm = other_data?.nick_tm || 0;
 	my_data.avatar_tm = other_data?.avatar_tm || 0;
 	levels.stat=other_data?.lev_stat || []
+	if (typeof(levels.stat)==='number')levels.stat=[levels.stat]
 
 	//из локального хранилища
 	my_data.board_id = (other_data?.board_id)||1;
@@ -8590,6 +8605,7 @@ async function init_game_env(p) {
 	//ждем загрузки чата
 	objects.id_log.text=['загрузка общего чата... ','Loading chat...'][LANG]
 	await chat.init()
+	objects.id_log.text='...'
 
 	//обновляем енергию и время
 	//await common.check_bonuses()
@@ -8616,7 +8632,7 @@ async function init_game_env(p) {
 
 	//убираем попап
 	some_process.loup_anim = function(){}
-	setTimeout(function(){anim3.add(objects.id_cont,{y:[objects.id_cont.sy, -500,'linear']}, false, 0.4)},500);
+	setTimeout(function(){anim3.add(objects.id_cont,{y:[objects.id_cont.sy, -500,'linear']}, false, 0.4)},3500);
 
 
 	//убираем элементы загрузки
