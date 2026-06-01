@@ -3704,6 +3704,9 @@ sp_game={
 		objects.balls.forEach(b=>{b.on=0;b.visible=false})
 
 		objects.spgame_cont.visible=true;
+
+		objects.help_info_disable.visible=false
+		common.help_info_on=1
 		
 		//кнопка выхода
 		objects.exit_btn.visible=true
@@ -4659,6 +4662,7 @@ common={
 		objects.bcg.texture=assets.main_bcg_img;
 		
 		//
+		objects.help_info_disable.visible=true
 		this.help_info_on=1
 		objects.help_info_disable.texture=assets.help_info_dis1
 
