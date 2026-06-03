@@ -4592,6 +4592,7 @@ bot_game={
 	close(){		
 		clearTimeout(this.move_timer)
 		this.on=0
+		opp_data.uid=''
 		common.move_on=0
 	}	
 
@@ -6221,6 +6222,7 @@ common={
 		objects.swords.visible=false
 		objects.my_card_cont.visible=false
 		objects.opp_card_cont.visible=false
+		opp_data.uid=''
 		set_state({state:'o'})		
 	},
 
