@@ -2066,11 +2066,11 @@ fin_dialog={
 		sound.play('click')
 
 		objects.fin_dlg_cont.visible=false;
-		
+		const opp_uid=opp_data.uid
 		//пишем отзыв и отправляем его
 		const fb = await keyboard.read();
 		if (fb.length>0) {			
-			my_ws.ref('fb/'+opp_data.uid).push({uid:my_data.uid.substring(0,7),name:my_data.name,f:fb,tm:'TMS'})
+			my_ws.ref('fb/'+opp_uid).push({uid:my_data.uid.substring(0,7),name:my_data.name,f:fb,tm:'TMS'})
 		}
 		this.close()
 		//this.p_resolve('close');
