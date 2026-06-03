@@ -4592,7 +4592,6 @@ bot_game={
 	close(){		
 		clearTimeout(this.move_timer)
 		this.on=0
-		opp_data.uid=''
 		common.move_on=0
 	}	
 
