@@ -2721,7 +2721,7 @@ pref={
 	yndx_catalog:0,
 	shop_cues_ids:0,
 	shop_catalog:0,
-	vk_lev_prices:[{id:'cue_lev1',price:21},{id:'cue_lev2',price:28},{id:'cue_lev3',price:36},{id:'cue_lev4',price:44},{id:'cue_lev5',price:54},{id:'cue_lev6',price:64},{id:'cue_lev6',price:75}],
+	vk_lev_prices:[{id:'cue_lev1',price:'21'},{id:'cue_lev2',price:28},{id:'cue_lev3',price:36},{id:'cue_lev4',price:44},{id:'cue_lev5',price:54},{id:'cue_lev6',price:64},{id:'cue_lev6',price:75}],
 
 	init(){
 		
@@ -2740,7 +2740,7 @@ pref={
 		
 		if (game_platform==='YANDEX')
 			this.shop_catalog=await yndx_payments.getCatalog()			
-		if (game_platform==='VK')
+		else
 			this.shop_catalog=this.vk_lev_prices
 				
 		//загружаем кии
@@ -2772,6 +2772,11 @@ pref={
 		
 		if (mx>650&&my>60&&mx<700&&my<100)
 			objects.shop_cont.visible=false
+		
+		if (game_platform!=='YANDEX'&&game_platform!=='VK'){
+			sys_msg.add(['Только для Яндекса и ВК!','Not available!!'][LANG]);
+			return
+		}
 		
 		if (mx>570&&my>140&&mx<660&&my<170)	this.make_purchase(this.shop_cues_ids[0])
 		if (mx>570&&my>230&&mx<660&&my<260)	this.make_purchase(this.shop_cues_ids[1])
@@ -3683,7 +3688,6 @@ sp_game={
 	levels_data:0,
 
 	activate(level){
-
 
 		//устанавливаем локальный и удаленный статус
 		set_state ({state : 'b'});
@@ -4637,7 +4641,7 @@ common={
 		//
 		if (opponent===online_game){
 			opp_data.cue_id=await my_ws.ref('players/'+opp_data.uid+'/cue_id').get()
-			opp_data.cue_id??=1			
+			opp_data.cue_id??=0			
 			cues_textures[opp_data.cue_id]||=await this.load_cue_texture(opp_data.cue_id)
 		}
 
