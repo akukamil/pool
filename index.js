@@ -5848,7 +5848,6 @@ common={
 		objects.swords.visible=false
 		objects.my_card_cont.visible=false
 		objects.opp_card_cont.visible=false
-		opp_data.uid=''
 		set_state({state:'o'})
 	},
 
