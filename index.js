@@ -2761,7 +2761,7 @@ pref={
 	
 	},
 	
-	show_down(e){
+	shop_down(e){
 		
 		if (anim3.any_on()) {
 			sound.play('locked');
