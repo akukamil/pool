@@ -5338,7 +5338,7 @@ common={
 		objects.stick.y=objects.stick.sy=objects.balls[15].y;
 		objects.guide_orb.x=objects.balls[15].x;
 		objects.guide_orb.y=objects.balls[15].y;
-		objects.stick.alpha=0.8;
+		objects.stick.alpha=0.9;
 
 		//Обновляем уровень
 		this.update_power_level(0);
