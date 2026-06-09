@@ -4811,7 +4811,7 @@ common={
 	
 	cue_id_to_lev(id) {		
 		
-		if (id===0) return 1
+		if (id==0) return 1
 	
 		const cue_name=cues_id_to_name[id]
 		let sum = 0
