@@ -3608,12 +3608,19 @@ online_game={
 
 		//снижаем уровень кия
 		if (my_data.cue_id){
-			my_data.cues_data[my_data.cue_id]--;
+			
+			if (my_data.cues_data[my_data.cue_id])
+				my_data.cues_data[my_data.cue_id]--
+			else
+				my_data.cues_data[my_data.cue_id]=0
+			
 			if (my_data.cues_data[my_data.cue_id]<=0){
 				delete my_data.cues_data[my_data.cue_id]
 				common.set_cue_for_hit_level(0)
 				sys_msg.add(['Ресурс кия закончился!','Cue is exhausted!'][LANG])
 				my_data.cue_id=0
+				common.change_only_stick(my_data.cue_id)
+				common.set_cue_for_hit_level(my_data.cue_id)
 			}
 
 			//сохраняем...			
