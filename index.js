@@ -2715,7 +2715,7 @@ pref={
 	cur_board_id:1,
 	cur_pic_url:'',
 	max_cue_resource:[100,100,120,150,200,300,500,1000],
-	cue_lev_to_res:{0:999,1:50,2:70,3:100,4:120,5:150,6:200,7:300}
+	cue_lev_to_res:{0:999,1:50,2:70,3:100,4:120,5:150,6:200,7:300},
 	hours_to_nick_change:0,
 	hours_to_photo_change:0,
 	yndx_catalog:0,
