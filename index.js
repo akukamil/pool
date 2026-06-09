@@ -10,6 +10,9 @@ const TINTS={'red':{bcg:0xff7777,strip:0xff0000},'blue':{bcg:0x9999ff,strip:0x00
 const STAT_LS_KEY='pool_sp_stat';
 const COM_URL='https://akukamil.github.io/com'
 
+const cues_id_to_name=['Standard','1-5_Billionaire','10_Years','5deMayo','5Million','5th1','5th2','5th3','6th_Birthday_Advanced','6th_Birthday_Premium','6th_Birthday_Standard','8BallLove','8Bit','8Bit_Pool','8th_Anniversary','8_Ball','9_Ball','9_Ball_Master','Abyssal_Kraken','Academy','Academy_Emblem','Academy_Honor','Ace_Advantage','Ace_Of_Pool','Ace_of_Spades','Action','Adventure','Affluent','Aim_Ruler','Air_Mile','Albania','Alchemy_Armor','Alex_Pereira','Algeria','Alien','Alien_Tournament','Alien_Win_Streak','All_Star','Alumbrada','Amber','Amethyst','Amethyst_Fusion','Amsterdam','Amthyste_Amour','Ancient_Marble','Ancient_Rome','Ancient_Sphynx','Angry_Birds','Angry_Birds_Win_Streak','Ankh','Anniversary_Fireworks','Antique','Anubis','Apache','Apex_Colossus','Arachnid','Arcade_Combo','Arcanist','Archangel','ArcheryKing','Archon','Argentina','Aristocrat','Arizona_Desert','Artifact','Ash','Atlantean','Atlantis','Aureate','Australia','Austria','Autumn_Pine','Awakened_Vampire','Axion','Aztec','Azure_Alloy','Azure_Dragon','Backpacking','Bahrain','Baile','Bali_Goa_Gajah','Ballbreaker','Ballerina_Cappuccina','Balls','Bangkok_Temple','Bangladesh','Banshee','Barbaric','Barcelona','Baseball_Clash','Basket','Basketball_Arena','Bastion','Battered','BeachballCue','Beam','Beanstalk','Bear','Bearpaw','Beast_Mode','Beech','Beefeater','Begginer','Belgium','Berlin_Platz','Big_Bad_Wolf','Big_Ben','Big_Cat','Biker','Billionaire','Binder','Birthday_Bash','Birthday_Party','Bishop','Bismuth_Cue_st','Bitstream','Black','BlackHole','Blackmatte','Black_Bear','Black_Diamond','Black_Quill','Black_Tortoise','Blessed_Moon','Bloom_of_Four','Blowout','Blueprint','Blue_Hope','Blue_Hornet','Bomb','Boo_Cobweb','Bosnia','Bottle_Rocket','Boulevard','BountyHunter','BowlingKing','Bo_Staff','Brass_Beat','Brazil','Breaker','Bride_of_Monster','Bright_Diamond','Broadsword','Bronze','Bron_Breakker','Broodmother','Brr_Brr_Patapim','Brutal','Brute_Silverback','Buenos_Aires','Bulgaria','Cactus','Cafe_Racer','Cage_Match','Cairo','Cairo_Kasbah','Calavera','Caliburn','Camouflage','Canada','Candle_Shadow','Candy','Cant_Touch_This','Capitol','Capo','Cappuccino_Assassino','CarbonFiber','Carnival_Tournament','Carrom','Catrina','Celestial_Void','Cell','Ceremonial_Jade','Chainbreaker','Chalklands','Chalk_Fu_Knockout','Champion','Champions_Belt','Chantcaller','Cherry_Amour','Cherry_Cruiser','Chicago','Chicago_Club','Chicago_Lights','Chile','Chimera','Chimpanzini_Bananini','China','ChineseNewYear','Chinese_Fortune','Chinese_Pig','Chinese_Wealth','Chocolate_Black','Chocolate_White','Christmas','Christmas_2020','Christmas_2021','Christmas_Tree','Chuck','Cinemagic','Circuit_Breaker','Classic','Classified','Clever_Fang','Clown_Princess','Clown_Wrath','CM_Punk','Cobra','Cody_Rhodes','Collectors_Vault','Colombia','Colossus','Columbina','Come_At_Me_Bro','Composite','Conjured_Monster','Constellation','Cosmic','Country_Club','Court_King','Covert','Cowhide','Crazy_Eights','Cricket','Crimson','Crimson_Moon','Crimson_Octopus','Croatia','Crocodile','Crownbreaker','Crucible','Crucible_Champion','Crucible_Tournament','Crucible_Win_Streak','Crystal','Crystallized','Crystal_Blade','Cthulhu','Cue_1000','Cuisine','CupidArrow','Cupid_Cue_','Cursed','Cursed_Moon','Cursed_Sarcophagus','Cutlass','Cyan_Titan','Cyberborn','Cyberpunk','Cyberspace','Cyber_Ninja','Cyber_Tokyo','Cyborg','Czar','Dagger','Dancer','Dark_Lord','Dart','Dazzling_Sapphire','Decayed_Lich','Decoy','Deepavali','DeepSea','Demolition','Demon','Demon_Blade','Demon_God','Denmark','Deputy','Desfile','Diamond','Diamond_Swan','Dia_De_Los_Muertos','Digitized','Directors_Cut_','Disco','Disintegrator','Diwali','Diwali_Dhamaka','Diwali_Jewel','Dog_and_Bone','Domination','Dominican_Republic','Doomsday','Double_Agent','Double_Vision','Dragons_Bane','Dragon_Fist','Dragon_Knight','Dragon_Orb','Dragon_Win_Streak','Dreadnought','Dreamwalker','Drift','Dubai_Golden','Duelist','Dynasty','Eagle','Earth1','Earth2','Earth3','Earth_Elemental','Easter','Easter2014','Ebony','Eclipse','Ecuador','Egypt','Eldritch_Horror','Elegant','Elemental_Master','Elementary','Elven','Emerald','Emerald_Collection','Empire','Enforcer','Engine','EpicLegends_BattleAngel','EpicLegends_Devil','EpicLegends_GiantSnake','EpicLegends_GiantSpider','EpicLegends_Sandworm','EpicLegends_Werewolf','Equalizer','Eros','Everlasting','Evertrue','Evil_Witch','Exalted','Excalibur','Executive','EXO_Frame','Exquisite','Faint_Reflection','Faith','Fall1','Fall2','Fall3','Fall_Harvest','Fantasy','Farmgirl','Far_Future','FestivalColours_Blue','FestivalColours_Green','FestivalColours_Orange','FestivalColours_Red','Fetch','Film','Final_Boss','Fine_tuned','Finland','Firebird','Fireworks','Fire_King_Cue','Fire_Rooster','First_Class','Flame','Flaming_8','Flaming_Hot_Rod','Flaming_Rooster','Flip_Skater','Fluorescent','Football_Strike','Force_Commander','Forsaken_Harvester','Forsaken_Kahn','Forsaken_Odysseus','Forsaken_Tempest','Forsaken_Wolf','Fountain_Pen','France','Frank','frankencue','Freedom','Frost','Frostbite','Frostblight','Frostborn','Frost_Bastion','Frost_Break_Shot','Frost_Crocodile','Frost_Fanatic','Furnace','Fusion_Drive','Gadgeteer','Gala','Galaxy','Gamechanger','Gaping_Maw','Gargoyle','Garnet','Garuda','Geiger_Gauge','Gemini','GenghisKhan','German','Getaway','Gift','Gilded','Gingerbread','Git_Gud','Gladiator','Glam','Glimmering','Glitch','Glory','Glowing_Guardian','GOAT','Godlike','Gold','GoldenAce','GoldenBreak','Golden_Age','Golden_Ball','Golden_Hoof','Golden_Tower_Cue','Gold_Crescent','Gold_Crucible','Gold_Dragon','Gold_Elemental','Gold_Pool_Pass','Gold_Robot','Gold_Speed','Golf','Gonna_Be_Okay','Gorgon','Grandiose','Grandliner','Grand_Champion','Grand_Finale','Grand_Heist','Graveborn','Greatsword','Great_Eagle','Great_Void','Greece','Guard','Guardian_Lion','Guardian_Spirit','Guardian_Tiger','Guard_Dog','Guerrilla','Gungnir','Gunman','Gun_Metal','Guru_Bank_Shot','Guru_Break_Shot','Guru_Denial_Shot','Guru_Kiss_Shot','Guru_Trick_Shot','Hades','HallowDracula','Halloween','Halloween2014','HallowPumpkin','HallowSkull','Harbinger','Harpy','Harvester','Haters_Gonna_Hate','Headbanger','Healing','Heavy_Metal','Heavy_Mettle','Heist','Heist_Getaway','Hellhound','Hellraiser','Herculean','Hercules','Heritage','Hero','Hidden_Hieroglyphs','Hidden_Ninja','High_Rollers','High_Score','High_Speed','High_Stakes','High_Voltage','Holotech_V1','HongKong','HongKongCountry','Hook','Hoplite','Hula','Hundred_Kicks','Hungary','Hunter','Hype','Hyperspace_Win_Streak','Ice','Ice_Breaker','Ice_Grip','Ice_Tyrant_Cue','Ignition','Illusion','Imperial_Dynasty','Independence_Topaz','India','India_Moti','India_Sapphire','Indonesia','Indonesia_Premium','Industrial','Infected','Inferno','Infiltrator','Inheritance','insane','Intercalary','Interrail','Invader','Invisible','Iran','Iraq','Ireland','Iridescent_Orb','Iridian_Tiger','Iron','Ironborn','Iron_Beast','Israel','Israel_Adesanya','Italy','Ivory_Ebony','Jackal','Jack_Oscare','Jade','Jade_Relic','Jaeger','Jaguar','Jakarta_Volcano','Jake','Japan','Japanese','Jazz','Jester','JohnCena','Joker','Jordan','Juggernaut','Jungle_Secret','Kaboom','Kaiju','Kansas_Gear','Karuta','Kickoff','King','KingAlexander','KingCaesar','Kingdom_Key','KingOdysseus','Kingpin','King_Arthurs','King_Khan','King_of_Diamonds','King_of_Thorns','King_Pig','King_Solomon','Kitsune','Knave_of_Clubs','Knight','Kraken','Kusanagi','Kuwait','Kyoto_Assassin','Kyoto_Conqueror','Kyoto_Liberator','Kyoto_Monk','Kyoto_Samurai','Lapis_Lazuli','Laser','Last_Baller','Last_Judgement','Las_Vegas_Full_House','Lavaforged','Lavish','Lawmaker','Lebanon','Legacy_Strike','Legion','Leopard','Lethal_Leaves','Leviathan','Liberty_Bell','Lightbulb','Lightening','Lightning_Hydra','Limit_Breaker','Liril_Laril','Lisbon_Summer','Lockstocked','Logic_Bomb','London','Lost_City','Lost_Pyramid','Luchador','Lucky8','Lucky_Horseshoe','Lunar_New_Year','Lunar_Rabbit','Lunar_Year','Lux','Macaw','Machinist','Madness','MadridPM','Magician','Majestic','Malaysia','Manchester_Quays','Manor_Gate','MardiGras2014','Mariachi','Marshal','Maschera','Masked','Masquerade','Master','Mastermind','Mastery','Master_Guru','Matchmaker','Mecha','Mechatronic','Mecha_Tournament','Mecha_Win_Streak','Medi_Shot','Medusa','Melbourne_Star','Merlins','Metalhead','Mexico','Mexico_Sun_Pyramid','Midnight_Mirage','Mighty_Lion','Millionaire','MindBending','Ming','Mini_Football','Minotaur','Miracle','Mobile_Unit','Mob_Gold','Modern','Modulator','Monarch','Mongol','Monster','Monster_Lab','Moonlance','Moonlight_Beast','Moonlight_Cue_Sta','Moonlight_Devil','Moonlight_Manor','Moonlight_Tournament','Moonstone','Moon_Dust','Morocco','Moscow','Movie_Stars','Mumbai_Mahal','Muramasa','Muscle','Music','MVP','Mythical','Nature_Alloy','Nature_Dynamo','Nature_Frozen','Nature_Fury','Nature_Tempest','Nature_Terra','Nebula','Necromancer','Nemesis','Neon','Neon_Dallas','Neon_Lasso','Neon_Rodeo','Netherlands','NewYear2012','NewYear2015','NewYear2018','NewYear2020','NewZealand','New_Year','New_Year_2022','New_Year_2023','Nigeria','Nightclub_Singer_Cue','Nightmare','Night_Owl','Ninja','Ninjato','Ninja_Path','Ninja_Soul','Ninja_Will','Noble','Nocturnal','Norseman','Norway','Nuclear_Nemesis','NYPlaza','Oak','Oathkeeper','Obsidian_Wings','Occultist','Ofrenda','Oklahoma_Red_Dirt','Oktoberfest2','Oktoberfest3','Oktoberfest_Standard','Old_Continent','Old_Rusty','Olympic1','Olympic2','Olympic3','Olympus_Tournament','Oman','Ominous','Oni','Online_Soccer_Manager','Onyx_Ascendant','Onyx_Rush','Onyx_Tiger','Opti_Shot','Opulent','Ostara','Ottoman','Outbreak','Outbreak_Tournament','Outlaw','Outpost','Overclocked','Overseer','Ox','Oxy_Tank','Paddle_King','Paddy_Pimblett','Pakistan','Palace_Tower','Palladium','Palm_Springs','Panama','Pandoras','Parade','Paris_Chteau','Party_Crasher','Passport','Patchworking','Patriot','Pawn','Pendragon','Permafrost','Persia','Peru','Phantom','Pharaoh','Pharaohs_Win_Streak','Phillipines','Phoenix','Pied_Piper','Pilgrim','Pine','Pirate','Pixel_Knight','Pixel_Power','Plasma','Plastic_Explosive','Platinum','Platinum_Viper','Plesio_Plunge','Plunderer','Poland','PoolFan1','PoolFan2','PoolFan3','Poolfather_Win_Streak','Pool_Academy','Pool_Chronicles','Pool_Gala','Pool_Party','Pool_Pass','Pool_Workshop','Portugal','Poseidon','Poseidons_Pride','Posh','Potter','PowerWash','Power_Break','Power_Chord','Power_Surge','Precision','Precision_Point','Predator_Eagle','Predator_Prey','Predator_Shark','Predator_Tiger','Predator_Viper','Predator_Wolf','Premium_Argentina','Premium_Australia','Premium_Bolivia','Premium_Canada','Premium_Chile','Premium_Colombia','Premium_Costa_Rica','Premium_Dominican_Republic','Premium_El_Salvador','Premium_Honduras','Premium_Mexico','Premium_New_Zealand','Premium_Peru','Premium_Puerto_Rico','Premium_Season','Premium_Spain','Premium_United_Kingdom','Premium_United_States','Primal','Primal_Crocodile','Prime','Prismatic_Jackal','Prodigy','Professional_Brass','Professional_Bronze','Professional_Copper','Professional_Gold','Professional_Silver','Prospector','Prosperity','Proton_Eliminator','Ptero_Peril','PuertoRico','PumpkinGift','Purple_Pearl','Pyromancer','Qatar','Quarterback','Queen','Queen_of_Hearts','Quill','Ra','Radiant_Heart','Radiant_Ruby','Rad_Rattler','Rail_Pass','Rainbow_Tusk','Ramadan','Rangoli_Joy','Rapier','Raptor_Rush','Raven','Ravenheart','Reaper','Reassembled_Monster','Reckoning','Recoiler','Red','Red_Revenge','Refraction','Regal','Regal_Trident','Reign','Relentless','Relic','Requiem','Reverse_Shot','RGB','Rhea_Ripley','Rio','Rising_Power','Ritz','RobinHood','Romania','RomanReigns','Roman_Reigns','Rome_Colosseum','Rose','Rosewood','Route_66','Royal_Blue','Royal_Crown','Royal_Guard','Royal_Scepter','Ruby','Ruins','Ruler','Rune_Sword','Russia','Sabertooth','Sachin_Tendulkar','Sage_Strike','Sakura','Sakura_Kunai','Samba','Samurai_Tournament','Samurai_Win_Streak','San_Francisco','Sapphire','SashaBanks','SaudiArabia','Savage_Syndicate','Scimitar','Scorpion','Scrap','Scratch','Scuba','Sean_OMalley','Season_100','Season_of_Seasons','Sentinel','Seoul_Tower','Serape','Serbia','Serenity','Serpent_Strike','Shaman','Shamrock','ShangaiDragon','Shanghai_Oriental','ShangriLa','Shark','Sheep','Sheriff','Sherlocks','Shimmering_Pearl','Shogun','Shuriken','Signature_Spin','Silver','SilverStreak','Singapore','Singapore2','Singularity','Sirens_Call','Sir_Bors','Sir_Galahad','Sir_Gawain','Sir_Lancelot','Sir_Percival','Skele-ton_O_Fun','Skull','Skull_Screamer','Skyrocket','Slippery_Ice_Tournament','Smoke_Grey','Snake','Sniper','Snowfall','Snow_Patch_Win_Streak','Soccer1','Soccer2','Soccer3','SoccerStars','Soccer_Stars_Tournament','Soccer_Trophy','SolarSavior','SolarSystem','Sonic_Boom','SouthAfrica','SouthKorea','Sovereign','Space','Space_Colony','Space_Cowboy','Space_Stalker','Spain','Sparkler','Sparkling_Emerald','Sparta','Spectra','Spectral','Speed','Spellbinder','Spine_Shredder','Spin_Wizard','Spirit','Spiritcaller','Spitfire','Sport_Madness','Spray_Can','Spring15','Sri_Lanka','Starbound','Stardust','Starfighter','Starlight','Starry_Gaze','Starry_Night','Starship','Starview','Star_Spangled','STAY','Steady','Steamborn','Steampowered','Steam_Engine','Steel_Edge','Stella','SteveAustin','Stinger','Stonewatcher','Stone_Age','Stormbinder','StPatrick2014','StPatrick2016','StPatricks','Streak','Streampunk','Striker','Striker_MK_II','Strike_Zone','St_Patricks_2021','Subscription_Jupiter','Subscription_Vulcan','Subway_Surfers','Summer','SummerGift','Summoned_Monster','Sun','Sunken','Sunshade','Sun_Flare','Superbowl','SuperMiracle','Supernova','Superstar','Super_Awesome','Super_Robot','Supreme','Surf_Master','Survivalist','Swashbuckler','Sweden','Switzerland','Swordfish','Sydney','Sydney_Marina','Symbiote','Taiwan','Taking_Candy','Tanto','Tarantula','Taurus','Teak','Terminus','Terraforming','Test_Tube','Test_Type','Texan_Amarillo_','Thailand','TheRock','TheRook','The_Athlete','The_Blues','The_Brain','The_Lost_Luminous','The_Oddball','The_Operator','The_Princess','The_Rebel','ThorsHammer','Thousand_Storms_Spear','ThugLife_Skull','ThugLife_Spike','Thunderbee','Tidal_Serpent','Tiger','Tiki','Time_Master','Time_Rain','Titan','Titanium','Titans_Pride','Tokyo','Tokyo_Warrior','Top_Tier','Torch','Torchbearer','Tormentor','Toronto_Maple','Tower_Guard','Traditional','Tralalero_Tralala','Treat','TRex_Triumph','Trick','Trickster','Trident','Trillionaire','Triumph','Trophy','Tropical','Tungsten','Tung_Tung_Tung_Sahur','Tunisia','Turkey','TurkeyThanks','Twisted_Bond','Twisted_Breaker','Twisted_Defender','Twisted_Lion','Twisted_Reaper','Twisted_Samurai','Twist_Beat','UFC','UFC_Champion','UFC_Octagon','UFO','UK','Ukraine','Ultimate_Golf','Undead','Undercover','Underdog','Underground_Circuit','Undertaker','Unhinged','UnitedArabEmirates','Unity','Unstoppable','USA','Valentina_Shevchenko','Valentine','Valentines2014','Valhalla','Valkyrie','Vampire_Hunter','Vault','Vault_Breaking','Vengeance','Vengeful_Treant','Venice_Carnival','Venom_Trickshots','Venom_Winstreak','VerdantDefender','Vermillion_Bird','Vestido','Vibrant','Victory','Victory_Flame','Victor_Von','Vietnam','Viking','Villainous_Win_Streak','Vintage','VIP','Volleyball_Arena','Voodoo','Vulture','V_Rising','Wallys','Walnut','Warlock','Warrior','Webmaster','Whispering_Shade','Whiteglass','White_Rabbit','White_Tiger','Wicked','Wild_Fang','Wild_Panther','Wild_West','Windy_City','Winged_Serpent','Wingman','Winning','WinStreak_Block_Party','WinStreak_CrownJewel','WinStreak_IceLounge','WinStreak_RoyalArena','WinStreak_RoyalJewel','Winter','Winter_Lights','Win_Streak','Wise_Guy','Wishes','Wishing_Cue_Stage_','Witching_Hour','Witch_Broom','Wonderland','World_End','WWE0','WWE1','WWE2','WWE3','WWE_Challenger','WWE_Champion','WWE_Event','Xmas','Xmas2014','Xmas2015','XMasInJuly','XmasQuest01','XmasQuest02','XMAS_2017','XMAS_Puzzle','Yutani','Zebra','Zenith','Zero_Gravity','Zodiac_Aquarius','Zodiac_Aries','Zodiac_Cancer','Zodiac_Capricorn','Zodiac_Leo','Zodiac_Libra','Zodiac_Pisces','Zodiac_Sagittarius','Zodiac_Scorpio','Zodiac_Virgo','Zombie']
+const cues_textures={}
+
 
 r2 = (v)=>{
 	return (v >= 0 || -1) * Math.round(Math.abs(v)*10000)/10000;
@@ -1243,7 +1246,7 @@ chat={
 	kill_next_click:0,
 	delete_message_mode:0,
 	games_to_chat:10,
-	games_to_gif:1000,
+	bonuses_to_gif:3,
 	payments:0,
 	processing:0,
 
@@ -1252,7 +1255,7 @@ chat={
 		this.on=1;
 		anim3.add(objects.chat_cont, {alpha: [0, 1, 'linear']}, true, 0.1);
 		
-		objects.chat_enter_btn.alpha=my_data.games>=this.games_to_chat?1:0.25
+		objects.chat_enter_btn.alpha=my_data.bonuses>=this.bonuses_to_gif?1:0.25
 		//objects.chat_gif_btn.alpha=my_data.games>=this.games_to_gif?1:0.25
 
 		objects.bcg.interactive=true;
@@ -1327,9 +1330,9 @@ chat={
 			return
 		}
 		
-		if (my_data.games<this.games_to_gif){
-			const left_to_play=this.games_to_gif-my_data.games
-			//pmsg.add({t:`Только для игроков сыгравших более ${this.games_to_gif} игр.\nОсталось сыграть: ${left_to_play}`,snd:'locked'})
+		if (my_data.bonuses<this.bonuses_to_gif){
+			const left_to_play=this.bonuses_to_gif-my_data.bonuses
+			sys_msg.add(`Нужно набрать ${this.bonuses_to_gif} звезды. Осталось набрать: ${left_to_play}`)
 			return
 		}
 		
@@ -1640,7 +1643,7 @@ chat={
 		this.on=0;
 		anim3.add(objects.chat_cont,{alpha:[1, 0,'linear']}, false, 0.1);
 		if (objects.chat_keyboard_cont.visible)	keyboard.close()
-		//if (objects.gif_sel_cont.visible) gif_sel.close()	
+		if (objects.gif_sel_cont.visible) gif_sel.close()	
 
 	}
 
@@ -2715,6 +2718,8 @@ pref={
 	hours_to_nick_change:0,
 	hours_to_photo_change:0,
 	yndx_catalog:0,
+	shop_cues_ids:0,
+	shop_catalog:0,
 
 	init(){
 		
@@ -2723,7 +2728,37 @@ pref={
 		if (music_on===null) music_on=1		
 		if (music_on) music.start()
 		this.music_icon_update()
+	
+		//this.show_shop()
 		
+	},
+
+	async show_shop(){
+	
+		if (!this.shop_cues_ids) this.shop_cues_ids=gif_sel.get_unique_int(1,cues_id_to_name.length-1,new Date(SERVER_TM).getDate(),my_data.uid,3)
+		objects.shop_cont.visible=true
+		
+		if (yndx_payments){
+			this.shop_catalog=await yndx_payments.getCatalog()			
+		}
+		
+		
+		//загружаем кии
+		for (let i=0;i<3;i++){
+			const cue_id=this.shop_cues_ids[i]
+			const cue_name=cues_id_to_name[cue_id]
+			const cue_lev=common.cue_id_to_lev(cue_id)
+			cues_textures[cue_id]=await common.load_cue_texture(cue_id)				
+			objects.shop_cues[i].texture=cues_textures[cue_id]
+			objects.shop_cues_names[i].text=cue_name
+			objects.shop_cues_levels[i].text='Уровень: '+cue_lev
+			objects.shop_cues_res[i].text='Ресурс: '+hf.randIntInc(50,1000)
+			
+			const good=this.shop_catalog.find(v=>{return v.id==='cue_lev'+cue_lev})
+			objects.shop_cues_prices[i].text=good.price
+		}	
+		
+	
 	},
 
 	activate(){
@@ -2987,7 +3022,7 @@ pref={
 		if (this.cur_cue_id>7)this.cur_cue_id=7
 		if (this.cur_cue_id<1)this.cur_cue_id=1
 
-		const cur_cue_resource=my_data.cue_resource[this.cur_cue_id]
+		const cur_cue_resource=my_data.cues_data[this.cur_cue_id]
 		const cur_cue_max_resource=this.max_cue_resource[this.cur_cue_id]
 
 		//нельзя восстановить первый кий или максимальный кий
@@ -3079,11 +3114,9 @@ pref={
 	},
 
 	restore_cue(cue_id){
-		
-
 
 		//восстанавливаем максимальный ресурс
-		my_data.cue_resource[cue_id||this.cur_cue_id]=this.max_cue_resource[cue_id||this.cur_cue_id]
+		my_data.cues_data[cue_id||this.cur_cue_id]=this.max_cue_resource[cue_id||this.cur_cue_id]
 
 		this.cue_switch_down(0)
 
@@ -3201,8 +3234,8 @@ pref={
 
 	},
 
-	get_draw_amount(cue_id){
-		return [200,250,265,275,300,310,320,330,350,450,450,450][cue_id];//[1-7]
+	get_draw_amount(cue_level){
+		return [200,250,265,275,300,310,320,330,350,450,450,450][cue_level];//[1-7]
 	},
 
 	async counume_yndx_purchases(){
@@ -3528,16 +3561,17 @@ online_game={
 		some_process.opp_aiming=function(){}
 
 		//снижаем уровень кия
-		if (my_data.cue_id>1){
-			my_data.cue_resource[my_data.cue_id]--;
-			if (my_data.cue_resource[my_data.cue_id]<=0){
-				common.set_cue_level(1);
+		if (my_data.cue_id){
+			my_data.cues_data[my_data.cue_id]--;
+			if (my_data.cues_data[my_data.cue_id]<=0){
+				delete my_data.cues_data[my_data.cue_id]
+				common.set_cue_for_hit_level(0)
 				sys_msg.add(['Ресурс кия закончился!','Cue is exhausted!'][LANG])
+				my_data.cue_id=0
 			}
 
-			//сохраняем...
-			my_ws.make_req('set',{path:`players/${my_data.uid}/cue_data`,val:my_data.cue_resource})
-			
+			//сохраняем...			
+			my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)			
 		}
 
 	},
@@ -3846,7 +3880,7 @@ sp_game={
 		this.prepare_next_move();
 
 		//общие параметры
-		common.init();
+		common.init()
 
 		const desc=type_to_desc[this.cur_level_data.type][LANG];
 		common.show_info(desc);
@@ -3864,7 +3898,7 @@ sp_game={
 		objects.exit_btn.visible=false;
 
 		//показываем направляющие
-		common.update_cue(my_data.cue_id);
+		common.update_cue();
 
 		//ждем закрытия окна
 		await new Promise(resolve => {
@@ -3904,7 +3938,7 @@ sp_game={
 			objects.just_line.width=165*i*0.01
 
 			//показываем направляющие
-			common.update_cue(my_data.cue_id);
+			common.update_cue();
 			await new Promise(resolve => setTimeout(resolve, 10));
 		}
 
@@ -3974,7 +4008,7 @@ sp_game={
 			objects.instr_hand.y=y_path[0]+i*y_d;
 			objects.hit_level.y=objects.hit_level.sy+i*1.27;
 			common.cue_power=1+i*0.127
-			common.update_cue(my_data.cue_id);
+			common.update_cue();
 			await new Promise(resolve => setTimeout(resolve, 10));
 		}
 
@@ -4119,6 +4153,11 @@ sp_game={
 			b.balls_hits_before_potted=0;
 		});
 
+
+		//common.cur_cue_id=0
+		//common.cur_cue_lev=common.cue_id_to_lev(0)
+		//common.change_only_stick(0)
+		
 		objects.stick_direction.visible=true;
 		objects.guide_orb.visible=true;
 
@@ -4487,7 +4526,7 @@ bot_game={
 		objects.my_timer_bar.width=1		
 		
 		//устанавливаем локальный и удаленный статус
-		set_state ({state : 'b'});
+		set_state ({state:'b'})
 	},
 		
 	make_move(){
@@ -4618,6 +4657,8 @@ common={
 	tapped_object:0,
 	drag_on:0,
 	cue_power:5,
+	cur_cue_id:0,
+	cur_cue_lev:1,
 	initial_draw_amount:100,
 	ball_placement_seed:0,
 	prv_call:0,	
@@ -4638,7 +4679,7 @@ common={
 		if (opponent===online_game){
 			opp_data.cue_id=await my_ws.ref('players/'+opp_data.uid+'/cue_id').get()
 			opp_data.cue_id??=1			
-			
+			cues_textures[opp_data.cue_id]||=await this.load_cue_texture(opp_data.cue_id)
 		}
 
 		//показываем и заполняем мою карточку
@@ -4670,9 +4711,6 @@ common={
 		this.potted_balls=[]
 		this.potted_balls_total=[]		
 
-		//получем уровень кия из настроек
-		this.initial_draw_amount=pref.get_draw_amount(my_data.cue_id)
-
 		this.reset_cue();
 
 		objects.board.texture=assets['board'+my_data.board_id]
@@ -4681,11 +4719,11 @@ common={
 		some_process.common=this.process.bind(common)
 
 		//обновляем кий
-		this.set_cue_level(my_data.cue_id);
+		this.set_cue_for_hit_level(my_data.cue_id);
 
-		this.table_state='break';
-		this.my_color='';
-		this.opp_color='';
+		this.table_state='break'
+		this.my_color=''
+		this.opp_color=''
 
 		//шкалы шаров пока невидимы
 		objects.my_potted_balls.forEach(b=>b.visible=false)
@@ -4724,7 +4762,7 @@ common={
 		this.potted_balls_total=[]
 
 		//получем уровень кия из настроек
-		this.initial_draw_amount=pref.get_draw_amount(my_data.cue_id);
+		//this.initial_draw_amount=pref.get_draw_amount(my_data.cue_id);
 
 		this.reset_cue();
 
@@ -4734,7 +4772,7 @@ common={
 		some_process.common=this.process.bind(common);
 
 		//обновляем кий
-		this.set_cue_level(my_data.cue_id);
+		this.set_cue_for_hit_level(my_data.cue_id);
 
 	},
 
@@ -4771,29 +4809,33 @@ common={
 
 	},
 
-	set_cue_level(level){
+	set_cue_for_hit_level(cue_id){
 
-		//получем уровень кия из настроек
-		my_data.cue_id=level;//[1-7]
-		this.initial_draw_amount=pref.get_draw_amount(my_data.cue_id);
-		this.update_cue(my_data.cue_id);
-
-		//меняем текстуру кия
-		const stick_texture=assets['cue'+my_data.cue_id];
-		objects.stick.texture=stick_texture;
-
-		//готовим текстуру для бокового кия
-		const region = new PIXI.Rectangle(400, stick_texture.frame.y, 270, stick_texture.frame.height);
-		const hit_level_texture=new PIXI.Texture(stick_texture.baseTexture, region, null, null, 2);
+		//Устанавливаем боковую текстуру
+		const cur_cue_texture=cues_textures[cue_id]||cues_textures[0]
+		const region = new PIXI.Rectangle(400, 0, 400, cur_cue_texture.frame.height);
+		const hit_level_texture=new PIXI.Texture(cur_cue_texture.baseTexture, region, null, null, 2);
 		objects.hit_level.texture=hit_level_texture;
 
 	},
+	
+	cue_id_to_lev(id) {		
+		
+		if (id===0) return 1
+	
+		const cue_name=cues_id_to_name[id]
+		let sum = 0
+		for (let i = 0; i < cue_name.length; i++)
+			sum += cue_name.charCodeAt(i)
+		return (sum % 7) + 1;
+	},
 
 	change_only_stick(id){
-
-		this.initial_draw_amount=pref.get_draw_amount(id);
-		const stick_texture=assets['cue'+id];
-		objects.stick.texture=stick_texture;
+		
+		const level=this.cue_id_to_lev(id)
+		this.initial_draw_amount=pref.get_draw_amount(level);
+		const stick_texture=cues_textures[id]||cues_textures[0]
+		objects.stick.texture=stick_texture
 
 	},
 
@@ -4842,12 +4884,10 @@ common={
 		const cur_msk_day=+new Date(SERVER_TM).toLocaleString('en-US', {timeZone: 'Europe/Moscow',day:'numeric'})
 		const prv_msk_day=+new Date(prv_tm).toLocaleString('en-US', {timeZone: 'Europe/Moscow',day:'numeric'})
 		
-		if (cur_msk_day!==prv_msk_day){
-			
+		if (cur_msk_day!==prv_msk_day){			
 			//день поменялся начинаем заново
 			my_data.bonuses=0
-			safe_ls('pool_bonuses',my_data.bonuses)
-			
+			safe_ls('pool_bonuses',my_data.bonuses)			
 		}	
 
 		safe_ls('pool_bonuses_prv_tm',SERVER_TM)
@@ -5072,7 +5112,7 @@ common={
 
 	},
 
-	show_helper2(cue_id){
+	show_helper2(){
 
 		const wball=objects.balls[15];
 		wball.dx=Math.cos(objects.stick.rotation);
@@ -5087,10 +5127,7 @@ common={
 		objects.stick_direction.clear();
 		objects.stick_direction.alpha=0.5;
 		objects.stick_direction.lineStyle(1, 0xffffff)
-		
-		//пока все самое лучшее
-		cue_id=3
-		
+				
 		//point 1
 		if (run_res0_hit){
 
@@ -5102,7 +5139,7 @@ common={
 			const left_to_draw=left_to_draw_top-draw_consumed1;
 
 			//point 2
-			if (cue_id>=2){
+			if (this.cur_cue_lev>=2){
 
 				//это запуск белого шара после первого столкновения
 				run_res1=this.predict_hit(ball0,ball1);
@@ -5116,11 +5153,11 @@ common={
 					const left_to_draw1=left_to_draw-draw_consumed;
 
 					//point 4
-					if (cue_id>=4)
+					if (this.cur_cue_lev>=4)
 						this.draw_run_with_check(b0,b1,left_to_draw1);
 
 					//point 5
-					if (cue_id>=5)
+					if (this.cur_cue_lev>=5)
 						this.draw_run_with_check(b1,b0,left_to_draw1);
 
 				} else {
@@ -5131,7 +5168,7 @@ common={
 
 
 			//point 3
-			if (cue_id>=3) {
+			if (this.cur_cue_lev>=3) {
 
 				//это запуск второго шара после первого столкновения
 				run_res2=this.predict_hit(ball1,ball0);
@@ -5145,11 +5182,11 @@ common={
 					const left_to_draw2=left_to_draw-draw_consumed;
 
 					//point 6
-					if (cue_id>=6)
+					if (this.cur_cue_lev>=6)
 						this.draw_run_with_check(b0,b1,left_to_draw2);
 
 					//point 7
-					if(cue_id>=7)
+					if(this.cur_cue_lev>=7)
 						this.draw_run_with_check(b1,b0,left_to_draw2);
 
 				} else {
@@ -5291,16 +5328,16 @@ common={
 		}
 	},
 
-	update_cue(cue_id){
-
+	update_cue(){
+		
 		const s=objects.stick;
 		const ang=s.rotation;
 		const dx=Math.cos(ang);
 		const dy=Math.sin(ang);
-		s.x=s.sx-dx*this.cue_power*10;
-		s.y=s.sy-dy*this.cue_power*10;
+		s.x=s.sx-dx*this.cue_power*10-dx*5;
+		s.y=s.sy-dy*this.cue_power*10-dy*5;
 
-		this.show_helper2(cue_id);
+		this.show_helper2();
 
 	},
 
@@ -5311,7 +5348,7 @@ common={
 		objects.stick.y=objects.stick.sy=objects.balls[15].y;
 		objects.guide_orb.x=objects.balls[15].x;
 		objects.guide_orb.y=objects.balls[15].y;
-		objects.stick.alpha=0.7;
+		objects.stick.alpha=0.8;
 
 		//Обновляем уровень
 		this.update_power_level(0);
@@ -5412,7 +5449,7 @@ common={
 			this.drag_on=1;
 		}
 
-		this.update_cue(my_data.cue_id)
+		this.update_cue()
 
 	},
 
@@ -5453,7 +5490,7 @@ common={
 			this.prv_dy=dy
 
 			//показываем направляющие
-			this.update_cue(my_data.cue_id);
+			this.update_cue();
 
 		}
 
@@ -5478,7 +5515,7 @@ common={
 		objects.guide_orb.rotation=objects.stick.rotation
 
 		//показываем направляющие
-		this.update_cue(opp_data.cue_id);
+		this.update_cue();
 
 	},
 
@@ -5497,6 +5534,9 @@ common={
 
 			//if (this.table_state==='game')
 			//	console.log(['Забейте шар вашего цвета!','Pot ball of your color!'][LANG]);
+
+			this.cur_cue_id=my_data.cue_id
+			this.cur_cue_lev=this.cue_id_to_lev(my_data.cue_id)
 
 			this.change_only_stick(my_data.cue_id)
 			objects.stick.visible=true;
@@ -5517,6 +5557,9 @@ common={
 
 			//if (this.table_state==='game')
 			//	console.log('соперник должен забить свой шар!');
+		
+			this.cur_cue_id=opp_data.cue_id
+			this.cur_cue_lev=this.cue_id_to_lev(opp_data.cue_id)
 
 			this.change_only_stick(opp_data.cue_id)
 			objects.stick.visible=true
@@ -5529,6 +5572,9 @@ common={
 			//отправляем сопернику
 			opponent.prepare_next_move()
 		}
+		
+		//получем уровень кия из настроек
+		this.initial_draw_amount=pref.get_draw_amount(this.cur_cue_lev)
 		
 		//заново объявляем
 		this.potted_balls=[]
@@ -5572,7 +5618,7 @@ common={
 		this.cue_power=11*cue_shift/200+1;
 
 		//обновляем положение кия
-		this.update_cue(my_data.cue_id);
+		this.update_cue();
 	},
 
 	pointerup(e){
@@ -6304,6 +6350,27 @@ common={
 
 	},
 
+	load_cue_texture(id){
+		
+		return new Promise(res => {
+			const timeout = setTimeout(() => {
+			console.log('Timeout to load!');
+			res(null);
+		}, 3000);
+
+		const cue_name=cues_id_to_name[id]
+		PIXI.Texture.fromURL(git_src+`res/cues/${cue_name}.png`).then(t => {
+				clearTimeout(timeout);
+				res(t||null);
+			})
+			.catch((error) => {
+				clearTimeout(timeout);
+				console.error('Failed to load texture:', error);
+				res(null);
+			});
+		});
+	},
+
 	process(){
 
 		if (!this.move_on) return;
@@ -6625,7 +6692,7 @@ main_menu={
 	},
 
 	pref_btn_down () {
-
+		return
 		if (anim3.any_on()) {
 			sound.play('locked');
 			return
@@ -6783,7 +6850,7 @@ lobby={
 	},
 
 	pref_btn_down(){
-
+		return
 		//если какая-то анимация
 		if (anim3.any_on()) {
 			sound.play('locked');
@@ -7883,6 +7950,140 @@ lb={
 
 }
 
+gif_sel={
+	
+	updating:0,
+	sel_id:-1,
+	prv_send:0,
+	ids:0,
+	
+	activate(){
+		
+		if (!this.ids) this.ids=this.get_unique_int(100,typeof MAX_GIF_ID_INC !== 'undefined' ? MAX_GIF_ID_INC : 200,new Date(SERVER_TM).getDate(),my_data.uid)
+		this.sel_id=-1
+		objects.gif_sel_hl.visible=false
+		objects.gif_sel_send_btn.visible=false
+		anim3.add(objects.gif_sel_cont,{x:[800, objects.gif_sel_cont.sx,'linear']}, true, 0.1);
+		this.update()
+		
+	},
+	
+	async update(){
+	
+		if (this.updating) return
+		this.updating=1
+	
+		for (let i=0;i<4;i++){
+			
+			const gif_id=this.ids[i]
+			const gif_sprite=objects.gifs[i]
+			const base_t=await this.load_gif(`${COM_URL}/gifs/${gif_id}.mp4`)
+			
+			if(!base_t) continue
+			base_t.resource.source.play();
+			base_t.resource.source.loop=true;
+
+			gif_sprite.texture=PIXI.Texture.from(base_t)
+			
+			const scaleX = 140 / base_t.width
+			const scaleY = 110 / base_t.height
+			const scale = Math.min(scaleX, scaleY)
+				
+			gif_sprite.width = base_t.width * scale;
+			gif_sprite.height = base_t.height * scale;
+		}
+		this.updating=0
+		
+	},
+	
+	load_gif(url){
+		
+		return new Promise(res=>{
+			
+			const timeout = setTimeout(()=>{res(0)},2500)
+
+			//если уже загружали неправильную текстуру
+			if(PIXI.utils.BaseTextureCache[url]&&!PIXI.utils.BaseTextureCache[url].valid) {
+				res(0)
+				clearTimeout(timeout)
+			}
+			const bt = PIXI.BaseTexture.from(url)
+			
+			if (bt.width) {res(bt);clearTimeout(timeout)}
+			bt.on('loaded', ()=>{res(bt);clearTimeout(timeout)})
+			bt.on('error', e=>{res(0);clearTimeout(timeout)})
+		});
+			
+	},
+	
+	close_btn_down(){
+		
+		if (anim3.any_on()) return
+		this.close()
+		
+	},
+	
+	gif_down(id){
+		
+		if (this.sel_id===-1)
+			anim3.add(objects.gif_sel_send_btn,{alpha:[0,1,'linear']}, true, 0.1)
+		
+		this.sel_id=id
+		const gif_sprite=objects.gifs[id]
+		objects.gif_sel_hl.x=gif_sprite.x
+		objects.gif_sel_hl.y=gif_sprite.y
+		objects.gif_sel_hl.visible=true
+		
+	},
+		
+	get_unique_int(min,max,day,uid,len=4) {//inclusive
+		
+		let seed = hf.hash(`${day}-${uid}`);
+
+		function random() {
+			seed |= 0;
+			seed = seed + 0x6D2B79F5 | 0;
+			let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+			t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+			return ((t ^ t >>> 14) >>> 0) / 4294967296;
+		}
+
+		const size = max - min + 1;
+
+		// Build [min ... max]
+		const arr = Array.from({ length: size }, (_, i) => i + min);
+
+		// Partial Fisher–Yates (only 4 picks)
+		for (let i = 0; i < len; i++) {
+			const j = i + Math.floor(random() * (size - i));
+			[arr[i], arr[j]] = [arr[j], arr[i]];
+		}
+
+		return arr.slice(0, len);
+	},
+	
+	send_btn_down(){
+
+		const tm_s=Date.now()*0.001
+		const sec_to_wait=Math.round(60-(tm_s-this.prv_send))
+
+		if (sec_to_wait>0){
+			sys_msg.add(`Подождите ${sec_to_wait} сек.`)
+			return
+		}
+
+		this.prv_send=tm_s
+		//console.log(`чуть не отправили ${this.sel_id}`)
+		const gif_id=this.ids[this.sel_id]
+		my_ws.safe_send({cmd:'push',path:'chat',val:{uid:my_data.uid,name:my_data.name,msg:'',gif_id,tm:'TMS'}})
+	},
+	
+	close(){
+		anim3.add(objects.gif_sel_cont,{x:[objects.gif_sel_cont.x,800,'linear']}, false, 0.1);
+	}	
+		
+}
+
 players_cache={
 
 	on:0,
@@ -8167,7 +8368,7 @@ main_loader={
 		loader.add('music',git_src+'sounds/music.mp3');
 
 		loader.add('balls_anim_pack', git_src+'balls_anim_pack.png');
-		
+				
 		//прогресс
 		loader.onProgress.add((l,res)=>{
 			objects.load_bar_mask.width =410*l.progress*0.01;
@@ -8175,8 +8376,7 @@ main_loader={
 		});
 
 		//ждем загрузки
-		await new Promise(res=>loader.load(res))
-					
+		await new Promise(res=>loader.load(res))					
 
 		//переносим все в ассеты
 		await new Promise(res=>loader.load(res))
@@ -8192,7 +8392,6 @@ main_loader={
 		
 		
 		this.divide_texture(assets.balls_anim_pack,70,70,'ball_anim')		
-		this.divide_texture(assets.cue_pack,670,60,['cue1','cue2','cue3','cue4','cue5','cue6','cue7'])
 		this.divide_texture(assets.cards_pack,300,135,['table_rating_hl','mini_player_card_table','mini_player_card_ai','mini_player_card','mini_player_card_bot'])
 
 		this.process_load_list(load_list)
@@ -8418,9 +8617,7 @@ async function init_game_env(p) {
 	//git_src="https://akukamil.github.io/pool/"
 	git_src=""
 	await define_platform_and_language(p);
-	
-
-	
+		
 	//идентификация
 	await auth2.init();
 
@@ -8534,10 +8731,13 @@ async function init_game_env(p) {
 	if (typeof(levels.stat)==='number')levels.stat=[levels.stat]
 
 	//из локального хранилища
-	my_data.board_id = (other_data?.board_id)||1;
-	my_data.cue_id = other_data?.cue_id ||4;
-	my_data.cue_resource = other_data?.cue_data||[9,100,50,50,500,0,0,0];
+	my_data.board_id = (other_data?.board_id)||1
+	my_data.cue_id = other_data?.cue_id ||0
+	my_data.cues_data = other_data?.cues_data||{0:999}
 	my_data.bonuses=safe_ls('pool_bonuses')||0
+	
+	//это нужно удалить потом
+	if (!my_data.cues_data[my_data.cue_id]) my_data.cue_id=0
 
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
@@ -8545,9 +8745,7 @@ async function init_game_env(p) {
 	else
 		my_data.pic_url=my_data.orig_pic_url
 
-	//добавляем страну к имени если ее нет
-	//if (!auth2.get_country_from_name(my_data.name)&&my_data.country)
-	//	my_data.name=`${my_data.name} (${my_data.country})`
+
 
 	my_data.name=my_data.name.replace(/\s\([A-Z]{2}\)$/, '');
 	
@@ -8580,7 +8778,7 @@ async function init_game_env(p) {
 		nick_tm:my_data.nick_tm,
 		avatar_tm:my_data.avatar_tm,
 		games:my_data.games,
-		cue_data:my_data.cue_resource,
+		cues_data:my_data.cues_data,
 		cue_id:my_data.cue_id,
 		board_id:my_data.board_id,
 		lev_stat:levels.stat,
@@ -8592,7 +8790,7 @@ async function init_game_env(p) {
 	//первый вход и начальные бонусы
 	if(!other_data?.first_log_tm){
 		my_ws.ref('players/'+my_data.uid+'/first_log_tm').set('TMS')
-		my_ws.ref('players/'+my_data.uid+'/cue_data').set(my_data.cue_resource)
+		my_ws.ref('players/'+my_data.uid+'/cue_data').set(my_data.cues_data)
 	}
 
 	//номер комнаты (для плейгамы отдельно)
@@ -8612,6 +8810,14 @@ async function init_game_env(p) {
 	objects.id_log.text=['загрузка общего чата... ','Loading chat...'][LANG]
 	await chat.init()
 	objects.id_log.text='...'
+	
+	
+	objects.id_log.text=['загрузка текстур... ','Loading cues textures...'][LANG]
+	//загружаем текстуры моих киев и базовый кий
+	for (const cue_id in my_data.cues_data)
+		cues_textures[cue_id]=await common.load_cue_texture(cue_id)		
+	cues_textures[0]||=await common.load_cue_texture(0)		
+	
 
 	//обновляем енергию и время
 	//await common.check_bonuses()
@@ -8622,6 +8828,11 @@ async function init_game_env(p) {
 
 	//идентификатор клиента
 	client_id = hf.randIntInc(10,999999)
+	
+	
+	//
+	objects.id_log.text=['Получаем серверное время... ','Getting server time...'][LANG]
+	SERVER_TM=await my_ws.get_tms()
 
 	//устанавливаем мой статус в онлайн
 	set_state({state:'o'})
