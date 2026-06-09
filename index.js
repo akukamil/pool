@@ -2730,8 +2730,6 @@ pref={
 		if (music_on===null) music_on=1		
 		if (music_on) music.start()
 		this.music_icon_update()
-	
-		//this.show_shop()
 		
 	},
 
@@ -2824,8 +2822,6 @@ pref={
 
 		objects.bcg.texture=assets.main_bcg_img;
 		anim3.add(objects.bcg,{alpha:[0,1,'linear']}, true, 0.5);
-
-	
 
 		//заполняем имя и аватар
 		objects.pref_name.set2(my_data.name,260);
@@ -3066,134 +3062,41 @@ pref={
 		if (dir&&anim3.any_on()) {
 			sound.play('locked');
 			return
-		};
+		}
+		
+		
 		if(dir) sound.play('click');
 
-		this.cur_cue_id+=dir
-		if (this.cur_cue_id>7)this.cur_cue_id=7
-		if (this.cur_cue_id<1)this.cur_cue_id=1
+		//листаем по объекту
+		const cues_i_have=Object.keys(my_data.cues_data)
+		const cur_cue_pos=cues_i_have.findIndex(v=>v==this.cur_cue_id)
+		const next_cue_id=cues_i_have[cur_cue_pos+1]
+		const prv_cue_id=cues_i_have[cur_cue_pos-1]
+		
+		if (dir>0&&next_cue_id) this.cur_cue_id=next_cue_id
+		if (dir<0&&prv_cue_id) this.cur_cue_id=prv_cue_id
+			
 
 		const cur_cue_resource=my_data.cues_data[this.cur_cue_id]
-		const cur_cue_max_resource=this.max_cue_resource[this.cur_cue_id]
 
-		//нельзя восстановить первый кий или максимальный кий
-		if (cur_cue_resource===cur_cue_max_resource||this.cur_cue_id===1){
-			objects.pref_cue_buy_btn.alpha=0.5
-			objects.pref_cue_upg_price.visible=false
-			objects.pref_cue_upg_price_icon.visible=false
-		}else{
-
-			objects.pref_cue_buy_btn.alpha=1
-			objects.pref_cue_upg_price.visible=true
-			objects.pref_cue_upg_price_icon.visible=true
-
-			if (game_platform==='YANDEX'){
-				const currency=pref.yndx_catalog[this.cur_cue_id-2].price
-				objects.pref_cue_upg_price.text=currency
-			}
-
-			if (game_platform==='VK'){
-				objects.pref_cue_upg_price_icon.texture=assets.vk_price_icon
-				objects.pref_cue_upg_price.text=[10,20,30,50,100,200][this.cur_cue_id-2]
-			}
-
-		}
 
 		objects.pref_cue_level.text=['Уровень: ','Level: '][LANG]+this.cur_cue_id
-
-		objects.pref_cue_info.text=['Ресурс: ','Durability: '][LANG]+cur_cue_resource+"/"+cur_cue_max_resource;
+		objects.pref_cue_info.text=['Ресурс: ','Durability: '][LANG]+cur_cue_resource
+		
 		if (this.cur_cue_id===my_data.cue_id)
 			objects.pref_cue_level.text+=[' (активный)',' (active)'][LANG]
 
-		//кнопка выбора работает только где есть ресурс
-		if (cur_cue_resource===0||this.cur_cue_id===my_data.cue_id)
-			objects.pref_cue_select_btn.alpha=0.5
-		else
-			objects.pref_cue_select_btn.alpha=1
-
-		objects.pref_cue_photo.texture=assets['cue'+this.cur_cue_id]
-
+		objects.pref_cue_photo.texture=cues_textures[this.cur_cue_id]
 
 	},
 
-	cue_buy_down(){
-
-		if (anim3.any_on()) {
-			sound.play('locked');
-			return
-		};
-
-		if (game_platform==='RS'){
-			this.send_info(['Только для Яндекса и ВК!','Only for Yandex and VK'][LANG])
-			return
-		}
-		
-		//нельзя восстановить первый кий или максимальный кий
-		if (objects.pref_cue_buy_btn.alpha!==1){
-			this.send_info(['Невозможно восстановить!','Can not resore!'][LANG])
-			sound.play('locked');
-			return;
-		}
-
-		sound.play('click');
-
-		const item='cue'+this.cur_cue_id;
-
-		if (game_platform==='VK') {
-			vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item}).then(data =>{
-				this.restore_cue(this.cur_cue_id)
-				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id:item}});
-			}).catch(err => {
-				this.send_info(['Ошибка при покупке!','Error!'][LANG]);
-			});
-		};
-
-		if (game_platform==='YANDEX') {
-			yndx_payments.purchase({id: item }).then(purchase => {
-				this.restore_cue(this.cur_cue_id)
-				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id:item}});
-				yndx_payments.consumePurchase(purchase.purchaseToken);
-			}).catch(err => {
-				this.send_info(['Ошибка при покупке!','Error!'][LANG]);
-			})
-		}
-
-
-		if (game_platform!=='VK'&&game_platform!=='YANDEX')
-			this.restore_cue(this.cur_cue_id)
-
-	},
-
-	restore_cue(cue_id){
-
-		//восстанавливаем максимальный ресурс
-		my_data.cues_data[cue_id||this.cur_cue_id]=this.max_cue_resource[cue_id||this.cur_cue_id]
-
-		this.cue_switch_down(0)
-
-		//сохраняем...
-		my_ws.ref(`players/${my_data.uid}/cue_data`).set(my_data.cue_data)
-		sound.play('note1');
-		this.send_info(['Игрок восстановил кий!','Player has updated a cue'][LANG])
-
-	},
 
 	cue_select_down(){	
 		
-		
-
-		
 		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
-
-		//нельзя восстановить первый кий или максимальный кий
-		if (objects.pref_cue_select_btn.alpha!==1){
-			this.send_info(['Невозможно выбрать!','Can not choose!'][LANG])
-			sound.play('locked');
-			return;
-		}
 
 		this.send_info(['Игрок изменил кий!','Player has changes cue!'][LANG])
 
@@ -3804,6 +3707,9 @@ sp_game={
 		sound.play('ready2')
 		
 		opponent=this
+
+		common.change_only_stick(my_data.cue_id)
+		common.set_cue_for_hit_level(my_data.cue_id)
 
 		this.init_level()
 	},
