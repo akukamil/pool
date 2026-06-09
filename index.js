@@ -2715,7 +2715,7 @@ pref={
 	cur_board_id:1,
 	cur_pic_url:'',
 	max_cue_resource:[100,100,120,150,200,300,500,1000],
-	cue_lev_to_res:{0:999,1:50,2:70,3:100,4:120,5:150,6:200,7:300},
+	cue_lev_to_res:{0:999,1:50,2:80,3:110,4:140,5:170,6:200,7:230},
 	hours_to_nick_change:0,
 	hours_to_photo_change:0,
 	yndx_catalog:0,
@@ -2784,17 +2784,29 @@ pref={
 	make_purchase(cue_id){
 		
 		const cue_lev=common.cue_id_to_lev(cue_id)
+		const item_id='cue_lev'+cue_lev
 		
 		if (game_platform==='YANDEX') {
 			yndx_payments.purchase({id:'cue_lev'+cue_lev}).then(purchase => {
 				my_data.cues_data[cue_id]=this.cue_lev_to_res[cue_lev]
 				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
-				this.send_info(['Вы совершил покупку!','success!'][LANG]);
-				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id:'cue_lev'+cue_lev}});
+				sys_msg.add(['Вы совершил покупку!','success!'][LANG]);
+				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id}});
 				yndx_payments.consumePurchase(purchase.purchaseToken);
 			}).catch(err => {
-				this.send_info(['Ошибка при покупке!','Error!'][LANG]);
+				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
 			})
+		}	
+		
+		if (game_platform==='VK') {
+			vkBridge.send('VKWebAppShowOrderBox', {type:'item',item:item_id}).then(data =>{
+				my_data.cues_data[cue_id]=this.cue_lev_to_res[cue_lev]
+				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
+				sys_msg.add(['Вы совершил покупку!','success!'][LANG]);
+				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id}});
+			}).catch((err) => {
+				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
+			});
 		}	
 		
 	},
