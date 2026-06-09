@@ -8725,6 +8725,8 @@ async function init_game_env(p) {
 	my_data.cues_data = other_data?.cues_data||{0:999}
 	my_data.bonuses=safe_ls('pool_bonuses')||0
 	
+	if(Array.isArray(my_data.cues_data)) my_data.cues_data={0:999}
+	
 	//это нужно удалить потом
 	if (!my_data.cues_data[my_data.cue_id]) my_data.cue_id=0
 
