@@ -2756,7 +2756,7 @@ pref={
 			const cue_res=this.cue_lev_to_res[cue_lev]
 			cues_textures[cue_id]=await common.load_cue_texture(cue_id)				
 			objects.shop_cues[i].texture=cues_textures[cue_id]
-			objects.shop_cues_names[i].text=cue_name
+			objects.shop_cues_names[i].set2(cue_name,145)
 			objects.shop_cues_levels[i].text='Уровень: '+cue_lev
 			objects.shop_cues_res[i].text='Ресурс: '+cue_res
 			
