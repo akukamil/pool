@@ -2807,7 +2807,7 @@ pref={
 			yndx_payments.purchase({id:'cue_lev'+cue_lev}).then(purchase => {
 				my_data.cues_data[cue_id]=this.cue_lev_to_res[cue_lev]
 				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
-				sys_msg.add(['Вы совершил покупку!','success!'][LANG]);
+				sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
 				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id}});
 				yndx_payments.consumePurchase(purchase.purchaseToken);
 			}).catch(err => {
@@ -2819,7 +2819,7 @@ pref={
 			vkBridge.send('VKWebAppShowOrderBox', {type:'item',item:item_id}).then(data =>{
 				my_data.cues_data[cue_id]=this.cue_lev_to_res[cue_lev]
 				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
-				sys_msg.add(['Вы совершил покупку!','success!'][LANG]);
+				sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
 				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id}});
 			}).catch((err) => {
 				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
