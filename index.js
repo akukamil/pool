@@ -2721,6 +2721,7 @@ pref={
 	yndx_catalog:0,
 	shop_cues_ids:0,
 	shop_catalog:0,
+	vk_lev_prices:[{id:'cue_lev1',price:21},{id:'cue_lev2',price:28},{id:'cue_lev3',price:36},{id:'cue_lev4',price:44},{id:'cue_lev5',price:54},{id:'cue_lev6',price:64},{id:'cue_lev6',price:75}],
 
 	init(){
 		
@@ -2739,9 +2740,10 @@ pref={
 		if (!this.shop_cues_ids) this.shop_cues_ids=gif_sel.get_unique_int(1,cues_id_to_name.length-1,new Date(SERVER_TM).getDate(),my_data.uid,3)
 		objects.shop_cont.visible=true
 		
-		if (yndx_payments){
+		if (game_platform==='YANDEX')
 			this.shop_catalog=await yndx_payments.getCatalog()			
-		}
+		if (game_platform==='VK')
+			this.shop_catalog=this.vk_lev_prices
 				
 		//загружаем кии
 		for (let i=0;i<3;i++){
