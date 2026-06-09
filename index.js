@@ -2721,6 +2721,7 @@ pref={
 	yndx_catalog:0,
 	shop_cues_ids:0,
 	shop_catalog:0,
+	shop_ready:1,
 	vk_lev_prices:[{id:'cue_lev1',price:'21'},{id:'cue_lev2',price:28},{id:'cue_lev3',price:36},{id:'cue_lev4',price:44},{id:'cue_lev5',price:54},{id:'cue_lev6',price:64},{id:'cue_lev6',price:75}],
 
 	init(){
@@ -2735,28 +2736,37 @@ pref={
 
 	async show_shop(){
 	
+		if(!this.shop_ready) return
+		this.shop_ready=0
 		if (!this.shop_cues_ids) this.shop_cues_ids=gif_sel.get_unique_int(1,cues_id_to_name.length-1,new Date(SERVER_TM).getDate(),my_data.uid,3)
-		objects.shop_cont.visible=true
-		
+				
 		if (game_platform==='YANDEX')
 			this.shop_catalog=await yndx_payments.getCatalog()			
-		else
-			this.shop_catalog=this.vk_lev_prices
+		else{			
+			this.shop_catalog=this.vk_lev_prices			
+			objects.shop_cues_prices_icons.forEach(p=>p.texture=assets.vk_price_icon)
+		}
+
 				
 		//загружаем кии
 		for (let i=0;i<3;i++){
 			const cue_id=this.shop_cues_ids[i]
 			const cue_name=cues_id_to_name[cue_id]
 			const cue_lev=common.cue_id_to_lev(cue_id)
+			const cue_res=this.cue_lev_to_res[cue_lev]
 			cues_textures[cue_id]=await common.load_cue_texture(cue_id)				
 			objects.shop_cues[i].texture=cues_textures[cue_id]
 			objects.shop_cues_names[i].text=cue_name
 			objects.shop_cues_levels[i].text='Уровень: '+cue_lev
-			objects.shop_cues_res[i].text='Ресурс: '+hf.randIntInc(50,1000)
+			objects.shop_cues_res[i].text='Ресурс: '+cue_res
 			
 			const good=this.shop_catalog.find(v=>{return v.id==='cue_lev'+cue_lev})
 			objects.shop_cues_prices[i].text=good.price
-		}			
+		}		
+		
+		
+		this.shop_ready=1
+		anim3.add(objects.shop_cont,{y:[-450, objects.shop_cont.sy,'easeOutCubic']}, true, 0.5);
 	
 	},
 	
@@ -2770,8 +2780,11 @@ pref={
 		const mx = e.data.global.x/app.stage.scale.x
 		const my = e.data.global.y/app.stage.scale.y
 		
-		if (mx>650&&my>60&&mx<700&&my<100)
-			objects.shop_cont.visible=false
+		if (mx>650&&my>60&&mx<700&&my<100){
+			sound.play('close')
+			anim3.add(objects.shop_cont,{y:[objects.shop_cont.y,-450,'linear']}, false, 0.25);
+			return
+		}
 		
 		if (game_platform!=='YANDEX'&&game_platform!=='VK'){
 			sys_msg.add(['Только для Яндекса и ВК!','Not available!!'][LANG]);
@@ -2816,6 +2829,9 @@ pref={
 	},
 
 	activate(){
+		
+		
+		this.show_shop()
 
 		//последние изменения имен и аватар
 		my_data.avatar_tm=safe_ls('pool_avatar_tm')||1;
@@ -3081,6 +3097,12 @@ pref={
 		if (dir>0&&next_cue_id) this.cur_cue_id=next_cue_id
 		if (dir<0&&prv_cue_id) this.cur_cue_id=prv_cue_id
 			
+		
+		if (this.cur_cue_id===my_data.cue_id)
+			objects.pref_cue_select_btn.alpha=0.5
+		else
+			objects.pref_cue_select_btn.alpha=1
+
 
 		const cur_cue_resource=my_data.cues_data[this.cur_cue_id]
 
@@ -3095,18 +3117,23 @@ pref={
 
 	},
 
-
 	cue_select_down(){	
 		
 		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
+		
+		
+		if (this.cur_cue_id===my_data.cue_id)
+			return
 
 		this.send_info(['Игрок изменил кий!','Player has changes cue!'][LANG])
 
 		sound.play('note1')
-		my_data.cue_id=this.cur_cue_id;
+		my_data.cue_id=this.cur_cue_id
+		
+		objects.pref_cue_select_btn.alpha=0.5		
 
 		//сохраняем...
 		my_ws.ref(`players/${my_data.uid}/cue_id`).set(my_data.cue_id)
@@ -6654,7 +6681,7 @@ main_menu={
 	},
 
 	pref_btn_down () {
-		return
+		//return
 		if (anim3.any_on()) {
 			sound.play('locked');
 			return
@@ -6812,7 +6839,7 @@ lobby={
 	},
 
 	pref_btn_down(){
-		return
+
 		//если какая-то анимация
 		if (anim3.any_on()) {
 			sound.play('locked');
