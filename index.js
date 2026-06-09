@@ -2741,8 +2741,7 @@ pref={
 		if (yndx_payments){
 			this.shop_catalog=await yndx_payments.getCatalog()			
 		}
-		
-		
+				
 		//загружаем кии
 		for (let i=0;i<3;i++){
 			const cue_id=this.shop_cues_ids[i]
