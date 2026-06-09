@@ -2758,8 +2758,7 @@ pref={
 			
 			const good=this.shop_catalog.find(v=>{return v.id==='cue_lev'+cue_lev})
 			objects.shop_cues_prices[i].text=good.price
-		}	
-		
+		}			
 	
 	},
 	
@@ -3304,11 +3303,6 @@ pref={
 				yndx_payments.consumePurchase(purchase.purchaseToken)
 			}
 		}));
-
-		//загрузка каталога
-		this.yndx_catalog=await yndx_payments.getCatalog()
-		const icon_url=this.yndx_catalog[0].getPriceCurrencyImage('svg')
-		objects.pref_cue_upg_price_icon.texture=await PIXI.Texture.fromURL(icon_url)
 
 	}
 }
