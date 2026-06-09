@@ -1255,8 +1255,8 @@ chat={
 		this.on=1;
 		anim3.add(objects.chat_cont, {alpha: [0, 1, 'linear']}, true, 0.1);
 		
-		objects.chat_enter_btn.alpha=my_data.bonuses>=this.bonuses_to_gif?1:0.25
-		//objects.chat_gif_btn.alpha=my_data.games>=this.games_to_gif?1:0.25
+		objects.chat_enter_btn.alpha=my_data.games>=this.games_to_chat?1:0.25
+		objects.chat_gif_btn.alpha==my_data.bonuses>=this.bonuses_to_gif?1:0.25
 
 		objects.bcg.interactive=true;
 		objects.bcg.pointermove=this.pointer_move.bind(this);
