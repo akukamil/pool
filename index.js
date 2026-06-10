@@ -4812,12 +4812,7 @@ common={
 	cue_id_to_lev(id) {		
 		
 		if (id==0) return 1
-	
-		const cue_name=cues_id_to_name[id]
-		let sum = 0
-		for (let i = 0; i < cue_name.length; i++)
-			sum += cue_name.charCodeAt(i)
-		return (sum % 7) + 1;
+		return 3
 	},
 
 	change_only_stick(id){
