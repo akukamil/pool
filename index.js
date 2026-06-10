@@ -1822,10 +1822,7 @@ message = {
 	},
 
 	clicked() {
-
-
-		message.promise_resolve();
-
+		message.promise_resolve()
 	}
 
 }
@@ -1857,6 +1854,9 @@ sys_msg={
 
 		anim3.add(objects.sys_msg_cont,{y:[-20,-50,'linear']}, false, 0.25,false);
 
+	},
+	clicked() {
+		message.promise_resolve()
 	}
 
 }
