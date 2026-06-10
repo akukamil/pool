@@ -3105,9 +3105,9 @@ pref={
 
 
 		const cur_cue_resource=my_data.cues_data[this.cur_cue_id]
-		const cue_level=common.cue_id_to_lev(this.cur_cue_id)
+		const cue_name=cues_id_to_name[this.cur_cue_id]
 
-		objects.pref_cue_level.text=['Уровень: ','Level: '][LANG]+cue_level
+		objects.pref_cue_level.text=cue_name
 		objects.pref_cue_info.text=['Ресурс: ','Durability: '][LANG]+cur_cue_resource
 		
 		if (this.cur_cue_id===my_data.cue_id)
