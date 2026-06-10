@@ -1833,7 +1833,7 @@ sys_msg={
 
 	async add(t){
 
-		if (this.promise_resolve) this.promise_resolve('forced');
+		if (this.promise_resolve) sys_msg.promise_resolve('forced');
 
 		sound.play('popup');
 
@@ -1856,7 +1856,7 @@ sys_msg={
 
 	},
 	clicked() {
-		message.promise_resolve()
+		sys_msg.promise_resolve()
 	}
 
 }
