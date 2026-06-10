@@ -2722,7 +2722,7 @@ pref={
 	shop_cues_ids:0,
 	shop_catalog:0,
 	shop_ready:1,
-	vk_lev_prices:[{id:'cue_lev1',price:'21'},{id:'cue_lev2',price:28},{id:'cue_lev3',price:36},{id:'cue_lev4',price:44},{id:'cue_lev5',price:54},{id:'cue_lev6',price:64},{id:'cue_lev6',price:75}],
+	vk_lev_prices:[{id:'cue_lev1',price:'21'},{id:'cue_lev2',price:28},{id:'cue_lev3',price:36},{id:'cue_lev4',price:44},{id:'cue_lev5',price:54},{id:'cue_lev6',price:64},{id:'cue_lev7',price:75}],
 
 	init(){
 		
