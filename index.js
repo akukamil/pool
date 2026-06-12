@@ -8722,6 +8722,14 @@ async function init_game_env(p) {
 	
 	if(Array.isArray(my_data.cues_data)) my_data.cues_data={0:999}
 	
+	//бонус новым игрокам
+	if(!other_data){
+		const random_cue_id=hf.randIntInc(50,500)
+		my_data.cues_data[random_cue_id]=50
+		my_data.cue_id=random_cue_id
+	}
+	
+	
 	//это нужно удалить потом
 	if (!my_data.cues_data[my_data.cue_id]) my_data.cue_id=0
 
