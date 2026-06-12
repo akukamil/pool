@@ -4500,7 +4500,7 @@ bot_game={
 		this.on=1
 		my_turn=1
 		opponent=this	
-		opp_data.cue_id=4
+		opp_data.cue_id=0
 		common.activate(hf.randIntInc(100,90999))	
 		
 		//кнопка выхода
