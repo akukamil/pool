@@ -4500,7 +4500,7 @@ bot_game={
 		this.on=1
 		my_turn=1
 		opponent=this	
-		opp_data.cue_id=0
+		opp_data.cue_id=hf.randIntInc(10,1000)
 		common.activate(hf.randIntInc(100,90999))	
 		
 		//кнопка выхода
@@ -4668,10 +4668,12 @@ common={
 		//
 		if (opponent===online_game){
 			opp_data.cue_id=await my_ws.ref('players/'+opp_data.uid+'/cue_id').get()
-			opp_data.cue_id??=0			
-			cues_textures[opp_data.cue_id]||=await this.load_cue_texture(opp_data.cue_id)
-		}
 
+		}
+		
+		opp_data.cue_id??=0			
+		cues_textures[opp_data.cue_id]||=await this.load_cue_texture(opp_data.cue_id)
+			
 		//показываем и заполняем мою карточку
 		anim3.add(objects.my_card_cont,{y:[-200,objects.my_card_cont.sy,'linear']}, true, 0.3)
 		objects.my_card_name.set2(my_data.name,160)
