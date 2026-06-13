@@ -8783,12 +8783,6 @@ async function init_game_env(p) {
 		session_start:'TMS'
 	})
 
-	//первый вход и начальные бонусы
-	if(!other_data?.first_log_tm){
-		my_ws.ref('players/'+my_data.uid+'/first_log_tm').set('TMS')
-		my_ws.ref('players/'+my_data.uid+'/cue_data').set(my_data.cues_data)
-	}
-
 	//номер комнаты (для плейгамы отдельно)
 	ROOM_NAME='states1'
 	
