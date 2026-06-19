@@ -3172,7 +3172,10 @@ shop={
 		}
 				
 		//загружаем кий
-		this.shop_cue_id=hf.randIntInc(10,999)
+		const date=new Date(SERVER_TM)
+		const hour=date.getHours()
+		this.shop_cue_id=gif_sel.get_unique_int(3,999,hour,my_data.uid,3)[0]
+		
 		cues_textures[this.shop_cue_id]=await common.load_cue_texture(this.shop_cue_id)	
 		objects.shop_cue.texture=cues_textures[this.shop_cue_id]
 		objects.shop_cue_name.text=cues_id_to_name[this.shop_cue_id]
@@ -6898,20 +6901,14 @@ lobby={
 
 	shop_btn_down(){
 		
-		if (!lobby.let_it)
-			return
-		
-		
 		//если какая-то анимация
 		if (anim3.any_on()) {
 			sound.play('locked');
 			return
 		};
 
-		sound.play('click');
-		
-		shop.activate()
-		
+		sound.play('click')		
+		shop.activate()		
 		
 	},
 
