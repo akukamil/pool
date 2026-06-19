@@ -3134,7 +3134,6 @@ shop={
 	vk_prices:[{id:'cue_100_hits',price:'14'},{id:'cue_500_hits',price:64},{id:'cue_1000_hits',price:114}],
 	loading:0,
 
-
 	activate(){
 		
 		//if(!this.shop_ready) return
@@ -3151,19 +3150,20 @@ shop={
 	process(){
 		
 	objects.shop_cue.x=objects.shop_cue.sx+Math.sin(game_tick)*10
-	objects.shop_cue.rotation=Math.sin(game_tick)*0.1
+	objects.shop_cue.rotation=Math.sin(game_tick)*0.06
 	
 		
 	},
 	
 	async update(){
 		
+		if (this.loading) return
+		
 		this.loading=1
 		objects.shop_cue_name.text=['Загрузка...','Loading...'][LANG]
 		objects.shop_cue.texture=null
 		for (let i=0;i<3;i++)
-			objects.shop_prices[i].text=''
-		
+			objects.shop_prices[i].text=''		
 		
 		if (game_platform==='YANDEX')
 			this.shop_catalog=await yndx_payments.getCatalog()			
@@ -3183,8 +3183,7 @@ shop={
 			objects.shop_prices[i].text=good.price
 		}	
 		
-		this.loading=0
-		
+		this.loading=0		
 		
 	},
 	
