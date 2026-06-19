@@ -3173,9 +3173,10 @@ shop={
 		cues_textures[this.shop_cue_id]=await common.load_cue_texture(this.shop_cue_id)	
 		objects.shop_cue.texture=cues_textures[this.shop_cue_id]
 		objects.shop_cue_name.text=cues_id_to_name[this.shop_cue_id]
-				
+		
+		const items=['cue_100_hits','cue_500_hits','cue_1000_hits']
 		for (let i=0;i<3;i++){
-			const good=this.shop_catalog.find(v=>{return v.id==='cue_100_hits'})
+			const good=this.shop_catalog.find(v=>{return v.id===items[i]})
 			objects.shop_prices[i].text=good.price
 		}	
 		
