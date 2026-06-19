@@ -3128,22 +3128,16 @@ pref={
 
 shop={
 	
-	shop_ready:0,
+
 	shop_cue_id:0,
 	shop_catalog:0,
 	vk_prices:[{id:'cue_100_hits',price:'14'},{id:'cue_500_hits',price:64},{id:'cue_1000_hits',price:114}],
 	loading:0,
 
 	activate(){
-		
-		//if(!this.shop_ready) return
-		this.shop_ready=0
-		
+				
 		this.update()
-		
-		this.shop_ready=1
-		anim3.add(objects.shop_cont,{alpha:[0, 1,'linear']}, true, 0.5);
-		
+		anim3.add(objects.shop_cont,{alpha:[0, 1,'linear']}, true, 0.5)		
 		some_process.shop=this.process
 	},
 	
@@ -3200,8 +3194,7 @@ shop={
 		const my = e.data.global.y/app.stage.scale.y
 		
 		if (mx>650&&my>60&&mx<700&&my<100){
-			sound.play('close')
-			anim3.add(objects.shop_cont,{alpha:[1,0,'linear']}, false, 0.25);
+			this.close()
 			return
 		}
 		
@@ -3253,6 +3246,8 @@ shop={
 		sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
 		my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
 		
+		this.close()
+		
 	},
 
 	async counume_yndx_purchases(){
@@ -3272,9 +3267,11 @@ shop={
 
 	},
 
-	close_down(){
+	close(){
 		
-		
+		sound.play('close')
+		anim3.add(objects.shop_cont,{alpha:[1,0,'linear']}, false, 0.25);
+		some_process.shop=()=>{}
 		
 	}
 	
@@ -6903,6 +6900,11 @@ lobby={
 		
 		//если какая-то анимация
 		if (anim3.any_on()) {
+			sound.play('locked');
+			return
+		};
+		
+		if (objects.shop_cont.visible) {
 			sound.play('locked');
 			return
 		};
