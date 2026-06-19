@@ -3149,9 +3149,8 @@ shop={
 	
 	process(){
 		
-	objects.shop_cue.x=objects.shop_cue.sx+Math.sin(game_tick)*10
-	objects.shop_cue.rotation=Math.sin(game_tick)*0.06
-	
+		objects.shop_cue.x=objects.shop_cue.sx+Math.sin(game_tick*0.5)*10
+		objects.shop_cue.rotation=Math.sin(game_tick*0.5)*0.06
 		
 	},
 	
@@ -3217,14 +3216,11 @@ shop={
 	
 	make_purchase(item){
 		
-		const item_to_hits={cue_100_hits:100,cue_500_hits:500,cue_1000_hits:1000}
+		
 		
 		if (game_platform==='YANDEX') {
 			yndx_payments.purchase({id:item}).then(purchase => {
-				my_data.cues_data[this.shop_cue_id]=item_to_hits[item]
-				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
-				sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
-				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
+				this.process_purchase(item)
 				yndx_payments.consumePurchase(purchase.purchaseToken);
 			}).catch(err => {
 				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
@@ -3232,17 +3228,29 @@ shop={
 		}	
 		
 		if (game_platform==='VK') {
-			vkBridge.send('VKWebAppShowOrderBox', {type:'item',item}).then(data =>{
-				my_data.cues_data[this.shop_cue_id]=item_to_hits[item]
-				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
-				sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
-				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
+			vkBridge.send('VKWebAppShowOrderBox', {type:'item',item}).then(data =>{				
+				this.process_purchase(item)
 			}).catch((err) => {
 				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
 			});
 		}	
 		
 	},
+	
+	process_purchase(item){
+		
+		const item_to_hits={cue_100_hits:100,cue_500_hits:500,cue_1000_hits:1000}
+		
+		if (my_data.cues_data[this.shop_cue_id])
+			my_data.cues_data[this.shop_cue_id]+=item_to_hits[item]
+		else
+			my_data.cues_data[this.shop_cue_id]=item_to_hits[item]
+		
+		my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
+		sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
+		my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
+		
+	}
 
 	async counume_yndx_purchases(){
 
