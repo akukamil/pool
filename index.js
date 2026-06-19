@@ -2714,15 +2714,8 @@ pref={
 	cur_cue_id:1,
 	cur_board_id:1,
 	cur_pic_url:'',
-	max_cue_resource:[100,100,120,150,200,300,500,1000],
-	cue_lev_to_res:{0:999,1:50,2:80,3:110,4:140,5:170,6:200,7:230},
 	hours_to_nick_change:0,
 	hours_to_photo_change:0,
-	yndx_catalog:0,
-	shop_cues_ids:0,
-	shop_catalog:0,
-	shop_ready:1,
-	vk_lev_prices:[{id:'cue_lev1',price:'21'},{id:'cue_lev2',price:28},{id:'cue_lev3',price:36},{id:'cue_lev4',price:44},{id:'cue_lev5',price:54},{id:'cue_lev6',price:64},{id:'cue_lev7',price:75}],
 
 	init(){
 		
@@ -2733,101 +2726,7 @@ pref={
 		this.music_icon_update()
 		
 	},
-
-	async show_shop(){
 	
-		if(!this.shop_ready) return
-		this.shop_ready=0
-		if (!this.shop_cues_ids) this.shop_cues_ids=gif_sel.get_unique_int(1,cues_id_to_name.length-1,new Date(SERVER_TM).getDate(),my_data.uid,3)
-				
-		if (game_platform==='YANDEX')
-			this.shop_catalog=await yndx_payments.getCatalog()			
-		else{			
-			this.shop_catalog=this.vk_lev_prices			
-			objects.shop_cues_prices_icons.forEach(p=>p.texture=assets.vk_price_icon)
-		}
-
-				
-		//загружаем кии
-		for (let i=0;i<3;i++){
-			const cue_id=this.shop_cues_ids[i]
-			const cue_name=cues_id_to_name[cue_id]
-			const cue_lev=common.cue_id_to_lev(cue_id)
-			const cue_res=this.cue_lev_to_res[cue_lev]
-			cues_textures[cue_id]=await common.load_cue_texture(cue_id)				
-			objects.shop_cues[i].texture=cues_textures[cue_id]
-			objects.shop_cues_names[i].set2(cue_name,145)
-			objects.shop_cues_levels[i].text='Уровень: '+cue_lev
-			objects.shop_cues_res[i].text='Ресурс: '+cue_res
-			
-			const good=this.shop_catalog.find(v=>{return v.id==='cue_lev'+cue_lev})
-			objects.shop_cues_prices[i].text=good.price
-		}		
-		
-		
-		this.shop_ready=1
-		anim3.add(objects.shop_cont,{y:[-450, objects.shop_cont.sy,'easeOutCubic']}, true, 0.5);
-	
-	},
-	
-	shop_down(e){
-		
-		if (anim3.any_on()) {
-			sound.play('locked');
-			return
-		};
-
-		const mx = e.data.global.x/app.stage.scale.x
-		const my = e.data.global.y/app.stage.scale.y
-		
-		if (mx>650&&my>60&&mx<700&&my<100){
-			sound.play('close')
-			anim3.add(objects.shop_cont,{y:[objects.shop_cont.y,-450,'linear']}, false, 0.25);
-			return
-		}
-		
-		if (game_platform!=='YANDEX'&&game_platform!=='VK'){
-			sys_msg.add(['Только для Яндекса и ВК!','Not available!!'][LANG]);
-			return
-		}
-		
-		if (mx>570&&my>140&&mx<660&&my<170)	this.make_purchase(this.shop_cues_ids[0])
-		if (mx>570&&my>230&&mx<660&&my<260)	this.make_purchase(this.shop_cues_ids[1])
-		if (mx>570&&my>320&&mx<660&&my<360)	this.make_purchase(this.shop_cues_ids[2])
-		
-		
-	},
-	
-	make_purchase(cue_id){
-		
-		const cue_lev=common.cue_id_to_lev(cue_id)
-		const item_id='cue_lev'+cue_lev
-		
-		if (game_platform==='YANDEX') {
-			yndx_payments.purchase({id:'cue_lev'+cue_lev}).then(purchase => {
-				my_data.cues_data[cue_id]=this.cue_lev_to_res[cue_lev]
-				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
-				sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
-				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id}});
-				yndx_payments.consumePurchase(purchase.purchaseToken);
-			}).catch(err => {
-				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
-			})
-		}	
-		
-		if (game_platform==='VK') {
-			vkBridge.send('VKWebAppShowOrderBox', {type:'item',item:item_id}).then(data =>{
-				my_data.cues_data[cue_id]=this.cue_lev_to_res[cue_lev]
-				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
-				sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
-				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id}});
-			}).catch((err) => {
-				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
-			});
-		}	
-		
-	},
-
 	activate(){
 		
 		
@@ -3224,6 +3123,128 @@ pref={
 		return [200,250,265,275,300,310,320,330,350,450,450,450][cue_level];//[1-7]
 	},
 
+
+}
+
+shop={
+	
+	shop_ready:0,
+	shop_cue_id:0,
+	shop_catalog:0,
+	vk_prices:[{id:'cue_100_hits',price:'14'},{id:'cue_500_hits',price:64},{id:'cue_1000_hits',price:114}],
+	loading:0,
+
+
+	activate(){
+		
+		//if(!this.shop_ready) return
+		this.shop_ready=0
+		
+		this.update()
+		
+		this.shop_ready=1
+		anim3.add(objects.shop_cont,{alpha:[0, 1,'linear']}, true, 0.5);
+		
+		some_process.shop=this.process
+	},
+	
+	process(){
+		
+	objects.shop_cue.x=objects.shop_cue.sx+Math.sin(game_tick)*10
+	objects.shop_cue.rotation=Math.sin(game_tick)*0.1
+	
+		
+	},
+	
+	async update(){
+		
+		this.loading=1
+		objects.shop_cue_name.text=['Загрузка...','Loading...'][LANG]
+		objects.shop_cue.texture=null
+		for (let i=0;i<3;i++)
+			objects.shop_prices[i].text=''
+		
+		
+		if (game_platform==='YANDEX')
+			this.shop_catalog=await yndx_payments.getCatalog()			
+		else{			
+			this.shop_catalog=this.vk_prices			
+			objects.shop_cues_prices_icons.forEach(p=>p.texture=assets.vk_price_icon)
+		}
+				
+		//загружаем кий
+		this.shop_cue_id=hf.randIntInc(10,999)
+		cues_textures[this.shop_cue_id]=await common.load_cue_texture(this.shop_cue_id)	
+		objects.shop_cue.texture=cues_textures[this.shop_cue_id]
+		objects.shop_cue_name.text=cues_id_to_name[this.shop_cue_id]
+				
+		for (let i=0;i<3;i++){
+			const good=this.shop_catalog.find(v=>{return v.id==='cue_100_hits'})
+			objects.shop_prices[i].text=good.price
+		}	
+		
+		this.loading=0
+		
+		
+	},
+	
+	p_down(e){
+		
+		if (anim3.any_on()) {
+			sound.play('locked');
+			return
+		};
+
+		const mx = e.data.global.x/app.stage.scale.x
+		const my = e.data.global.y/app.stage.scale.y
+		
+		if (mx>650&&my>60&&mx<700&&my<100){
+			sound.play('close')
+			anim3.add(objects.shop_cont,{alpha:[1,0,'linear']}, false, 0.25);
+			return
+		}
+		
+		if (game_platform!=='YANDEX'&&game_platform!=='VK'){
+			sys_msg.add(['Только для Яндекса и ВК!','Not available!!'][LANG]);
+			return
+		}
+		
+		if (mx>180&&my>251&&mx<310&&my<380)	this.make_purchase('cue_100_hits')
+		if (mx>330&&my>251&&mx<460&&my<380)	this.make_purchase('cue_500_hits')
+		if (mx>480&&my>251&&mx<610&&my<380)	this.make_purchase('cue_1000_hits')
+		
+		
+	},
+	
+	make_purchase(item){
+		
+		const item_to_hits={cue_100_hits:100,cue_500_hits:500,cue_1000_hits:1000}
+		
+		if (game_platform==='YANDEX') {
+			yndx_payments.purchase({id:item}).then(purchase => {
+				my_data.cues_data[this.shop_cue_id]=item_to_hits[item]
+				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
+				sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
+				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
+				yndx_payments.consumePurchase(purchase.purchaseToken);
+			}).catch(err => {
+				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
+			})
+		}	
+		
+		if (game_platform==='VK') {
+			vkBridge.send('VKWebAppShowOrderBox', {type:'item',item}).then(data =>{
+				my_data.cues_data[this.shop_cue_id]=item_to_hits[item]
+				my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
+				sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
+				my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
+			}).catch((err) => {
+				sys_msg.add(['Ошибка при покупке!','Error!'][LANG]);
+			});
+		}	
+		
+	},
+
 	async counume_yndx_purchases(){
 
 		if(!yndx_payments) return;
@@ -3239,7 +3260,14 @@ pref={
 			}
 		}));
 
+	},
+
+	close_down(){
+		
+		
+		
 	}
+	
 }
 
 levels={
@@ -6861,6 +6889,25 @@ lobby={
 
 	},
 
+	shop_btn_down(){
+		
+		if (!lobby.let_it)
+			return
+		
+		
+		//если какая-то анимация
+		if (anim3.any_on()) {
+			sound.play('locked');
+			return
+		};
+
+		sound.play('click');
+		
+		shop.activate()
+		
+		
+	},
+
 	players_list_updated(players) {
 
 		//это столы
@@ -8601,7 +8648,7 @@ async function define_platform_and_language(p) {
 async function init_game_env(p) {
 
 	git_src="https://akukamil.github.io/pool/"
-	//git_src=""
+	git_src=""
 	await define_platform_and_language(p);
 		
 	//идентификация
@@ -8897,7 +8944,7 @@ async function init_game_env(p) {
 	main_menu.activate();
 
 	//покупки яндекса
-	pref.counume_yndx_purchases()
+	shop.counume_yndx_purchases()
 		
 	//гейм реди для бриджа
 	if(game_platform==='PG') bridge.platform.sendMessage("game_ready")
