@@ -2730,7 +2730,7 @@ pref={
 	activate(){
 		
 		
-		this.show_shop()
+		//this.show_shop()
 
 		//последние изменения имен и аватар
 		my_data.avatar_tm=safe_ls('pool_avatar_tm')||1;
