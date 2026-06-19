@@ -3250,7 +3250,7 @@ shop={
 		sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
 		my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
 		
-	}
+	},
 
 	async counume_yndx_purchases(){
 
