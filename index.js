@@ -4535,7 +4535,11 @@ bot_game={
 		this.on=1
 		my_turn=1
 		opponent=this	
-		opp_data.cue_id=hf.randIntInc(10,1000)
+		
+		//загружаем кий
+		const date=new Date(SERVER_TM)
+		const hour=date.getHours()
+		opp_data.cue_id=gif_sel.get_unique_int(3,999,hour,my_data.uid,3)[0]
 		common.activate(hf.randIntInc(100,90999))	
 		
 		//кнопка выхода
