@@ -2992,8 +2992,8 @@ pref={
 		const next_cue_id=cues_i_have[cur_cue_pos+1]
 		const prv_cue_id=cues_i_have[cur_cue_pos-1]
 		
-		if (dir>0&&next_cue_id) this.cur_cue_id=next_cue_id
-		if (dir<0&&prv_cue_id) this.cur_cue_id=prv_cue_id
+		if (dir>0&&next_cue_id!=null) this.cur_cue_id=next_cue_id
+		if (dir<0&&prv_cue_id!=null) this.cur_cue_id=prv_cue_id
 			
 		
 		if (this.cur_cue_id===my_data.cue_id)
