@@ -2983,12 +2983,11 @@ pref={
 			sound.play('locked');
 			return
 		}
-		
-		
+				
 		if(dir) sound.play('click');
 
 		//листаем по объекту
-		const cues_i_have=Object.keys(my_data.cues_data)
+		const cues_i_have=Object.keys(my_data.cues_data).map(Number);
 		const cur_cue_pos=cues_i_have.findIndex(v=>v==this.cur_cue_id)
 		const next_cue_id=cues_i_have[cur_cue_pos+1]
 		const prv_cue_id=cues_i_have[cur_cue_pos-1]
@@ -8775,7 +8774,7 @@ async function init_game_env(p) {
 	my_data.cue_id = other_data?.cue_id ||0
 	my_data.cues_data = other_data?.cues_data||{0:999}
 	my_data.bonuses=safe_ls('pool_bonuses')||0
-	
+	my_data.cues_data[0]=999
 	if(Array.isArray(my_data.cues_data)) my_data.cues_data={0:999}
 	
 	//бонус новым игрокам
