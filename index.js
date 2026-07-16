@@ -3165,9 +3165,10 @@ shop={
 		}
 				
 		//загружаем кий
-		const date=new Date(SERVER_TM)
-		const hour=date.getHours()
-		this.shop_cue_id=gif_sel.get_unique_int(3,999,hour,my_data.uid,3)[0]
+		const millisecondsInDay = 24 * 60 * 60 * 1000
+		const daysSinceEpoch = Math.floor(Date.now() / millisecondsInDay)
+		const str=my_data.uid+daysSinceEpoch
+		this.shop_cue_id=gif_sel.get_unique_int(3,999,str,3)[0]
 		
 		cues_textures[this.shop_cue_id]=await common.load_cue_texture(this.shop_cue_id)	
 		objects.shop_cue.texture=cues_textures[this.shop_cue_id]
@@ -4537,9 +4538,10 @@ bot_game={
 		opponent=this	
 		
 		//загружаем кий
-		const date=new Date(SERVER_TM)
-		const hour=date.getHours()
-		opp_data.cue_id=gif_sel.get_unique_int(3,999,hour,my_data.uid,3)[0]
+		const millisecondsInDay = 24 * 60 * 60 * 1000
+		const daysSinceEpoch = Math.floor(Date.now() / millisecondsInDay)
+		const str=my_data.uid+daysSinceEpoch
+		opp_data.cue_id=gif_sel.get_unique_int(3,999,str,3)[0]
 		common.activate(hf.randIntInc(100,90999))	
 		
 		//кнопка выхода
@@ -8002,7 +8004,14 @@ gif_sel={
 	
 	activate(){
 		
-		if (!this.ids) this.ids=this.get_unique_int(100,typeof MAX_GIF_ID_INC !== 'undefined' ? MAX_GIF_ID_INC : 200,new Date(SERVER_TM).getDate(),my_data.uid)
+		if (!this.ids){
+			
+			const millisecondsInDay = 24 * 60 * 60 * 1000
+			const daysSinceEpoch = Math.floor(Date.now() / millisecondsInDay)
+			const str=my_data.uid+daysSinceEpoch
+			this.ids=this.get_unique_int(100,typeof MAX_GIF_ID_INC !== 'undefined' ? MAX_GIF_ID_INC : 200,str)
+			
+		} 
 		this.sel_id=-1
 		objects.gif_sel_hl.visible=false
 		objects.gif_sel_send_btn.visible=false
@@ -8079,9 +8088,9 @@ gif_sel={
 		
 	},
 		
-	get_unique_int(min,max,day,uid,len=4) {//inclusive
+	get_unique_int(min,max,str,len=4) {//inclusive
 		
-		let seed = hf.hash(`${day}-${uid}`);
+		let seed = hf.hash(str);
 
 		function random() {
 			seed |= 0;
