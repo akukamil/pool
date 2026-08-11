@@ -3125,8 +3125,7 @@ pref={
 
 }
 
-shop={
-	
+shop={	
 
 	shop_cue_id:0,
 	shop_catalog:0,
@@ -3173,6 +3172,9 @@ shop={
 		cues_textures[this.shop_cue_id]=await common.load_cue_texture(this.shop_cue_id)	
 		objects.shop_cue.texture=cues_textures[this.shop_cue_id]
 		objects.shop_cue_name.text=cues_id_to_name[this.shop_cue_id]
+		
+		const aspect_ratio=objects.shop_cue.texture.width/objects.shop_cue.texture.height
+		objects.shop_cue.height=0.9*objects.shop_cue.width/aspect_ratio
 		
 		const items=['cue_100_hits','cue_500_hits','cue_1000_hits']
 		for (let i=0;i<3;i++){
