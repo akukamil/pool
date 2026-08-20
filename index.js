@@ -1245,7 +1245,7 @@ chat={
 	block_next_click:0,
 	kill_next_click:0,
 	delete_message_mode:0,
-	games_to_chat:10,
+	games_to_chat:20,
 	bonuses_to_gif:3,
 	payments:0,
 	processing:0,
