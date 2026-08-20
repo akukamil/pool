@@ -8972,6 +8972,9 @@ async function init_game_env(p) {
 		
 	top3.activate()
 
+	//ready api yandex
+	if (game_platform==='YANDEX')
+		window.ysdk.features.LoadingAPI.ready()
 
 }
 
