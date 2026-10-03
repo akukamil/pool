@@ -3247,7 +3247,7 @@ shop={
 		
 		my_ws.ref(`players/${my_data.uid}/cues_data`).set(my_data.cues_data)	
 		sys_msg.add(['Вы купили кий. Выберите его в настройках!','success!'][LANG]);
-		my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
+		my_ws.safe_send({cmd:'logToFile',file:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item}});
 		
 		this.close()
 		
